@@ -1,25 +1,75 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react"; // 1. เพิ่ม useMemo
+import Swal from "sweetalert2";
+import axios from "axios";
+import config from "../config";
+import { useNavigate } from "react-router-dom"; // แนะนำให้เพิ่มเพื่อเปลี่ยนหน้า
 
 function Login() {
-  const [usr, setUsr] = useState("");
-  const [pwd, setPwd] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // สำหรับเปลี่ยนหน้าหลังจาก Login สำเร็จ
 
-  // สร้าง Array ของตัวเลขสุ่มสำหรับตกแต่งพื้นหลัง (เช่น 20 ตัว)
-  const backgroundNumbers = Array.from({ length: 25 }, (_, i) => ({
-    id: i,
-    number: Math.floor(Math.random() * 100)
-      .toString()
-      .padStart(2, "0"), // ตัวเลข 00-99
-    top: `${Math.random() * 100}%`,
-    left: `${Math.random() * 100}%`,
-    size: `${Math.random() * 4 + 2}rem`, // ขนาดสุ่ม 2rem - 6rem
-    opacity: Math.random() * 0.1 + 0.02, // ความใสสุ่ม 0.02 - 0.12
-    rotate: `${Math.random() * 60 - 30}deg`, // หมุนสุ่ม -30 ถึง 30 องศา
-  }));
+  const handleSingIn = async () => {
+    try {
+      const payload = {
+        usr: username,
+        pwd: password,
+      };
+
+      await axios
+        .post(config.apiPath + "/api/user/login", payload)
+        .then((res) => {
+          if (res.data.token !== undefined) {
+            const token = res.data.token.access_Token;
+            localStorage.setItem("lotto_token", res.data.token.access_Token);
+
+            //navigate("/home");
+           /* const _config = {
+                headers: {
+                    Authorization: 'Bearer ' + token
+                }
+            }
+            const res2 = await axios.get(config.apiPath + '/api/user/info', _config);
+            console.log(res2.data);*/
+        
+
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "เข้าสู่ระบบไม่สำเร็จ",
+              text: res.data.message || "เกิดข้อผิดพลาดในการเข้าสู่ระบบ",
+            });
+          }
+        }).catch(err => {
+            throw err.response.data || new Error("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
+        })
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "เข้าสู่ระบบไม่สำเร็จ",
+        text:
+          error.response?.data?.message || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+      });
+    }
+  };
+
+  // 2. ใช้ useMemo ล้อมรอบไว้ เพื่อไม่ให้สุ่มใหม่เวลาพิมพ์ (แก้ปัญหาเลขวิ่งรำคาญตา)
+  const backgroundNumbers = useMemo(() => {
+    return Array.from({ length: 25 }, (_, i) => ({
+      id: i,
+      number: Math.floor(Math.random() * 100)
+        .toString()
+        .padStart(2, "0"),
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      size: `${Math.random() * 4 + 2}rem`,
+      opacity: Math.random() * 0.1 + 0.02,
+      rotate: `${Math.random() * 60 - 30}deg`,
+    }));
+  }, []); // [] ว่างๆ คือรันแค่ครั้งแรกที่เปิดหน้าเว็บ
 
   return (
     <div style={styles.container}>
-      {/* วนลูปสร้างตัวเลขตกแต่งพื้นหลัง */}
       {backgroundNumbers.map((item) => (
         <div
           key={item.id}
@@ -49,7 +99,8 @@ function Login() {
             type="text"
             style={styles.input}
             placeholder="Username..."
-            onChange={(e) => setUsr(e.target.value)}
+            value={username} // ผูกค่า
+            onChange={(e) => setUsername(e.target.value)}
           />
         </div>
 
@@ -59,11 +110,15 @@ function Login() {
             type="password"
             style={styles.input}
             placeholder="Password..."
-            onChange={(e) => setPwd(e.target.value)}
+            value={password} // ผูกค่า
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSingIn()} // กด Enter เพื่อ Login ได้เลย
           />
         </div>
 
-        <button style={styles.button}>เข้าสู่ระบบรับทรัพย์</button>
+        <button onClick={handleSingIn} style={styles.button}>
+          เข้าสู่ระบบรับทรัพย์
+        </button>
 
         <div style={styles.footer}>
           <span style={{ color: "#FFD700" }}>●</span> มั่งคั่ง มั่นคง ปลอดภัย{" "}
@@ -74,6 +129,7 @@ function Login() {
   );
 }
 
+// ... styles เหมือนเดิมของคุณ ...
 const styles = {
   container: {
     height: "100vh",
@@ -88,15 +144,13 @@ const styles = {
     fontFamily: "'Kanit', sans-serif",
     position: "relative",
   },
-  // สไตล์พื้นฐานของตัวเลขตกแต่ง
   lottoBallBase: {
     position: "absolute",
     fontWeight: "bold",
-    color: "#FFD700", // สีทอง
+    color: "#FFD700",
     zIndex: 0,
-    userSelect: "none", // ป้องกันการคลุมดำเลือกตัวเลข
+    userSelect: "none",
   },
-
   card: {
     backgroundColor: "rgba(255, 255, 255, 0.08)",
     backdropFilter: "blur(10px)",
@@ -107,9 +161,8 @@ const styles = {
     width: "100%",
     maxWidth: "400px",
     textAlign: "center",
-    zIndex: 1, // ให้อยู่เหนือตัวเลขพื้นหลัง
+    zIndex: 1,
   },
-  // ... (styles ส่วน header, formGroup, label, input, button, footer เหมือนเดิม) ...
   header: { marginBottom: "30px" },
   logoCircle: {
     width: "60px",

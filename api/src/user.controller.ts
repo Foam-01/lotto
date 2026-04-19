@@ -7,14 +7,21 @@ import {
   Post,
   Put,
   UnauthorizedException,
+  Headers,
 } from '@nestjs/common';
 // 1. ต้องมีบรรทัดนี้เพื่อให้เรียกใช้ Prisma.User และ Prisma.PrismaClient ได้
 import * as Prisma from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaClient } from '@prisma/client';
 import { AuthService } from './auth.service';
+import e from 'express';
 
 @Controller('/api/user')
 export class UserController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   // สร้าง instance สำหรับต่อ Database
   private prisma = new Prisma.PrismaClient();
@@ -104,6 +111,18 @@ export class UserController {
       throw new UnauthorizedException('username or password invalid');
     } catch (e) {
       return { status: 401, message: e.message };
+    }
+  }
+
+  @Get('info')
+  async info(@Headers('Authorization') auth: string) {
+    try {
+      const jwt = auth.replace('Bearer ', '');
+      const payload = this.jwtService.decode(jwt);
+
+      return { payload: payload };
+    } catch (e) {
+      return { message: e.message };
     }
   }
 }
