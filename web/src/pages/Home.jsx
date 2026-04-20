@@ -4,6 +4,7 @@ import config from "../config";
 import Swal from "sweetalert2";
 import { Link, useNavigate } from "react-router-dom";
 import "./Home.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 function Home(props) {
   const [userName, setUserName] = useState("");
@@ -39,14 +40,20 @@ function Home(props) {
         </div>
 
         <div className="menu">
+          {/* ใช้ bi-house-door-fill ให้ดูเป็น "หน้าแรก" ที่ชัดเจนขึ้น */}
           <Link to="/home" className="menu-item">
-            <i className="bi bi-grid-1x2-fill"></i> <span>หน้าแรก</span>
+            <i className="bi bi-house-door-fill"></i> <span>หน้าแรก</span>
           </Link>
+
+          {/* ใช้ bi-shop-window ให้ดูเป็นหน้าร้าน */}
           <Link to="/company" className="menu-item">
-            <i className="bi bi-shop"></i> <span>ข้อมูลร้าน</span>
+            <i className="bi bi-shop-window"></i> <span>ข้อมูลร้าน</span>
           </Link>
+
+          {/* ใช้ bi-ticket-detailed-fill ให้ดูเหมือนสลากที่มีรายละเอียด */}
           <Link to="/lotto" className="menu-item">
-            <i className="bi bi-ticket-perforated"></i> <span>ล็อตเตอรี่</span>
+            <i className="bi bi-ticket-detailed-fill"></i>{" "}
+            <span>ล็อตเตอรี่</span>
           </Link>
         </div>
 

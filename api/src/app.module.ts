@@ -6,6 +6,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { CompanyController } from './company.controller';
+import { LottoController } from './lotto.controller';
+
 
 
 @Module({
@@ -15,7 +17,7 @@ import { CompanyController } from './company.controller';
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  controllers: [AppController, UserController, CompanyController],
+  controllers: [AppController, UserController, CompanyController, LottoController],
   providers: [AppService, AuthService, JwtStrategy],
 })
 export class AppModule {}

@@ -9,6 +9,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Company from './pages/company';
+import Lotto from './pages/Lotto';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: "/company",
     element: <Company />,
+  },
+  {
+    path: "/Lotto",
+    element: <Lotto />,
   }
 ]);
 

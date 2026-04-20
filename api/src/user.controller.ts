@@ -37,7 +37,7 @@ export class UserController {
       return {
         status: 500,
         message: 'ไม่สามารถดึงข้อมูลได้',
-        error: e.message,
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
       };
     }
   }
@@ -53,7 +53,7 @@ export class UserController {
       return {
         status: 500,
         message: 'ไม่สามารถสร้าง User ได้ (อาจมีชื่อผู้ใช้ซ้ำ)',
-        error: e.message,
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
       };
     }
   }
@@ -70,7 +70,7 @@ export class UserController {
       return {
         status: 500,
         message: 'ไม่สามารถแก้ไขข้อมูลได้',
-        error: e.message,
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
       };
     }
   }
@@ -86,7 +86,7 @@ export class UserController {
       return {
         status: 500,
         message: 'ไม่สามารถลบข้อมูลได้ (อาจไม่มี ID นี้ในระบบ)',
-        error: e.message,
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
       };
     }
   }
@@ -110,7 +110,8 @@ export class UserController {
 
       throw new UnauthorizedException('username or password invalid');
     } catch (e) {
-      return { status: 401, message: e.message };
+      return { status: 401,
+         message: 'ไม่สามารถเข้าสู่ระบบได้', error: 'ข้อมูลอาจไม่ถูกต้อง' };
     }
   }
 
