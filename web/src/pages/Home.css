@@ -1,0 +1,111 @@
+/* จัดการโครงสร้างรวม */
+.layout-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    /* สีพื้นหลังเทาอ่อนให้สบายตา */
+}
+
+/* Sidebar คงที่ฝั่งซ้าย */
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    background-color: #1a1a2e;
+    /* น้ำเงินเข้มพรีเมียม */
+    padding: 30px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    color: #ffffff;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.sidebar .title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #FFD700;
+    /* สีทอง */
+    text-align: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    letter-spacing: 1px;
+}
+
+.user-info {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* เมนูหลัก */
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #adb5bd;
+    text-decoration: none;
+    padding: 12px 15px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.menu-item i {
+    font-size: 1.2rem;
+}
+
+.menu-item:hover {
+    background: rgba(255, 215, 0, 0.1);
+    color: #FFD700;
+    transform: translateX(5px);
+}
+
+/* ส่วนล่างสุด - ปุ่มออกจากระบบ */
+.logout-section {
+    margin-top: auto;
+    padding-bottom: 20px;
+    /* เว้นระยะจากขอบล่าง Windows */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+
+.logout-link {
+    color: #ff7675 !important;
+}
+
+.logout-link:hover {
+    background: rgba(255, 118, 117, 0.1) !important;
+}
+
+/* ส่วนเนื้อหาฝั่งขวา */
+.content {
+    margin-left: 280px;
+    /* เว้นที่เท่ากับความกว้าง Sidebar */
+    padding: 40px;
+    flex: 1;
+    box-sizing: border-box;
+    min-height: 100vh;
+}
+
+/* กล่องเนื้อหาในแต่ละหน้า */
+.welcome-box {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e1e4e8;
+}

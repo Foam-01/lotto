@@ -117,12 +117,16 @@ export class UserController {
   @Get('info')
   async info(@Headers('Authorization') auth: string) {
     try {
+      if (!auth) throw new Error('Unauthorized');
       const jwt = auth.replace('Bearer ', '');
-      const payload = this.jwtService.decode(jwt);
+
+      // ใช้ verify แทน decode เพื่อเช็คว่า token ปลอมหรือหมดอายุไหม
+      const payload = this.jwtService.verify(jwt);
 
       return { payload: payload };
     } catch (e) {
-      return { message: e.message };
+      // ถ้าพัง (token ปลอม/หมดอายุ) ส่ง 401 กลับไปเลย
+      throw new UnauthorizedException('Token invalid or expired');
     }
   }
 }

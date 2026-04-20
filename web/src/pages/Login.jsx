@@ -16,33 +16,24 @@ function Login() {
         pwd: password,
       };
 
-      await axios
-        .post(config.apiPath + "/api/user/login", payload)
-        .then((res) => {
-          if (res.data.token !== undefined) {
-            const token = res.data.token.access_Token;
-            localStorage.setItem("lotto_token", res.data.token.access_Token);
+      const res = await axios.post(config.apiPath + "/api/user/login", payload);
 
-            //navigate("/home");
-           /* const _config = {
-                headers: {
-                    Authorization: 'Bearer ' + token
-                }
-            }
-            const res2 = await axios.get(config.apiPath + '/api/user/info', _config);
-            console.log(res2.data);*/
-        
+      // เช็คว่ามี res.data.token ส่งมาจาก NestJS ไหม
+      if (res.data && res.data.token) {
+        // บันทึกด้วย Key ชื่อ 'token'
+        localStorage.setItem("token", res.data.token);
 
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "เข้าสู่ระบบไม่สำเร็จ",
-              text: res.data.message || "เกิดข้อผิดพลาดในการเข้าสู่ระบบ",
-            });
-          }
-        }).catch(err => {
-            throw err.response.data || new Error("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
-        })
+        await Swal.fire({
+          icon: "success",
+          title: "เข้าสู่ระบบสำเร็จ",
+          timer: 1000,
+          showConfirmButton: false,
+        });
+
+        navigate("/home");
+      } else {
+        throw new Error("ไม่ได้รับข้อมูล Token จากระบบ");
+      }
     } catch (error) {
       Swal.fire({
         icon: "error",
