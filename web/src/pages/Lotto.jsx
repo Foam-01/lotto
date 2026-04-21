@@ -7,13 +7,14 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function Lotto() {
-  // 👇 โลจิกของคุณล้วนๆ ไม่แตะต้องเลยครับ
+  // 👇 โลจิกของคุณล้วนๆ
   const [number, setNumber] = useState("");
   const [roundNumber, setRoundNumber] = useState("");
   const [bookNumber, setBookNumber] = useState("");
   const [cost, setCost] = useState("");
   const [sale, setSale] = useState("");
   const [lottos, setLottos] = useState([]);
+  const [id, setId] = useState(0);
 
   const myRef = useRef();
 
@@ -46,10 +47,18 @@ function Lotto() {
         cost: parseInt(cost),
         sale: parseInt(sale),
       };
-      const res = await axios.post(
+      let res;
+      
+      if (id === 0) {
+
+      
+      res = await axios.post(
         config.apiPath + "/api/lotto/create",
         payload,
-      );
+      )
+    } else {
+        res = await axios.put(config.apiPath + '/api/lotto/edit/' + id, payload);
+    }
 
       if (res.data.result.id !== undefined) {
         Swal.fire({
@@ -76,7 +85,56 @@ function Lotto() {
       });
     }
   };
-  // 👆 จบส่วนโลจิก
+
+  const handleDelete = async (item) => {
+    Swal.fire({
+      icon: "warning",
+      title: "คุณต้องการลบสลากนี้หรือไม่?",
+      text: `เลขสลาก: ${item.numbers}`,
+      showCancelButton: true,
+      confirmButtonColor: "#d63031",
+      confirmButtonText: "ยืนยันการลบ",
+      cancelButtonText: "ยกเลิก",
+    }).then(async (res) => {
+      if (res.isConfirmed) {
+        const toastId = toast.loading("กำลังลบข้อมูล...");
+
+        try {
+          const resFromApi = await axios.delete(
+            config.apiPath + "/api/lotto/remove/" + item.id,
+          );
+
+          if (resFromApi.data.result.id !== undefined) {
+            toast.update(toastId, {
+              render: `ลบเลขสลาก ${item.numbers} ออกจากระบบแล้ว`,
+              type: "success",
+              isLoading: false,
+              autoClose: 2000,
+            });
+            fetchData();
+            setId(0);
+          }
+        } catch (e) {
+          toast.update(toastId, {
+            render: "ไม่สามารถลบข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
+            type: "error",
+            isLoading: false,
+            autoClose: 3000,
+          });
+        }
+      }
+    });
+  };
+
+  const handleEdit = (item) => {
+    setNumber(item.numbers);
+    setRoundNumber(item.roundNumber);
+    setBookNumber(item.bookNumber);
+    setCost(item.cost);
+    setSale(item.sale);
+    setId(item.id);
+  }
+
 
   return (
     <Home>
@@ -106,6 +164,7 @@ function Lotto() {
             <div style={{ marginBottom: "25px" }}>
               <label style={styles.label}>เลขสลาก (6 หลัก)</label>
               <input
+              value={number}
                 ref={myRef}
                 type="text"
                 style={styles.bigInput}
@@ -121,6 +180,7 @@ function Lotto() {
               <div>
                 <label style={styles.label}>เล่มที่</label>
                 <input
+                value={bookNumber}
                   type="text"
                   style={styles.standardInput}
                   placeholder="เช่น 15"
@@ -132,6 +192,7 @@ function Lotto() {
               <div>
                 <label style={styles.label}>งวดที่</label>
                 <input
+                value={roundNumber}
                   type="text"
                   style={styles.standardInput}
                   placeholder="เช่น 30"
@@ -143,6 +204,7 @@ function Lotto() {
               <div>
                 <label style={styles.label}>ราคาทุน (฿)</label>
                 <input
+                value={cost}
                   type="number"
                   style={styles.standardInput}
                   placeholder="70.00"
@@ -154,6 +216,7 @@ function Lotto() {
               <div>
                 <label style={styles.label}>ราคาขาย (฿)</label>
                 <input
+                value={sale}
                   type="number"
                   style={styles.goldInput}
                   placeholder="80.00"
@@ -194,9 +257,11 @@ function Lotto() {
               <thead>
                 <tr>
                   <th style={styles.th}>เลขสลาก</th>
-                  <th style={styles.th}>งวดที่ / เล่มที่</th>
-                  <th style={styles.th}>ราคาทุน</th>
-                  <th style={styles.th}>ราคาขาย</th>
+                  <th style={{ ...styles.th, textAlign: "center" }}>
+                    งวดที่ / เล่มที่
+                  </th>
+                  <th style={{ ...styles.th, textAlign: "right" }}>ราคาทุน</th>
+                  <th style={{ ...styles.th, textAlign: "right" }}>ราคาขาย</th>
                   <th style={{ ...styles.th, textAlign: "center" }}>จัดการ</th>
                 </tr>
               </thead>
@@ -205,13 +270,17 @@ function Lotto() {
                   lottos.map((item, index) => (
                     <tr key={item.id || index} style={styles.tableRow}>
                       <td style={styles.tdLottoNo}>{item.numbers}</td>
-                      <td style={styles.td}>
+                      <td style={{ ...styles.td, textAlign: "center" }}>
                         {item.roundNumber} / {item.bookNumber}
                       </td>
-                      <td style={styles.td}>฿{item.cost}</td>
-                      <td style={styles.tdGold}>฿{item.sale}</td>
+                      <td style={{ ...styles.td, textAlign: "right" }}>
+                        ฿{item.cost.toLocaleString("th-TH")}
+                      </td>
+                      <td style={{ ...styles.tdGold, textAlign: "right" }}>
+                        ฿{item.sale.toLocaleString("th-TH")}
+                      </td>
 
-                      {/* 👇 จัดเรียงปุ่มให้สวยงาม ไม่เบียดกัน 👇 */}
+                      {/* จัดเรียงปุ่มให้สวยงาม */}
                       <td style={{ ...styles.td, textAlign: "center" }}>
                         <div
                           style={{
@@ -221,18 +290,16 @@ function Lotto() {
                           }}
                         >
                           <button
-                            style={styles.btnDelete}
-                            onClick={() => console.log("กดปุ่มลบ ID:", item.id)}
-                          >
-                            🗑️ ลบ
-                          </button>
-                          <button
                             style={styles.btnEdit}
-                            onClick={() =>
-                              console.log("กดปุ่มแก้ไข ID:", item.id)
-                            }
+                            onClick={e => handleEdit(item)}
                           >
                             ✏️ แก้ไข
+                          </button>
+                          <button
+                            style={styles.btnDelete}
+                            onClick={(e) => handleDelete(item)}
+                          >
+                            🗑️ ลบ
                           </button>
                         </div>
                       </td>
@@ -253,11 +320,12 @@ function Lotto() {
           </div>
         </div>
       </div>
+      <ToastContainer position="top-right" theme="colored" />
     </Home>
   );
 }
 
-// 🟢 CSS ความสวยงาม (ลบของที่ซ้ำซ้อนออกให้แล้วครับ)
+// 🟢 CSS ความสวยงาม
 const styles = {
   container: {
     maxWidth: "1000px",

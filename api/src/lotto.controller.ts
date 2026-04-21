@@ -40,4 +40,29 @@ export class LottoController {
             orderBy: { id: 'desc' },
         }) };
     }
+
+    @Delete('remove/:id')
+    async remove(@Param('id') id : string ) {
+        try {
+            const res = await this.prisma.lotto.delete({
+                where: { id: Number(id) },
+            })
+            return { result: res };
+        } catch (e) {
+            return {
+                status: 500,
+                message: 'ไม่สามารถลบข้อมูลได้ (อาจไม่มี ID นี้ในระบบ)',
+                error: 'ข้อมูลอาจไม่ถูกต้อง',
+            };
+        }
+    }
+
+    @Put('edit/:id')
+    async edit(@Body() lotto: Lotto, @Param('id') id: string) {
+        return { result: await this.prisma.lotto.update({
+            where: { id: Number(id) },
+            data: lotto,
+        }) };
+    }
+
 }

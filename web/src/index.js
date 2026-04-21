@@ -10,10 +10,15 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import Company from './pages/company';
 import Lotto from './pages/Lotto';
+import Index from './pages/Index';
 
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <Index />,
+  },
+  {
+    path: "/login",
     element: <Login />,
   },
   {
