@@ -9,9 +9,12 @@ import {
   UnauthorizedException,
   Headers,
   Query,
+
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import type { Lotto } from '@prisma/client';
+import { start } from 'repl';
+import { startWith } from 'rxjs';
 
 @Controller('/api/lotto')
 export class LottoController {
@@ -63,6 +66,31 @@ export class LottoController {
             where: { id: Number(id) },
             data: lotto,
         }) };
+    }
+
+    @Post('search')
+    async search(
+        @Body('numbers') input: string,
+        @Body('position') position: string,
+    ) {
+        let condition  = {};
+
+        if (position == 'start') {
+            condition = {
+                startsWith: input,
+            };
+        } else {
+            condition = {
+                endsWith: input,
+            };
+        }
+        return {
+            results: await this.prisma.lotto.findMany({
+                where: {
+                    numbers: condition,
+                }
+            })
+        }
     }
 
 }

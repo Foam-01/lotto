@@ -1,6 +1,7 @@
 import axios from "axios";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import config from "../config";
+import Swal from "sweetalert2";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -10,27 +11,24 @@ function sanitize(val) {
   return val.replace(/[^0-9]/g, "").slice(0, 1);
 }
 
-function matchesQuery(numbers, digits) {
-  const query = digits.filter(Boolean).join("");
-  if (!query) return true;
-  if (digits.every(Boolean)) return numbers === query;
-  return numbers.startsWith(query) || numbers.includes(query);
-}
-
+// 🌟 อัปเกรด HighlightNumber: เทียบทีละหลักตามตำแหน่งเป๊ะๆ (Real-time) 🌟
 function HighlightNumber({ numbers, digits }) {
-  const query = digits.filter(Boolean).join("");
-  if (!query) return <span style={styles.ticketRedNumber}>{numbers}</span>;
-
-  const idx = numbers.indexOf(query);
-  if (idx === -1) return <span style={styles.ticketRedNumber}>{numbers}</span>;
+  // ถ้าไม่ได้พิมพ์อะไรเลย ให้แสดงตัวเลขปกติ
+  if (!digits || digits.every((d) => d === "")) {
+    return <span style={styles.ticketRedNumber}>{numbers}</span>;
+  }
 
   return (
     <span style={styles.ticketRedNumber}>
-      {numbers.slice(0, idx)}
-      <span style={styles.matchHighlight}>
-        {numbers.slice(idx, idx + query.length)}
-      </span>
-      {numbers.slice(idx + query.length)}
+      {numbers.split("").map((char, index) => {
+        // เช็คว่าตำแหน่งที่พิมพ์ ตรงกับตำแหน่งของตัวเลขสลากใบนี้ไหม
+        const isMatch = digits[index] !== "" && digits[index] === char;
+        return (
+          <span key={index} style={isMatch ? styles.matchHighlight : {}}>
+            {char}
+          </span>
+        );
+      })}
     </span>
   );
 }
@@ -46,13 +44,14 @@ function Index() {
 
   const inputRefs = useRef([]);
 
-  // ── fetch ─────────────────────────────────────────────────────────────────
+  // ── fetch เริ่มต้น ────────────────────────────────────────────────────────
   useEffect(() => {
     fetchLottos();
   }, []);
 
   const fetchLottos = async () => {
     setLoading(true);
+    setSearchQuery("");
     try {
       const res = await axios.get(config.apiPath + "/api/lotto/list");
       setLottos(res.data.result ?? []);
@@ -85,19 +84,59 @@ function Index() {
       });
       inputRefs.current[idx - 1]?.focus();
     }
-    if (e.key === "Enter") handleSearch();
+    if (e.key === "Enter") handleSearchStartEnd();
   };
 
   const handleClear = () => {
     setDigits(Array(NUM_DIGITS).fill(""));
-    setSearchQuery("");
     inputRefs.current[0]?.focus();
+    fetchLottos(); // ล้างแล้วดึงใหม่หมด
   };
 
-  // ── search ────────────────────────────────────────────────────────────────
-  const handleSearch = useCallback(() => {
-    setSearchQuery(digits.filter(Boolean).join(""));
-  }, [digits]);
+  // ── 🚀 SEARCH LOGIC (เทียบตำแหน่งเป๊ะๆ 100%) ──────────────────────────────
+  const handleSearchStartEnd = async () => {
+    const isAnyFilled = digits.some((d) => d !== "");
+
+    // ตั้งค่าคำค้นหาเอาไว้โชว์ตอนไม่เจอหวย
+    setSearchQuery(digits.join(""));
+
+    if (!isAnyFilled) {
+      fetchLottos();
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // 🌟 เพื่อความแม่นยำ 100% เราจะดึงข้อมูลมาคัดกรองหน้าบ้าน (Filter) ด้วยตำแหน่งเป๊ะๆ
+      // เพราะ API เดิม (/search) ใช้แค่ start/end ทำให้หาแบบเว้นวรรคช่องไม่ได้ครับ
+      const res = await axios.get(config.apiPath + "/api/lotto/list");
+      const allLottos = res.data.result ?? [];
+
+      const exactMatches = allLottos.filter((lotto) => {
+        // เช็คทีละตำแหน่ง (Index 0-5)
+        for (let i = 0; i < 6; i++) {
+          // ถ้าตำแหน่งไหนกรอกเลขไว้ แต่เลขหวยใบนี้ไม่ตรงกัน -> คัดทิ้งเลย
+          if (digits[i] !== "" && lotto.numbers[i] !== digits[i]) {
+            return false;
+          }
+        }
+        return true; // ถ้าผ่านทุกด่าน แสดงว่าตรงตามตำแหน่งเป๊ะ!
+      });
+
+      setLottos(exactMatches);
+    } catch (e) {
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: "ไม่สามารถค้นหาสลากได้ กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#ea580c",
+      });
+      setLottos([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // ── cart feedback ─────────────────────────────────────────────────────────
   const handleAddCart = (id) => {
@@ -107,61 +146,99 @@ function Index() {
     }, 1500);
   };
 
-  // ── derived ───────────────────────────────────────────────────────────────
   const filledCount = digits.filter(Boolean).length;
-  const partialQuery = digits.filter(Boolean).join("");
-  const liveMatchCount = lottos.filter((l) =>
-    matchesQuery(l.numbers, digits),
-  ).length;
-
-  const displayList = lottos.filter((l) =>
-    matchesQuery(
-      l.numbers,
-      searchQuery
-        ? searchQuery
-            .split("")
-            .concat(Array(NUM_DIGITS - searchQuery.length).fill(""))
-        : digits,
-    ),
-  );
 
   // ── render ────────────────────────────────────────────────────────────────
   return (
     <div style={styles.page}>
-      {/* 🌟 Background Decorations (ทำให้พื้นหลังไม่โล่ง) 🌟 */}
-      <div style={styles.bgPattern}></div>
-      <div style={styles.glowBlobTopRight}></div>
-      <div style={styles.glowBlobBottomLeft}></div>
+      <style>
+        {`
+          @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes floatUpDown {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+          }
+          .floating-icon {
+            position: fixed;
+            animation: floatUpDown 6s ease-in-out infinite;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.15;
+          }
+        `}
+      </style>
 
-      <div style={{ ...styles.floatingIcon, top: "25%", left: "5%" }}>🐾</div>
+      {/* 🌟 Background Decorations 🌟 */}
+      <div style={styles.sunburstBg}></div>
+      <div style={styles.bgPattern}></div>
+
+      {/* Floating Icons */}
       <div
+        className="floating-icon"
         style={{
-          ...styles.floatingIcon,
-          top: "60%",
-          right: "8%",
-          fontSize: "70px",
-          opacity: 0.05,
+          top: "15%",
+          left: "5%",
+          fontSize: "80px",
+          animationDelay: "0s",
         }}
       >
         💰
       </div>
       <div
+        className="floating-icon"
         style={{
-          ...styles.floatingIcon,
-          top: "80%",
-          left: "10%",
-          fontSize: "40px",
-          transform: "rotate(15deg)",
+          top: "45%",
+          right: "6%",
+          fontSize: "100px",
+          animationDelay: "1s",
+        }}
+      >
+        🐾
+      </div>
+      <div
+        className="floating-icon"
+        style={{
+          top: "75%",
+          left: "8%",
+          fontSize: "60px",
+          animationDelay: "2s",
         }}
       >
         ✨
       </div>
       <div
+        className="floating-icon"
         style={{
-          ...styles.floatingIcon,
-          top: "35%",
+          top: "85%",
           right: "12%",
-          transform: "rotate(25deg)",
+          fontSize: "70px",
+          animationDelay: "0.5s",
+        }}
+      >
+        🍀
+      </div>
+      <div
+        className="floating-icon"
+        style={{
+          top: "30%",
+          left: "20%",
+          fontSize: "50px",
+          animationDelay: "1.5s",
+        }}
+      >
+        💰
+      </div>
+      <div
+        className="floating-icon"
+        style={{
+          top: "60%",
+          right: "25%",
+          fontSize: "40px",
+          animationDelay: "2.5s",
         }}
       >
         🐾
@@ -171,7 +248,6 @@ function Index() {
       <div style={styles.heroSection}>
         <div style={styles.container}>
           <div style={styles.heroGrid}>
-            {/* mascot */}
             <div style={styles.heroLeft}>
               <div style={styles.mascotArea}>
                 <span style={styles.mascotEmoji}>🐈</span>
@@ -182,7 +258,6 @@ function Index() {
               </div>
             </div>
 
-            {/* search card */}
             <div style={styles.searchCard}>
               <div style={styles.searchBody}>
                 <p style={styles.searchLabel}>กรอกตัวเลข ค้นหารางวัลที่ 1</p>
@@ -211,14 +286,15 @@ function Index() {
 
                 {filledCount > 0 && (
                   <p style={styles.liveStatus}>
-                    {filledCount < NUM_DIGITS
-                      ? `กรอก ${filledCount}/${NUM_DIGITS} หลัก — พบสลากที่ตรง ${liveMatchCount} ใบ`
-                      : `ค้นหาเลข ${partialQuery}`}
+                    กำลังระบุตัวเลข... กดปุ่มค้นหาเพื่อดูผลลัพธ์
                   </p>
                 )}
 
                 <div style={styles.btnRow}>
-                  <button style={styles.btnSearch} onClick={handleSearch}>
+                  <button
+                    style={styles.btnSearch}
+                    onClick={handleSearchStartEnd}
+                  >
                     <i className="bi bi-search me-2"></i> ค้นหาสลาก
                   </button>
                 </div>
@@ -242,17 +318,16 @@ function Index() {
         <div style={{ position: "relative", zIndex: 2 }}>
           <h3 style={styles.sectionHeader}>
             <span style={styles.iconPaw}>🐾</span> สลากพร้อมขาย (
-            <span style={styles.countBadge}>{displayList.length} ใบ</span>)
+            <span style={styles.countBadge}>{lottos.length} ใบ</span>)
           </h3>
 
           {loading ? (
             <LoadingDots />
-          ) : displayList.length > 0 ? (
+          ) : lottos.length > 0 ? (
             <div style={styles.gridContainer}>
-              {displayList.map((item, index) => (
+              {lottos.map((item, index) => (
                 <div key={item.id ?? index} style={styles.ticketCard}>
                   <div style={styles.ticketVisual}>
-                    {/* ต้นขั้ว (Stub) */}
                     <div style={styles.ticketStub}>
                       <div style={styles.stubInner}>
                         <div style={styles.stubText}>เลขชุด</div>
@@ -271,20 +346,10 @@ function Index() {
                         <span style={styles.govText}>สลากกินแบ่งรัฐบาล</span>
                         <div style={styles.barcodePlaceholder}></div>
                       </div>
-                      <HighlightNumber
-                        numbers={item.numbers}
-                        digits={
-                          searchQuery
-                            ? searchQuery
-                                .split("")
-                                .concat(
-                                  Array(NUM_DIGITS - searchQuery.length).fill(
-                                    "",
-                                  ),
-                                )
-                            : digits
-                        }
-                      />
+
+                      {/* 🌟 ส่งเลขไปโชว์ Highlight แบบ Real-time 🌟 */}
+                      <HighlightNumber numbers={item.numbers} digits={digits} />
+
                       <div style={styles.ticketBottom}>
                         <div>งวดที่ {item.roundNumber}</div>
                         <div>เล่มที่ {item.bookNumber}</div>
@@ -349,14 +414,28 @@ function EmptyState({ searched, query, onClear }) {
         ...(searched ? styles.emptyStateSearched : {}),
       }}
     >
-      <div style={{ fontSize: "70px" }}>{searched ? "😿" : "😿"}</div>
+      <div
+        style={{
+          fontSize: "70px",
+          filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))",
+        }}
+      >
+        {searched ? "😿" : "😿"}
+      </div>
       {searched ? (
         <>
-          <h4 style={{ color: "#dc2626", marginTop: "15px" }}>
+          <h4
+            style={{
+              color: "#dc2626",
+              marginTop: "15px",
+              fontSize: "24px",
+              fontWeight: "800",
+            }}
+          >
             ไม่พบเลข "{query}"
           </h4>
-          <p style={{ color: "#999", marginBottom: "16px" }}>
-            ลองค้นหาเลขอื่น หรือดูสลากทั้งหมด
+          <p style={{ color: "#999", marginBottom: "16px", fontSize: "16px" }}>
+            ไม่มีสลากที่ตรงเงื่อนไข ลองค้นหาเลขอื่นดูอีกครั้งนะครับ
           </p>
           <button style={styles.btnClearLarge} onClick={onClear}>
             ล้างการค้นหา
@@ -364,10 +443,17 @@ function EmptyState({ searched, query, onClear }) {
         </>
       ) : (
         <>
-          <h4 style={{ color: "#ea580c", marginTop: "15px" }}>
+          <h4
+            style={{
+              color: "#ea580c",
+              marginTop: "15px",
+              fontSize: "24px",
+              fontWeight: "800",
+            }}
+          >
             แผงแมวส้มว่างเปล่า
           </h4>
-          <p style={{ color: "#f59e0b" }}>
+          <p style={{ color: "#f59e0b", fontSize: "16px" }}>
             กำลังวิ่งไปคาบสลากมาเพิ่ม รอก่อนน้า...
           </p>
         </>
@@ -380,63 +466,39 @@ function EmptyState({ searched, query, onClear }) {
 
 const styles = {
   page: {
-    backgroundColor: "#fffbeb", // พื้นหลังสีเหลือง/ส้มอ่อนๆ นวลตา
+    backgroundColor: "#fffbeb",
     minHeight: "100vh",
     paddingBottom: "80px",
     fontFamily: "'Kanit', sans-serif",
     position: "relative",
-    overflowX: "hidden", // 🌟 ป้องกันแสงตกขอบจนเกิด Scroll แนวนอน 🌟
+    overflowX: "hidden",
   },
-
-  // 🌟 Background Decorations 🌟
+  sunburstBg: {
+    position: "fixed",
+    top: "-50%",
+    left: "-50%",
+    width: "200%",
+    height: "200%",
+    background:
+      "repeating-conic-gradient(from 0deg, rgba(251, 191, 36, 0.05) 0deg 15deg, transparent 15deg 30deg)",
+    zIndex: 0,
+    pointerEvents: "none",
+    animation: "spinSlow 150s linear infinite",
+  },
   bgPattern: {
-    position: "absolute",
+    position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    opacity: 0.6,
+    opacity: 0.8,
     backgroundImage:
-      "radial-gradient(#fde68a 2px, transparent 2px), radial-gradient(#fde68a 2px, transparent 2px)",
-    backgroundSize: "40px 40px",
-    backgroundPosition: "0 0, 20px 20px",
+      "radial-gradient(#fcd34d 3px, transparent 3px), radial-gradient(#fcd34d 3px, transparent 3px)",
+    backgroundSize: "60px 60px",
+    backgroundPosition: "0 0, 30px 30px",
     zIndex: 0,
     pointerEvents: "none",
   },
-  glowBlobTopRight: {
-    position: "absolute",
-    top: "20%",
-    right: "-10%",
-    width: "600px",
-    height: "600px",
-    background:
-      "radial-gradient(circle, rgba(249,115,22,0.08) 0%, rgba(255,255,255,0) 70%)",
-    borderRadius: "50%",
-    zIndex: 0,
-    pointerEvents: "none",
-  },
-  glowBlobBottomLeft: {
-    position: "absolute",
-    bottom: "10%",
-    left: "-10%",
-    width: "700px",
-    height: "700px",
-    background:
-      "radial-gradient(circle, rgba(250,204,21,0.08) 0%, rgba(255,255,255,0) 70%)",
-    borderRadius: "50%",
-    zIndex: 0,
-    pointerEvents: "none",
-  },
-  floatingIcon: {
-    position: "absolute",
-    fontSize: "50px",
-    color: "#f59e0b",
-    opacity: 0.1, // จางๆ ไม่กวนสายตา
-    zIndex: 0,
-    pointerEvents: "none",
-    transform: "rotate(-15deg)",
-  },
-
   container: {
     maxWidth: "1200px",
     margin: "0 auto",
@@ -444,8 +506,6 @@ const styles = {
     position: "relative",
     zIndex: 2,
   },
-
-  // hero
   heroSection: {
     background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
     padding: "50px 0",
@@ -484,8 +544,6 @@ const styles = {
     margin: 0,
     fontWeight: "500",
   },
-
-  // search card
   searchCard: {
     backgroundColor: "#fff",
     borderRadius: "24px",
@@ -500,7 +558,6 @@ const styles = {
     fontSize: "20px",
     textAlign: "center",
   },
-
   inputsRow: {
     display: "flex",
     gap: "8px",
@@ -533,13 +590,12 @@ const styles = {
     boxShadow:
       "0 8px 20px rgba(234, 88, 12, 0.15), 0 0 0 3px rgba(234, 88, 12, 0.1)",
   },
-
   liveStatus: {
     fontSize: "14px",
-    color: "#64748b",
+    color: "#ea580c",
     marginBottom: "20px",
     textAlign: "center",
-    fontWeight: "500",
+    fontWeight: "600",
   },
   btnRow: { display: "flex", gap: "15px" },
   btnSearch: {
@@ -577,12 +633,10 @@ const styles = {
     cursor: "pointer",
     fontFamily: "inherit",
   },
-
-  // ticket grid
   sectionHeader: {
     fontSize: "26px",
     fontWeight: "900",
-    color: "#431407", // น้ำตาลเข้ม
+    color: "#431407",
     marginBottom: "30px",
     borderLeft: "6px solid #ea580c",
     paddingLeft: "16px",
@@ -604,17 +658,15 @@ const styles = {
     gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))",
     gap: "30px",
   },
-
-  // ticket card
   ticketCard: {
-    backgroundColor: "#292524", // สีเทาเข้ม
+    backgroundColor: "#292524",
     borderRadius: "20px",
     padding: "10px",
     boxShadow: "0 12px 30px rgba(0,0,0,.08)",
     display: "flex",
     flexDirection: "column",
     transition: "transform .2s, box-shadow .2s",
-    border: "2px solid #fcd34d", // ขอบสีทองอ่อนๆ
+    border: "2px solid #fcd34d",
   },
   ticketVisual: {
     backgroundColor: "#fff",
@@ -624,8 +676,6 @@ const styles = {
     overflow: "hidden",
     position: "relative",
   },
-
-  // 🌟 ต้นขั้ว (Stub) 🌟
   ticketStub: {
     width: "80px",
     backgroundColor: "#fef3c7",
@@ -665,7 +715,6 @@ const styles = {
     display: "inline-block",
     marginTop: "2px",
   },
-
   perforatedLine: {
     width: "4px",
     background:
@@ -725,8 +774,6 @@ const styles = {
     fontWeight: "700",
     zIndex: 1,
   },
-
-  // buy bar
   buyBar: {
     display: "flex",
     justifyContent: "space-between",
@@ -753,8 +800,6 @@ const styles = {
     backgroundColor: "#16a34a",
     boxShadow: "0 4px 12px rgba(22,163,74,.4)",
   },
-
-  // loading
   loadingWrap: {
     display: "flex",
     gap: "12px",
@@ -768,8 +813,6 @@ const styles = {
     borderRadius: "50%",
     animation: "bounce .8s infinite ease-in-out",
   },
-
-  // empty state
   emptyState: {
     textAlign: "center",
     padding: "100px",
