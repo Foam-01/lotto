@@ -210,10 +210,9 @@ function Index() {
                 <div className="cart-total">
                   <span className="cart-total-label">รวมยอดชำระ:</span>
                   <span className="cart-total-price">
-                    {carts.reduce(
-                      (total, current) => total + current.item.sale,
-                      0,
-                    )}{" "}
+                    {carts
+                      .reduce((total, current) => total + current.item.sale, 0)
+                      .toLocaleString()}{" "}
                     ฿
                   </span>
                 </div>
@@ -469,10 +468,9 @@ function Index() {
                 <div className="total-amount-box mt-3">
                   ยอดที่ต้องชำระ:
                   <span className="ms-2 amount-highlight">
-                    {carts.reduce(
-                      (total, current) => total + current.item.sale,
-                      0,
-                    )}{" "}
+                    {carts
+                      .reduce((total, current) => total + current.item.sale, 0)
+                      .toLocaleString()}{" "}
                     ฿
                   </span>
                 </div>
@@ -528,8 +526,6 @@ function Index() {
           </div>
         </div>
       )}
-
-
     </div>
   );
 }
