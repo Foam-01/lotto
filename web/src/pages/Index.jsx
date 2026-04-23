@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import config from "../config";
 import Swal from "sweetalert2";
+import "./Index.css";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -11,20 +12,17 @@ function sanitize(val) {
   return val.replace(/[^0-9]/g, "").slice(0, 1);
 }
 
-// 🌟 อัปเกรด HighlightNumber: เทียบทีละหลักตามตำแหน่งเป๊ะๆ (Real-time) 🌟
 function HighlightNumber({ numbers, digits }) {
-  // ถ้าไม่ได้พิมพ์อะไรเลย ให้แสดงตัวเลขปกติ
   if (!digits || digits.every((d) => d === "")) {
-    return <span style={styles.ticketRedNumber}>{numbers}</span>;
+    return <span className="ticket-red-number">{numbers}</span>;
   }
 
   return (
-    <span style={styles.ticketRedNumber}>
+    <span className="ticket-red-number">
       {numbers.split("").map((char, index) => {
-        // เช็คว่าตำแหน่งที่พิมพ์ ตรงกับตำแหน่งของตัวเลขสลากใบนี้ไหม
         const isMatch = digits[index] !== "" && digits[index] === char;
         return (
-          <span key={index} style={isMatch ? styles.matchHighlight : {}}>
+          <span key={index} className={isMatch ? "match-highlight" : ""}>
             {char}
           </span>
         );
@@ -39,12 +37,17 @@ function Index() {
   const [lottos, setLottos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [digits, setDigits] = useState(Array(NUM_DIGITS).fill(""));
+  const [searchedDigits, setSearchedDigits] = useState(
+    Array(NUM_DIGITS).fill(""),
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [cartFeedback, setCartFeedback] = useState({});
+  const [carts, setCarts] = useState([]);
+
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const inputRefs = useRef([]);
 
-  // ── fetch เริ่มต้น ────────────────────────────────────────────────────────
   useEffect(() => {
     fetchLottos();
   }, []);
@@ -52,6 +55,7 @@ function Index() {
   const fetchLottos = async () => {
     setLoading(true);
     setSearchQuery("");
+    setSearchedDigits(Array(NUM_DIGITS).fill(""));
     try {
       const res = await axios.get(config.apiPath + "/api/lotto/list");
       setLottos(res.data.result ?? []);
@@ -62,7 +66,6 @@ function Index() {
     }
   };
 
-  // ── digit input ──────────────────────────────────────────────────────────
   const handleDigitChange = (idx, raw) => {
     const val = sanitize(raw);
     setDigits((prev) => {
@@ -89,16 +92,15 @@ function Index() {
 
   const handleClear = () => {
     setDigits(Array(NUM_DIGITS).fill(""));
+    setSearchedDigits(Array(NUM_DIGITS).fill(""));
     inputRefs.current[0]?.focus();
-    fetchLottos(); // ล้างแล้วดึงใหม่หมด
+    fetchLottos();
   };
 
-  // ── 🚀 SEARCH LOGIC (เทียบตำแหน่งเป๊ะๆ 100%) ──────────────────────────────
   const handleSearchStartEnd = async () => {
     const isAnyFilled = digits.some((d) => d !== "");
-
-    // ตั้งค่าคำค้นหาเอาไว้โชว์ตอนไม่เจอหวย
     setSearchQuery(digits.join(""));
+    setSearchedDigits([...digits]);
 
     if (!isAnyFilled) {
       fetchLottos();
@@ -107,21 +109,16 @@ function Index() {
 
     try {
       setLoading(true);
-
-      // 🌟 เพื่อความแม่นยำ 100% เราจะดึงข้อมูลมาคัดกรองหน้าบ้าน (Filter) ด้วยตำแหน่งเป๊ะๆ
-      // เพราะ API เดิม (/search) ใช้แค่ start/end ทำให้หาแบบเว้นวรรคช่องไม่ได้ครับ
       const res = await axios.get(config.apiPath + "/api/lotto/list");
       const allLottos = res.data.result ?? [];
 
       const exactMatches = allLottos.filter((lotto) => {
-        // เช็คทีละตำแหน่ง (Index 0-5)
         for (let i = 0; i < 6; i++) {
-          // ถ้าตำแหน่งไหนกรอกเลขไว้ แต่เลขหวยใบนี้ไม่ตรงกัน -> คัดทิ้งเลย
           if (digits[i] !== "" && lotto.numbers[i] !== digits[i]) {
             return false;
           }
         }
-        return true; // ถ้าผ่านทุกด่าน แสดงว่าตรงตามตำแหน่งเป๊ะ!
+        return true;
       });
 
       setLottos(exactMatches);
@@ -138,45 +135,97 @@ function Index() {
     }
   };
 
-  // ── cart feedback ─────────────────────────────────────────────────────────
-  const handleAddCart = (id) => {
-    setCartFeedback((prev) => ({ ...prev, [id]: true }));
+  const handleAddToCart = (item) => {
+    setCarts([...carts, { item: item }]);
+    setCartFeedback((prev) => ({ ...prev, [item.id]: true }));
+    setIsCartOpen(true);
     setTimeout(() => {
-      setCartFeedback((prev) => ({ ...prev, [id]: false }));
+      setCartFeedback((prev) => ({ ...prev, [item.id]: false }));
     }, 1500);
+  };
+
+  const handleRemoveFromCart = (indexToRemove) => {
+    const newCarts = carts.filter((_, idx) => idx !== indexToRemove);
+    setCarts(newCarts);
+    if (newCarts.length === 0) {
+      setIsCartOpen(false);
+    }
   };
 
   const filledCount = digits.filter(Boolean).length;
 
-  // ── render ────────────────────────────────────────────────────────────────
   return (
-    <div style={styles.page}>
-      <style>
-        {`
-          @keyframes spinSlow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-          @keyframes floatUpDown {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(10deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
-          }
-          .floating-icon {
-            position: fixed;
-            animation: floatUpDown 6s ease-in-out infinite;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.15;
-          }
-        `}
-      </style>
+    <div className="page">
+      <div className="sunburst-bg"></div>
+      <div className="bg-pattern"></div>
 
-      {/* 🌟 Background Decorations 🌟 */}
-      <div style={styles.sunburstBg}></div>
-      <div style={styles.bgPattern}></div>
+      {/* 🌟 Top Navigation: ตะกร้าสินค้า 🌟 */}
+      <div className="top-nav">
+        <div className="cart-wrapper">
+          <span className="cart-label">ตะกร้าสินค้า:</span>
 
-      {/* Floating Icons */}
+          <button
+            className="btn-cart-header"
+            onClick={() => setIsCartOpen(!isCartOpen)}
+          >
+            <i className="bi bi-cart3"></i>
+            <span className="cart-count">{carts.length}</span>
+          </button>
+
+          {isCartOpen && carts.length > 0 && (
+            <div className="cart-dropdown">
+              <div className="cart-dropdown-header">
+                <h4>
+                  <i className="bi bi-bag-check-fill me-2"></i>
+                  รายการสลากที่เลือก
+                </h4>
+                <span className="count-badge">{carts.length} ใบ</span>
+              </div>
+
+              <div className="cart-items-container">
+                {carts.map((cartItem, idx) => (
+                  <div key={idx} className="cart-item">
+                    <div className="cart-item-number">
+                      {cartItem.item.numbers}
+                    </div>
+
+                    <div className="cart-item-right">
+                      <div className="cart-item-price">
+                        {cartItem.item.sale} ฿
+                      </div>
+                      <button
+                        className="btn-remove-cart"
+                        onClick={() => handleRemoveFromCart(idx)}
+                        title="ลบสลากใบนี้"
+                      >
+                        <i className="bi bi-trash3-fill"></i>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="cart-dropdown-footer">
+                <div className="cart-total">
+                  <span className="cart-total-label">รวมยอดชำระ:</span>
+                  <span className="cart-total-price">
+                    {carts.reduce(
+                      (total, current) => total + current.item.sale,
+                      0,
+                    )}{" "}
+                    ฿
+                  </span>
+                </div>
+                <button className="btn-checkout">
+                  ไปหน้าชำระเงิน{" "}
+                  <i className="bi bi-arrow-right-circle ms-1"></i>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div
         className="floating-icon"
         style={{
@@ -245,33 +294,30 @@ function Index() {
       </div>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <div style={styles.heroSection}>
-        <div style={styles.container}>
-          <div style={styles.heroGrid}>
-            <div style={styles.heroLeft}>
-              <div style={styles.mascotArea}>
-                <span style={styles.mascotEmoji}>🐈</span>
+      <div className="hero-section">
+        <div className="container">
+          <div className="hero-grid">
+            <div className="hero-left">
+              <div className="mascot-area">
+                <span className="mascot-emoji">🐈</span>
                 <div>
-                  <h1 style={styles.heroTitle}>แผงแมวส้ม</h1>
-                  <p style={styles.heroSubtitle}>ตัวตึงเรื่องให้โชค!</p>
+                  <h1 className="hero-title">แผงแมวส้ม</h1>
+                  <p className="hero-subtitle">ตัวตึงเรื่องให้โชค!</p>
                 </div>
               </div>
             </div>
 
-            <div style={styles.searchCard}>
-              <div style={styles.searchBody}>
-                <p style={styles.searchLabel}>กรอกตัวเลข ค้นหารางวัลที่ 1</p>
+            <div className="search-card">
+              <div className="search-body">
+                <p className="search-label">กรอกตัวเลข ค้นหารางวัลที่ 1</p>
 
-                <div style={styles.inputsRow}>
+                <div className="inputs-row">
                   {digits.map((digit, idx) => (
                     <input
                       key={idx}
                       ref={(el) => (inputRefs.current[idx] = el)}
                       id={`ball-${idx}`}
-                      style={{
-                        ...styles.digitBox,
-                        ...(digit ? styles.digitBoxFilled : {}),
-                      }}
+                      className={`digit-box ${digit ? "filled" : ""}`}
                       maxLength="1"
                       inputMode="numeric"
                       pattern="[0-9]"
@@ -285,23 +331,20 @@ function Index() {
                 </div>
 
                 {filledCount > 0 && (
-                  <p style={styles.liveStatus}>
+                  <p className="live-status">
                     กำลังระบุตัวเลข... กดปุ่มค้นหาเพื่อดูผลลัพธ์
                   </p>
                 )}
 
-                <div style={styles.btnRow}>
-                  <button
-                    style={styles.btnSearch}
-                    onClick={handleSearchStartEnd}
-                  >
+                <div className="btn-row">
+                  <button className="btn-search" onClick={handleSearchStartEnd}>
                     <i className="bi bi-search me-2"></i> ค้นหาสลาก
                   </button>
                 </div>
 
                 {filledCount > 0 && (
                   <div style={{ textAlign: "center", marginTop: "12px" }}>
-                    <button style={styles.btnClear} onClick={handleClear}>
+                    <button className="btn-clear" onClick={handleClear}>
                       <i className="bi bi-arrow-counterclockwise me-1"></i>{" "}
                       ล้างข้อมูลและเริ่มใหม่
                     </button>
@@ -314,60 +357,59 @@ function Index() {
       </div>
 
       {/* ── TICKET GRID ──────────────────────────────────────────────────── */}
-      <div style={styles.container}>
+      <div className="container">
         <div style={{ position: "relative", zIndex: 2 }}>
-          <h3 style={styles.sectionHeader}>
-            <span style={styles.iconPaw}>🐾</span> สลากพร้อมขาย (
-            <span style={styles.countBadge}>{lottos.length} ใบ</span>)
+          <h3 className="section-header">
+            <span className="icon-paw">🐾</span> สลากพร้อมขาย (
+            <span className="count-badge">{lottos.length} ใบ</span>)
           </h3>
 
           {loading ? (
             <LoadingDots />
           ) : lottos.length > 0 ? (
-            <div style={styles.gridContainer}>
+            <div className="grid-container">
               {lottos.map((item, index) => (
-                <div key={item.id ?? index} style={styles.ticketCard}>
-                  <div style={styles.ticketVisual}>
-                    <div style={styles.ticketStub}>
-                      <div style={styles.stubInner}>
-                        <div style={styles.stubText}>เลขชุด</div>
-                        <div style={styles.stubHighlight}>1 ใบ</div>
-                        <div style={styles.stubBadge}>
+                <div key={item.id ?? index} className="ticket-card">
+                  <div className="ticket-visual">
+                    <div className="ticket-stub">
+                      <div className="stub-inner">
+                        <div className="stub-text">เลขชุด</div>
+                        <div className="stub-highlight">1 ใบ</div>
+                        <div className="stub-badge">
                           <i className="bi bi-coin me-1"></i> 6 ล้าน
                         </div>
                       </div>
                     </div>
 
-                    <div style={styles.perforatedLine}></div>
+                    <div className="perforated-line"></div>
 
-                    <div style={styles.ticketMain}>
-                      <div style={styles.watermark}>🐈</div>
-                      <div style={styles.ticketTop}>
-                        <span style={styles.govText}>สลากกินแบ่งรัฐบาล</span>
-                        <div style={styles.barcodePlaceholder}></div>
+                    <div className="ticket-main">
+                      <div className="watermark">🐈</div>
+                      <div className="ticket-top">
+                        <span className="gov-text">สลากกินแบ่งรัฐบาล</span>
+                        <div className="barcode-placeholder"></div>
                       </div>
 
-                      {/* 🌟 ส่งเลขไปโชว์ Highlight แบบ Real-time 🌟 */}
-                      <HighlightNumber numbers={item.numbers} digits={digits} />
+                      <HighlightNumber
+                        numbers={item.numbers}
+                        digits={searchedDigits}
+                      />
 
-                      <div style={styles.ticketBottom}>
+                      <div className="ticket-bottom">
                         <div>งวดที่ {item.roundNumber}</div>
                         <div>เล่มที่ {item.bookNumber}</div>
                       </div>
                     </div>
                   </div>
 
-                  <div style={styles.buyBar}>
-                    <div style={styles.priceTag}>
-                      ใบละ{" "}
-                      <span style={styles.priceHighlight}>{item.sale}</span> ฿
+                  <div className="buy-bar">
+                    <div className="price-tag">
+                      ใบละ <span className="price-highlight">{item.sale}</span>{" "}
+                      ฿
                     </div>
                     <button
-                      style={{
-                        ...styles.btnCart,
-                        ...(cartFeedback[item.id] ? styles.btnCartAdded : {}),
-                      }}
-                      onClick={() => handleAddCart(item.id)}
+                      className={`btn-cart ${cartFeedback[item.id] ? "added" : ""}`}
+                      onClick={() => handleAddToCart(item)}
                     >
                       <i
                         className={`bi ${cartFeedback[item.id] ? "bi-check-lg" : "bi-cart2"} me-2`}
@@ -395,11 +437,12 @@ function Index() {
 
 function LoadingDots() {
   return (
-    <div style={styles.loadingWrap}>
+    <div className="loading-wrap">
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          style={{ ...styles.dot, animationDelay: `${i * 0.15}s` }}
+          className="dot"
+          style={{ animationDelay: `${i * 0.15}s` }}
         />
       ))}
     </div>
@@ -408,52 +451,26 @@ function LoadingDots() {
 
 function EmptyState({ searched, query, onClear }) {
   return (
-    <div
-      style={{
-        ...styles.emptyState,
-        ...(searched ? styles.emptyStateSearched : {}),
-      }}
-    >
-      <div
-        style={{
-          fontSize: "70px",
-          filter: "drop-shadow(0 10px 15px rgba(0,0,0,0.1))",
-        }}
-      >
-        {searched ? "😿" : "😿"}
-      </div>
+    <div className={`empty-state ${searched ? "searched" : ""}`}>
+      <div style={{ fontSize: "70px" }}>{searched ? "😿" : "😿"}</div>
       {searched ? (
         <>
-          <h4
-            style={{
-              color: "#dc2626",
-              marginTop: "15px",
-              fontSize: "24px",
-              fontWeight: "800",
-            }}
-          >
+          <h4 style={{ color: "#dc2626", marginTop: "15px" }}>
             ไม่พบเลข "{query}"
           </h4>
-          <p style={{ color: "#999", marginBottom: "16px", fontSize: "16px" }}>
+          <p style={{ color: "#999", marginBottom: "16px" }}>
             ไม่มีสลากที่ตรงเงื่อนไข ลองค้นหาเลขอื่นดูอีกครั้งนะครับ
           </p>
-          <button style={styles.btnClearLarge} onClick={onClear}>
+          <button className="btn-clear-large" onClick={onClear}>
             ล้างการค้นหา
           </button>
         </>
       ) : (
         <>
-          <h4
-            style={{
-              color: "#ea580c",
-              marginTop: "15px",
-              fontSize: "24px",
-              fontWeight: "800",
-            }}
-          >
+          <h4 style={{ color: "#ea580c", marginTop: "15px" }}>
             แผงแมวส้มว่างเปล่า
           </h4>
-          <p style={{ color: "#f59e0b", fontSize: "16px" }}>
+          <p style={{ color: "#f59e0b" }}>
             กำลังวิ่งไปคาบสลากมาเพิ่ม รอก่อนน้า...
           </p>
         </>
@@ -461,371 +478,5 @@ function EmptyState({ searched, query, onClear }) {
     </div>
   );
 }
-
-// ─── styles ───────────────────────────────────────────────────────────────────
-
-const styles = {
-  page: {
-    backgroundColor: "#fffbeb",
-    minHeight: "100vh",
-    paddingBottom: "80px",
-    fontFamily: "'Kanit', sans-serif",
-    position: "relative",
-    overflowX: "hidden",
-  },
-  sunburstBg: {
-    position: "fixed",
-    top: "-50%",
-    left: "-50%",
-    width: "200%",
-    height: "200%",
-    background:
-      "repeating-conic-gradient(from 0deg, rgba(251, 191, 36, 0.05) 0deg 15deg, transparent 15deg 30deg)",
-    zIndex: 0,
-    pointerEvents: "none",
-    animation: "spinSlow 150s linear infinite",
-  },
-  bgPattern: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.8,
-    backgroundImage:
-      "radial-gradient(#fcd34d 3px, transparent 3px), radial-gradient(#fcd34d 3px, transparent 3px)",
-    backgroundSize: "60px 60px",
-    backgroundPosition: "0 0, 30px 30px",
-    zIndex: 0,
-    pointerEvents: "none",
-  },
-  container: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "0 20px",
-    position: "relative",
-    zIndex: 2,
-  },
-  heroSection: {
-    background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
-    padding: "50px 0",
-    borderRadius: "0 0 40px 40px",
-    marginBottom: "50px",
-    boxShadow: "0 15px 40px rgba(234, 88, 12, 0.2)",
-    position: "relative",
-    zIndex: 3,
-  },
-  heroGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1.5fr",
-    gap: "40px",
-    alignItems: "center",
-  },
-  heroLeft: {
-    backgroundColor: "#fff",
-    padding: "30px",
-    borderRadius: "24px",
-    boxShadow: "0 10px 25px rgba(0,0,0,.1)",
-  },
-  mascotArea: { display: "flex", alignItems: "center", gap: "20px" },
-  mascotEmoji: {
-    fontSize: "90px",
-    filter: "drop-shadow(2px 4px 6px rgba(0,0,0,.1))",
-  },
-  heroTitle: {
-    color: "#ea580c",
-    fontSize: "36px",
-    fontWeight: "900",
-    margin: "0 0 5px",
-  },
-  heroSubtitle: {
-    color: "#64748b",
-    fontSize: "16px",
-    margin: 0,
-    fontWeight: "500",
-  },
-  searchCard: {
-    backgroundColor: "#fff",
-    borderRadius: "24px",
-    overflow: "hidden",
-    boxShadow: "0 20px 40px rgba(0,0,0,.1)",
-  },
-  searchBody: { padding: "35px" },
-  searchLabel: {
-    fontWeight: "800",
-    color: "#1e293b",
-    marginBottom: "20px",
-    fontSize: "20px",
-    textAlign: "center",
-  },
-  inputsRow: {
-    display: "flex",
-    gap: "8px",
-    marginBottom: "20px",
-    justifyContent: "center",
-    flexWrap: "nowrap",
-  },
-  digitBox: {
-    flex: "1 1 0px",
-    minWidth: "0",
-    height: "70px",
-    fontSize: "36px",
-    fontWeight: "900",
-    textAlign: "center",
-    color: "#cbd5e1",
-    border: "2px solid #e2e8f0",
-    borderRadius: "16px",
-    outline: "none",
-    backgroundColor: "#f8fafc",
-    boxShadow: "inset 0 2px 4px rgba(0,0,0,.02)",
-    fontFamily: "inherit",
-    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-    padding: "0",
-  },
-  digitBoxFilled: {
-    borderColor: "#ea580c",
-    backgroundColor: "#fff",
-    color: "#ea580c",
-    transform: "translateY(-3px)",
-    boxShadow:
-      "0 8px 20px rgba(234, 88, 12, 0.15), 0 0 0 3px rgba(234, 88, 12, 0.1)",
-  },
-  liveStatus: {
-    fontSize: "14px",
-    color: "#ea580c",
-    marginBottom: "20px",
-    textAlign: "center",
-    fontWeight: "600",
-  },
-  btnRow: { display: "flex", gap: "15px" },
-  btnSearch: {
-    flex: 1,
-    backgroundColor: "#dc2626",
-    color: "#fff",
-    border: "none",
-    padding: "18px",
-    borderRadius: "16px",
-    fontSize: "20px",
-    fontWeight: "800",
-    cursor: "pointer",
-    boxShadow: "0 6px 20px rgba(220, 38, 38, 0.3)",
-    fontFamily: "inherit",
-    transition: "transform 0.2s, box-shadow 0.2s",
-  },
-  btnClear: {
-    background: "none",
-    border: "none",
-    color: "#94a3b8",
-    fontSize: "14px",
-    fontWeight: "600",
-    cursor: "pointer",
-    fontFamily: "inherit",
-    transition: "color 0.2s",
-  },
-  btnClearLarge: {
-    backgroundColor: "#ea580c",
-    color: "#fff",
-    border: "none",
-    padding: "12px 28px",
-    borderRadius: "12px",
-    fontWeight: "700",
-    fontSize: "16px",
-    cursor: "pointer",
-    fontFamily: "inherit",
-  },
-  sectionHeader: {
-    fontSize: "26px",
-    fontWeight: "900",
-    color: "#431407",
-    marginBottom: "30px",
-    borderLeft: "6px solid #ea580c",
-    paddingLeft: "16px",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-  },
-  iconPaw: { color: "#ea580c" },
-  countBadge: {
-    backgroundColor: "#ea580c",
-    color: "#fff",
-    fontSize: "15px",
-    fontWeight: "700",
-    padding: "4px 14px",
-    borderRadius: "20px",
-  },
-  gridContainer: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))",
-    gap: "30px",
-  },
-  ticketCard: {
-    backgroundColor: "#292524",
-    borderRadius: "20px",
-    padding: "10px",
-    boxShadow: "0 12px 30px rgba(0,0,0,.08)",
-    display: "flex",
-    flexDirection: "column",
-    transition: "transform .2s, box-shadow .2s",
-    border: "2px solid #fcd34d",
-  },
-  ticketVisual: {
-    backgroundColor: "#fff",
-    borderRadius: "12px",
-    display: "flex",
-    height: "150px",
-    overflow: "hidden",
-    position: "relative",
-  },
-  ticketStub: {
-    width: "80px",
-    backgroundColor: "#fef3c7",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "10px",
-    borderRight: "2px dashed #f59e0b",
-  },
-  stubInner: {
-    textAlign: "center",
-    backgroundColor: "#fffbeb",
-    padding: "10px 5px",
-    borderRadius: "8px",
-    border: "1px solid #fcd34d",
-    width: "100%",
-    boxShadow: "0 2px 5px rgba(245, 158, 11, 0.1)",
-  },
-  stubText: {
-    fontSize: "12px",
-    fontWeight: "700",
-    color: "#b45309",
-  },
-  stubHighlight: {
-    fontSize: "22px",
-    fontWeight: "900",
-    color: "#ea580c",
-    margin: "5px 0",
-  },
-  stubBadge: {
-    backgroundColor: "#ea580c",
-    color: "#fff",
-    fontSize: "11px",
-    fontWeight: "800",
-    padding: "3px 6px",
-    borderRadius: "4px",
-    display: "inline-block",
-    marginTop: "2px",
-  },
-  perforatedLine: {
-    width: "4px",
-    background:
-      "repeating-linear-gradient(to bottom,transparent,transparent 4px,#fcd34d 4px,#fcd34d 8px)",
-  },
-  ticketMain: {
-    flex: 1,
-    padding: "15px 18px",
-    position: "relative",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-  },
-  watermark: {
-    position: "absolute",
-    fontSize: "90px",
-    opacity: "0.06",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%,-50%)",
-    pointerEvents: "none",
-  },
-  ticketTop: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    zIndex: 1,
-  },
-  govText: { fontSize: "12px", fontWeight: "800", color: "#ea580c" },
-  barcodePlaceholder: {
-    width: "60px",
-    height: "15px",
-    background:
-      "repeating-linear-gradient(to right,#000,#000 2px,#fff 2px,#fff 4px)",
-  },
-  ticketRedNumber: {
-    fontSize: "42px",
-    fontWeight: "900",
-    color: "#dc2626",
-    letterSpacing: "6px",
-    textAlign: "center",
-    margin: "5px 0",
-    zIndex: 1,
-    display: "block",
-  },
-  matchHighlight: {
-    color: "#16a34a",
-    backgroundColor: "#dcfce7",
-    borderRadius: "6px",
-    padding: "0 4px",
-  },
-  ticketBottom: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: "12px",
-    color: "#64748b",
-    fontWeight: "700",
-    zIndex: 1,
-  },
-  buyBar: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: "14px",
-    padding: "0 8px 5px",
-  },
-  priceTag: { color: "#fff", fontSize: "15px", fontWeight: "500" },
-  priceHighlight: { color: "#fcd34d", fontSize: "26px", fontWeight: "900" },
-  btnCart: {
-    backgroundColor: "#ea580c",
-    color: "#fff",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "10px",
-    fontWeight: "800",
-    fontSize: "15px",
-    cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(234, 88, 12, 0.3)",
-    fontFamily: "inherit",
-    transition: "background .2s",
-  },
-  btnCartAdded: {
-    backgroundColor: "#16a34a",
-    boxShadow: "0 4px 12px rgba(22,163,74,.4)",
-  },
-  loadingWrap: {
-    display: "flex",
-    gap: "12px",
-    justifyContent: "center",
-    padding: "60px",
-  },
-  dot: {
-    width: "14px",
-    height: "14px",
-    backgroundColor: "#ea580c",
-    borderRadius: "50%",
-    animation: "bounce .8s infinite ease-in-out",
-  },
-  emptyState: {
-    textAlign: "center",
-    padding: "100px",
-    backgroundColor: "#fff",
-    borderRadius: "24px",
-    border: "3px dashed #fdba74",
-    boxShadow: "0 10px 25px rgba(245, 158, 11, 0.1)",
-  },
-  emptyStateSearched: {
-    border: "3px dashed #fca5a5",
-    backgroundColor: "#fef2f2",
-    boxShadow: "none",
-  },
-};
 
 export default Index;
