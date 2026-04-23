@@ -45,6 +45,7 @@ function Index() {
   const [carts, setCarts] = useState([]);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false); 
 
   const inputRefs = useRef([]);
 
@@ -216,7 +217,13 @@ function Index() {
                     ฿
                   </span>
                 </div>
-                <button className="btn-checkout">
+                <button
+                  className="btn-checkout"
+                  onClick={() => {
+                    setIsCartOpen(false); // ปิดหน้าต่างตะกร้า
+                    setShowPaymentModal(true); // เปิด Modal ชำระเงิน
+                  }}
+                >
                   ไปหน้าชำระเงิน{" "}
                   <i className="bi bi-arrow-right-circle ms-1"></i>
                 </button>
@@ -429,6 +436,100 @@ function Index() {
           )}
         </div>
       </div>
+
+      {/* 🌟 Custom Payment Modal 🌟 */}
+      {showPaymentModal && (
+        <div
+          className="cat-modal-overlay"
+          onClick={() => setShowPaymentModal(false)}
+        >
+          <div
+            className="cat-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="cat-modal-header">
+              <h3 className="cat-modal-title">🐾 ยืนยันการสั่งซื้อ</h3>
+              <button
+                className="btn-close-modal"
+                onClick={() => setShowPaymentModal(false)}
+              >
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+
+            <div className="cat-modal-body">
+              {/* กล่องข้อมูลบัญชีธนาคาร */}
+              <div className="bank-details-box">
+                <p className="mb-1 text-muted" style={{ fontSize: "14px" }}>
+                  โปรดโอนเงินไปยังบัญชีธนาคาร:
+                </p>
+                <p className="mb-1 fw-bold text-dark">บริษัท แผงแมวส้ม จำกัด</p>
+                <p className="mb-1">ธนาคารกสิกรไทย (KBank)</p>
+                <div className="account-number ">123-4-56789-0</div>
+                <div className="total-amount-box mt-3">
+                  ยอดที่ต้องชำระ:
+                  <span className="ms-2 amount-highlight">
+                    {carts.reduce(
+                      (total, current) => total + current.item.sale,
+                      0,
+                    )}{" "}
+                    ฿
+                  </span>
+                </div>
+                <p
+                  className="mt-3 mb-0 text-muted"
+                  style={{ fontSize: "13px" }}
+                >
+                  <i className="bi bi-info-circle me-1"></i>
+                  และอัพโหลดสลิปไปที่ Line:{" "}
+                  <strong style={{ color: "#00b900" }}>@FYui888</strong>
+                </p>
+              </div>
+
+              {/* ฟอร์มกรอกข้อมูล */}
+              <div className="custom-form mt-4">
+                <div className="form-group mb-3">
+                  <label>ชื่อผู้ซื้อ</label>
+                  <input
+                    type="text"
+                    className="cat-input"
+                    placeholder="กรอกชื่อ-นามสกุล"
+                  />
+                </div>
+                <div className="form-group mb-3">
+                  <label>เบอร์โทรศัพท์</label>
+                  <input
+                    type="tel"
+                    className="cat-input"
+                    placeholder="08X-XXX-XXXX"
+                  />
+                </div>
+                <div className="form-group mb-4">
+                  <label>
+                    ที่อยู่จัดส่ง
+                    <span className="sub-label">
+                      (หากฝากสลากไว้ที่ร้าน ไม่ต้องกรอก)
+                    </span>
+                  </label>
+                  <textarea
+                    className="cat-input"
+                    rows="2"
+                    placeholder="กรอกที่อยู่สำหรับจัดส่งสลากใบจริง..."
+                  ></textarea>
+                </div>
+              </div>
+
+              {/* ปุ่มยืนยัน */}
+              <button className="btn-confirm-order">
+                <i className="bi bi-check-circle-fill me-2"></i>
+                ยืนยันการสั่งซื้อ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 }
@@ -477,6 +578,8 @@ function EmptyState({ searched, query, onClear }) {
       )}
     </div>
   );
+
+ 
 }
 
 export default Index;

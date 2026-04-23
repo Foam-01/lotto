@@ -715,3 +715,210 @@
     background-color: #fef2f2;
     box-shadow: none;
 }
+
+/* =========================================
+   Custom Modal (Minimalist Cat Theme) - ปรับระยะห่างแล้ว
+   ========================================= */
+.cat-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.cat-modal-content {
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 480px;
+    border-radius: 28px;
+    box-shadow: 0 25px 50px -12px rgba(234, 88, 12, 0.25);
+    border: 2px solid #fde08b;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+}
+
+.cat-modal-header {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    padding: 24px;
+    /* 👈 เพิ่ม Padding ให้ Header ดูโปร่งขึ้น */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px dashed #fed7aa;
+}
+
+.cat-modal-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #9a3412;
+}
+
+.btn-close-modal {
+    background: #ffedd5;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #ea580c;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-close-modal:hover {
+    background: #ea580c;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.cat-modal-body {
+    padding: 28px 24px;
+    /* 👈 เพิ่ม Padding ด้านบน-ล่างให้เนื้อหาข้างใน */
+}
+
+.bank-details-box {
+    background-color: #f8fafc;
+    border-radius: 16px;
+    padding: 24px 20px;
+    /* 👈 เพิ่ม Padding ข้างในกล่องธนาคาร */
+    text-align: center;
+    border: 1px solid #e2e8f0;
+}
+
+/* 👈 เพิ่มคลาสสำหรับจัดระยะห่างข้อความในกล่องธนาคาร */
+.bank-details-box p {
+    margin-bottom: 12px !important;
+    line-height: 1.5;
+}
+
+.account-number {
+    font-size: 28px;
+    /* 👈 ขยายเลขบัญชีนิดนึง */
+    font-weight: 900;
+    color: #ea580c;
+    letter-spacing: 3px;
+    margin-top: 16px;
+    margin-bottom: 20px;
+    /* 👈 เพิ่มระยะห่างด้านล่างเลขบัญชี */
+}
+
+.total-amount-box {
+    background-color: #fffbeb;
+    padding: 12px 20px;
+    /* 👈 ขยายกล่องยอดเงิน */
+    border-radius: 12px;
+    font-weight: 700;
+    color: #475569;
+    display: inline-block;
+    border: 1px solid #fde08b;
+    margin-bottom: 16px;
+    /* 👈 เพิ่มระยะห่างก่อนข้อความแจ้งโอน */
+}
+
+.amount-highlight {
+    font-size: 24px;
+    /* 👈 ขยายตัวเลขยอดเงิน */
+    color: #dc2626;
+    font-weight: 900;
+}
+
+/* 👈 เพิ่ม Margin ท้ายฟอร์มแต่ละอัน */
+.custom-form {
+    margin-top: 28px !important;
+}
+
+.form-group {
+    margin-bottom: 20px !important;
+    /* 👈 ดันแต่ละฟอร์มให้ห่างกัน */
+}
+
+.cat-input {
+    width: 100%;
+    padding: 14px 16px;
+    /* 👈 ให้ช่องกรอกกว้างขึ้นนิดนึง พิมพ์ง่ายขึ้น */
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    background-color: #f8fafc;
+    font-family: inherit;
+    font-size: 15px;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.cat-input:focus {
+    outline: none;
+    border-color: #fb923c;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.1);
+}
+
+.form-group label {
+    display: block;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 10px;
+    /* 👈 ดัน Label ให้ห่างจากช่องกรอกหน่อยนึง */
+    font-size: 15px;
+}
+
+.sub-label {
+    font-weight: 400;
+    color: #94a3b8;
+    font-size: 12px;
+    margin-left: 6px;
+}
+
+.btn-confirm-order {
+    width: 100%;
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+    color: #fff;
+    border: none;
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(234, 88, 12, 0.25);
+    transition: all 0.2s;
+    margin-top: 10px;
+    /* 👈 ดันปุ่มยืนยันลงมานิดนึง */
+}
+
+.btn-confirm-order:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(234, 88, 12, 0.35);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
