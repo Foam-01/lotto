@@ -40,6 +40,10 @@ function Index() {
   const [searchedDigits, setSearchedDigits] = useState(
     Array(NUM_DIGITS).fill(""),
   );
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [cartFeedback, setCartFeedback] = useState({});
   const [carts, setCarts] = useState([]);
@@ -154,6 +158,76 @@ function Index() {
   };
 
   const filledCount = digits.filter(Boolean).length;
+
+
+ const handleConfirmBuy = async () => {
+   // 🌟 1. สร้างตัวตั้งค่าสำหรับ Notification (Toast)
+   const Toast = Swal.mixin({
+     toast: true,
+     position: "top-end", // เด้งที่มุมขวาบน (เปลี่ยนเป็น top, bottom, bottom-end ได้)
+     showConfirmButton: false,
+     timer: 3000, // แสดง 3 วินาที
+     timerProgressBar: true,
+     didOpen: (toast) => {
+       toast.onmouseenter = Swal.stopTimer;
+       toast.onmouseleave = Swal.resumeTimer;
+     },
+   });
+
+   // ถามยืนยันการซื้อ (อันนี้ยังคงเป็น Modal ตรงกลางเหมือนเดิม ดีแล้วครับ)
+   const button = await Swal.fire({
+     title: "ยืนยันการซื้อ",
+     text: "คุณต้องการซื้อสลากใช่หรือไม่?",
+     icon: "question",
+     showCancelButton: true,
+     confirmButtonColor: "#ea580c",
+     cancelButtonColor: "#d33",
+     confirmButtonText: "ยืนยัน",
+     cancelButtonText: "ยกเลิก",
+   });
+
+   if (button.isConfirmed) {
+     try {
+       const payload = {
+         customerName: customerName,
+         customerPhone: customerPhone,
+         customerAddress: customerAddress,
+         carts: carts,
+       };
+
+       // ยิง API
+       const res = await axios.post(
+         config.apiPath + "/api/lotto/ConfirmBuy",
+         payload,
+       );
+
+       if (res.data.message === "success") {
+         // 🌟 2. เรียกใช้ Notification แบบ Success แทนการใช้ Modal ใหญ่
+         Toast.fire({
+           icon: "success",
+           title: "สั่งซื้อสำเร็จ! บันทึกข้อมูลเรียบร้อย",
+         });
+
+         // เคลียร์ฟอร์มและตะกร้า
+         setCarts([]);
+         setCustomerName("");
+         setCustomerPhone("");
+         setCustomerAddress("");
+
+         // ปิด Modal หน้าต่างชำระเงิน
+         setShowPaymentModal(false);
+       }
+     } catch (error) {
+       console.error(error);
+
+       // 🌟 3. เรียกใช้ Notification แบบ Error
+       Toast.fire({
+         icon: "error",
+         title: "เกิดข้อผิดพลาด ไม่สามารถบันทึกข้อมูลได้",
+       });
+     }
+   }
+ };
 
   return (
     <div className="page">
@@ -489,6 +563,8 @@ function Index() {
                 <div className="form-group mb-3">
                   <label>ชื่อผู้ซื้อ</label>
                   <input
+                  value={customerName}
+                  onChange={e => setCustomerName(e.target.value)}
                     type="text"
                     className="cat-input"
                     placeholder="กรอกชื่อ-นามสกุล"
@@ -497,6 +573,8 @@ function Index() {
                 <div className="form-group mb-3">
                   <label>เบอร์โทรศัพท์</label>
                   <input
+                  value={customerPhone}
+                    onChange={e => setCustomerPhone(e.target.value)}
                     type="tel"
                     className="cat-input"
                     placeholder="08X-XXX-XXXX"
@@ -510,6 +588,8 @@ function Index() {
                     </span>
                   </label>
                   <textarea
+                  value={customerAddress}
+                  onChange={e => setCustomerAddress(e.target.value)}
                     className="cat-input"
                     rows="2"
                     placeholder="กรอกที่อยู่สำหรับจัดส่งสลากใบจริง..."
@@ -518,7 +598,9 @@ function Index() {
               </div>
 
               {/* ปุ่มยืนยัน */}
-              <button className="btn-confirm-order">
+              <button 
+              onClick={handleConfirmBuy}
+              className="btn-confirm-order">
                 <i className="bi bi-check-circle-fill me-2"></i>
                 ยืนยันการสั่งซื้อ
               </button>

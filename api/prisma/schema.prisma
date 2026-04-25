@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  //url      = env("DATABASE_URL")
 }
 
 model User {
@@ -25,10 +26,29 @@ model Company {
 }
 
 model Lotto {
-  id          Int    @id @default(autoincrement())
-  numbers     String
-  roundNumber Int
-  bookNumber  Int
-  cost        Int
-  sale        Int
+  id              Int              @id @default(autoincrement())
+  numbers         String
+  roundNumber     Int
+  bookNumber      Int
+  cost            Int
+  sale            Int
+  billSaleDetails BillSaleDetail[]
+}
+
+model BillSale {
+  id              Int              @id @default(autoincrement())
+  payDate         DateTime?
+  createdDate     DateTime
+  customerName    String
+  customerPhone   String
+  customerAddress String?
+  billSaleDetail  BillSaleDetail[]
+}
+
+model BillSaleDetail {
+  id         Int      @id @default(autoincrement())
+  billSaleId Int
+  billSale   BillSale @relation(fields: [billSaleId], references: [id])
+  lottoId    Int
+  lotto      Lotto    @relation(fields: [lottoId], references: [id])
 }
