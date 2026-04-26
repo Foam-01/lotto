@@ -1,52 +1,70 @@
-/* จัดการโครงสร้างรวม */
+/* =========================================
+   Layout & Sidebar ธีม แผงแมวส้ม
+   ========================================= */
+
 .layout-wrapper {
     display: flex;
     min-height: 100vh;
-    background-color: #f0f2f5;
-    /* สีพื้นหลังเทาอ่อนให้สบายตา */
+    font-family: 'Kanit', sans-serif;
+    background-color: #fffbeb;
+    /* สีพื้นเหลืองอ่อน คุมโทนกับหน้าย่อย */
 }
 
-/* Sidebar คงที่ฝั่งซ้าย */
+/* --- Sidebar --- */
 .sidebar {
     width: 280px;
-    height: 100vh;
-    background-color: #1a1a2e;
-    /* น้ำเงินเข้มพรีเมียม */
-    padding: 30px 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    color: #ffffff;
-    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+    background-color: #ffffff;
+    border-right: 2px dashed #fed7aa;
+    /* เส้นประสีส้มอ่อน */
     display: flex;
     flex-direction: column;
-    z-index: 1000;
-    box-sizing: border-box;
+    box-shadow: 4px 0 15px rgba(234, 88, 12, 0.05);
+    z-index: 10;
 }
 
-.sidebar .title {
+.title {
+    text-align: center;
+    padding: 30px 20px;
+    color: #ea580c;
+    font-weight: 900;
     font-size: 24px;
-    font-weight: 800;
-    color: #FFD700;
-    /* สีทอง */
-    text-align: center;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-    letter-spacing: 1px;
+    border-bottom: 2px dashed #fed7aa;
 }
 
+.title-emoji {
+    font-size: 45px;
+    margin-bottom: -10px;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.title-sub {
+    font-size: 12px;
+    color: #94a3b8;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+/* --- User Info Box --- */
 .user-info {
-    background: rgba(255, 255, 255, 0.05);
     padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 30px;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    margin: 20px;
+    border-radius: 16px;
+    border: 1px solid #fde08b;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5);
 }
 
-/* เมนูหลัก */
+.user-name-text {
+    color: #ea580c;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+/* --- Navigation Menu --- */
 .menu {
+    flex: 1;
+    padding: 10px 20px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -55,57 +73,115 @@
 .menu-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: #adb5bd;
+    padding: 14px 20px;
+    color: #64748b;
     text-decoration: none;
-    padding: 12px 15px;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    font-weight: 700;
+    border-radius: 14px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 15.5px;
 }
 
 .menu-item i {
-    font-size: 1.2rem;
+    font-size: 20px;
+    margin-right: 16px;
+    color: #94a3b8;
+    transition: all 0.2s;
 }
 
+/* สถานะ Hover */
 .menu-item:hover {
-    background: rgba(255, 215, 0, 0.1);
-    color: #FFD700;
-    transform: translateX(5px);
+    background-color: #fff7ed;
+    color: #ea580c;
+    transform: translateX(6px);
 }
 
-/* ส่วนล่างสุด - ปุ่มออกจากระบบ */
+.menu-item:hover i {
+    color: #ea580c;
+}
+
+/* 🌟 สถานะเมนูที่ถูกเลือก (Active) 🌟 */
+.menu-item.active {
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+.menu-item.active i {
+    color: #ffffff;
+}
+
+/* --- Logout Section --- */
 .logout-section {
-    margin-top: auto;
-    padding-bottom: 20px;
-    /* เว้นระยะจากขอบล่าง Windows */
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 20px;
+    padding: 20px;
+    border-top: 2px dashed #fed7aa;
 }
 
 .logout-link {
-    color: #ff7675 !important;
+    color: #ef4444;
+}
+
+.logout-link i {
+    color: #ef4444;
 }
 
 .logout-link:hover {
-    background: rgba(255, 118, 117, 0.1) !important;
+    background-color: #fef2f2;
+    color: #dc2626;
+    transform: translateX(6px);
 }
 
-/* ส่วนเนื้อหาฝั่งขวา */
+.logout-link:hover i {
+    color: #dc2626;
+}
+
+/* --- Main Content Area --- */
 .content {
-    margin-left: 280px;
-    /* เว้นที่เท่ากับความกว้าง Sidebar */
-    padding: 40px;
     flex: 1;
-    box-sizing: border-box;
-    min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
+    position: relative;
+    /* เราตั้งพื้นหลังเป็น #fffbeb ไว้ที่ layout-wrapper แล้ว ตรงนี้เลยโปร่งใสได้ */
 }
 
-/* กล่องเนื้อหาในแต่ละหน้า */
+/* --- Welcome Box (กรณีไม่มี props.children) --- */
 .welcome-box {
-    background: #ffffff;
-    padding: 35px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e1e4e8;
+    text-align: center;
+    padding: 60px 20px;
+    margin: 50px auto;
+    max-width: 500px;
+    background-color: #ffffff;
+    border-radius: 24px;
+    border: 2px solid #fde08b;
+    box-shadow: 0 20px 40px rgba(234, 88, 12, 0.08);
+    animation: fadeIn 0.4s ease-out;
+}
+
+.welcome-emoji {
+    font-size: 70px;
+    margin-bottom: 10px;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.welcome-title {
+    color: #ea580c;
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+.welcome-subtitle {
+    color: #94a3b8;
+    font-size: 16px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

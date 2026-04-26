@@ -11,6 +11,7 @@ import Home from './pages/Home';
 import Company from './pages/company';
 import Lotto from './pages/Lotto';
 import Index from './pages/Index';
+import BillSale from './pages/BillSale';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
   {
     path: "/Lotto",
     element: <Lotto />,
+  },
+  {
+    path: '/billSale',
+    element: <BillSale />,
   }
 ]);
 
