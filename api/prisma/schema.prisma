@@ -51,4 +51,5 @@ model BillSaleDetail {
   billSale   BillSale @relation(fields: [billSaleId], references: [id])
   lottoId    Int
   lotto      Lotto    @relation(fields: [lottoId], references: [id])
+  price      Int?
 }

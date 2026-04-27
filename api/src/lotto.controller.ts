@@ -139,4 +139,27 @@ export class LottoController {
       };
     }
   }
+
+  @Get('/billSale')
+  async billSale() {
+    try {
+      const res = await this.prisma.billSale.findMany({
+        include: {
+          billSaleDetail: {
+            include: {
+              lotto: true
+            }
+          }
+        },
+      });
+      
+      return { result: res };
+    } catch (e) {
+      return {
+        status: 500,
+        message: 'ไม่สามารถดึงข้อมูลได้',
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
+      };
+    }
+  }
 }
