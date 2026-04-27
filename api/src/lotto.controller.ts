@@ -117,10 +117,18 @@ export class LottoController {
         for (let i = 0; i < carts.length; i++) {
           const cartData = carts[i]; // หน้าตาจะเป็น { item: { id: 4315, ... } }
 
+          const lotto = await this.prisma.lotto.findFirst({
+            where: {
+              id: cartData.item.id, // 👈 แก้ตรงนี้! เปลี่ยนจาก item.id เป็น cartData.item.id
+            },
+          });
+
           await this.prisma.billSaleDetail.create({
             data: {
               billSaleId: res.id,
-              lottoId: cartData.item.id, // 👈 แก้ตรงนี้! ต้องเจาะเข้าไปที่ .item.id
+              lottoId: cartData.item.id,
+              // ใส่ ?? 0 ดักไว้หน่อย เผื่อหา lotto ไม่เจอ Prisma จะได้ไม่ด่าเรื่องค่า undefined ครับ
+              price: lotto?.sale ?? 0,
             },
           });
         }
@@ -147,12 +155,12 @@ export class LottoController {
         include: {
           billSaleDetail: {
             include: {
-              lotto: true
-            }
-          }
+              lotto: true,
+            },
+          },
         },
       });
-      
+
       return { result: res };
     } catch (e) {
       return {
@@ -162,4 +170,34 @@ export class LottoController {
       };
     }
   }
+
+  @Delete('/removeBill/:id')
+  async removeBill(@Param('id') id: string) {
+    try {
+      const idValue = parseInt(id);
+
+      // 🌟 ใช้ $transaction เพื่อผูก 2 คำสั่งนี้เข้าด้วยกัน
+      await this.prisma.$transaction([
+        // 1. ลบลูกก่อน (Detail)
+        this.prisma.billSaleDetail.deleteMany({
+          where: { billSaleId: idValue },
+        }),
+        // 2. ลบแม่ตาม (Bill)
+        this.prisma.billSale.delete({
+          where: { id: idValue },
+        }),
+      ]);
+
+      return { message: 'success' };
+    } catch (e) {
+      console.error('🔥 Delete Bill Error:', e); // พิมพ์ Error ดูเผื่อพังจุดอื่น
+      return {
+        status: 500,
+        message: 'ไม่สามารถลบข้อมูลได้ (อาจไม่มี ID นี้ในระบบ)',
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
+      };
+    }
+  }
+
+  
 }

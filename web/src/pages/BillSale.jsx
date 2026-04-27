@@ -3,6 +3,8 @@ import Home from "./Home";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import config from "../config";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function BillSale() {
   const [billSales, setBillSales] = useState([]);
@@ -53,6 +55,52 @@ function BillSale() {
     }
     setTotalPrice(sum);
   };
+
+  const handleRemove = async (billSale) => {
+    try {
+      const button = await Swal.fire({
+        title: "ยืนยันการยกเลิกออเดอร์",
+        text: "ต้องการยกเลิกบิลของ " + billSale.customerName + " ใช่หรือไม่?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ea580c",
+        cancelButtonColor: "#94a3b8", // ปรับปุ่มยกเลิกให้เป็นสีเทาซอฟต์ๆ
+        confirmButtonText: "ยืนยันการลบ",
+        cancelButtonText: "ยกเลิก",
+      });
+
+      if (button.isConfirmed) {
+        // 🌟 สร้าง Loading Toast ขณะกำลังรอ API
+        const toastId = toast.loading("กำลังลบข้อมูล...");
+
+        const res = await axios.delete(
+          config.apiPath + "/api/lotto/removeBill/" + billSale.id,
+        );
+
+        if (res.data.message === "success") {
+          // 🌟 อัปเดต Toast เป็นแบบสำเร็จ
+          toast.update(toastId, {
+            render: "ยกเลิกออเดอร์ของ " + billSale.customerName + " แล้ว 🗑️",
+            type: "success",
+            isLoading: false,
+            autoClose: 2000, // ปิดอัตโนมัติใน 2 วินาที
+          });
+
+          await fetchData(); // โหลดข้อมูลมาแสดงใหม่
+        } else {
+          throw new Error("API return not success");
+        }
+      }
+    } catch (e) {
+      // 🌟 แจ้งเตือน Error ด้วย Toast
+      toast.error("โง้ววว... ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่ 😿", {
+        autoClose: 3000,
+      });
+      console.error("Remove Bill Error:", e);
+    }
+  };
+
+
   return (
     // 🌟 ใช้แท็ก <> ครอบทั้งหมด เพื่อให้ Modal อยู่ระดับเดียวกับ Home
     <>
@@ -215,6 +263,7 @@ function BillSale() {
                               </button>
 
                               <button
+                               onClick={e => handleRemove(item)}
                                 style={styles.btnCancel}
                                 title="ยกเลิกออเดอร์"
                               >
@@ -349,7 +398,9 @@ function BillSale() {
                   <i className="bi bi-check-circle-fill"></i> ยืนยันชำระ
                 </button>
 
-                <button style={styles.btnCancel} title="ยกเลิกออเดอร์">
+                <button 
+                onClick={e => handleRemove(billSale)}
+                style={styles.btnCancel} title="ยกเลิกออเดอร์">
                   <i className="bi bi-x-circle-fill"></i>
                 </button>
               </div>
@@ -357,9 +408,13 @@ function BillSale() {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 }
+
+
+
 
 // 🟠 CSS ความสวยงามธีม แผงแมวส้ม
 const styles = {
