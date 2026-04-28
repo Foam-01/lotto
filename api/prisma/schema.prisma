@@ -43,6 +43,9 @@ model BillSale {
   customerPhone   String
   customerAddress String?
   billSaleDetail  BillSaleDetail[]
+  payTime         String?
+  payRemark       String?
+  payAlertDate    DateTime?
 }
 
 model BillSaleDetail {
