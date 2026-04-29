@@ -12,6 +12,8 @@ import Company from './pages/company';
 import Lotto from './pages/Lotto';
 import Index from './pages/Index';
 import BillSale from './pages/BillSale';
+import LottoInShop from './pages/LottoInShop';
+import LottoForSend from './pages/LottoForSend';
 
 const router = createBrowserRouter([
   {
@@ -37,7 +39,15 @@ const router = createBrowserRouter([
   {
     path: '/billSale',
     element: <BillSale />,
-  }
+  },
+  {
+    path: '/lottoInShop',
+    element: <LottoInShop />
+  },
+  {
+    path: '/lottoForSend',
+    element: <LottoForSend />
+  },
 ]);
 
 

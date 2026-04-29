@@ -89,6 +89,22 @@ function Home(props) {
           <Link to="/billSale" className={`menu-item ${isActive("/billSale")}`}>
             <i className="bi bi-receipt-cutoff"></i> <span>รายการสั่งซื้อ</span>
           </Link>
+
+          <Link
+            to="/lottoInShop"
+            className={`menu-item ${isActive("/lottoInShop")}`}
+          >
+            {/* 🌟 เปลี่ยนเป็นรูปร้านค้า (ฝากไว้ที่ร้าน) */}
+            <i className="bi bi-inbox"></i> <span>รายการที่ฝากร้าน</span>
+          </Link>
+
+          <Link
+            to="/lottoForSend"
+            className={`menu-item ${isActive("/lottoForSend")}`}
+          >
+            {/* 🌟 เปลี่ยนเป็นรูปรถขนส่ง (จัดส่งให้ลูกค้า) */}
+            <i className="bi bi-truck"></i> <span>รายการที่จัดส่ง</span>
+          </Link>
         </div>
 
         <div className="logout-section">

@@ -159,6 +159,7 @@ export class LottoController {
             },
           },
         },
+        orderBy: { id: 'desc' },
       });
 
       return { result: res };
@@ -199,5 +200,106 @@ export class LottoController {
     }
   }
 
-  
+  @Post('ConfirmPay')
+  async ConfirmPay(
+    @Body('billSaleId') billSaleId: number, // 👈 1. เปลี่ยนเป็น number เพราะหน้าบ้านส่งมาเป็นเลข
+    @Body('payAlertDate') payAlertDate: string,
+    @Body('payDate') payDate: string,
+    @Body('payRemark') payRemark: string,
+    @Body('payTime') payTime: string,
+  ) {
+    try {
+      await this.prisma.billSale.update({
+        where: {
+          id: billSaleId, // 👈 ใช้ตัวเลขตรงๆ ได้เลย ไม่ต้อง parseInt แล้ว
+        },
+        data: {
+          // 🌟 2. แปลงข้อความวันที่ให้กลายเป็น Date Object ก่อนบันทึกลง Prisma
+          payAlertDate: new Date(payAlertDate),
+          payDate: new Date(payDate),
+          payRemark: payRemark,
+          payTime: payTime,
+        },
+      });
+      return { message: 'success' };
+    } catch (e) {
+      console.error('🔥 ConfirmPay Error:', e);
+      return {
+        status: 500,
+        message: 'ไม่สามารถบันทึกสลากได้',
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
+      };
+    }
+  }
+
+  @Get('/lottoInShop')
+  async lottoInShop() {
+    try {
+      const results = await this.prisma.billSale.findMany({
+        where: {
+          // 1. ต้องจ่ายเงินแล้ว
+          payDate: {
+            not: null,
+          },
+          // 2. ไม่มีที่อยู่ (ครอบคลุมทั้งค่าว่างและค่า null)
+          OR: [{ customerAddress: '' }, { customerAddress: null }],
+        },
+        orderBy: {
+          id: 'desc',
+        },
+        include: {
+          billSaleDetail: {
+            include: {
+              lotto: true,
+            },
+          },
+        },
+      });
+
+      return { results: results };
+    } catch (e) {
+      console.error('🔥 Error lottoInShop:', e);
+      return {
+        status: 500,
+        message: 'ไม่สามารถดึงข้อมูลได้',
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
+      };
+    }
+  }
+
+  @Get('/lottoForSend')
+  async lottoForSend() {
+    try {
+      const results = await this.prisma.billSale.findMany({
+        where: {
+          // 1. ต้องจ่ายเงินแล้ว
+          payDate: {
+            not: null,
+          },
+          customerAddress: {
+            not: '',
+          },
+        },
+        orderBy: {
+          id: 'desc',
+        },
+        include: {
+          billSaleDetail: {
+            include: {
+              lotto: true,
+            },
+          },
+        },
+      });
+
+      return { results: results };
+    } catch (e) {
+      console.error('🔥 Error lottoInShop:', e);
+      return {
+        status: 500,
+        message: 'ไม่สามารถดึงข้อมูลได้',
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
+      };
+    }
+  }
 }

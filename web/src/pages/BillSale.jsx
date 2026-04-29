@@ -5,11 +5,19 @@ import axios from "axios";
 import config from "../config";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import * as dayjs from "dayjs";
 
 function BillSale() {
+  const currentDate = dayjs(new Date()).format("YYYY-MM-DD");
+  const currentDateTime = dayjs(new Date()).format("HH:mm:ss");
+
   const [billSales, setBillSales] = useState([]);
   const [billSale, setBillSale] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
+  const [payDate, setPayDate] = useState(currentDate);
+  const [payTime, setPayTime] = useState(currentDateTime);
+  const [payAlertDate, setPayAlertDate] = useState(currentDate);
+  const [payRemark, setPayRemark] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -64,13 +72,12 @@ function BillSale() {
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#ea580c",
-        cancelButtonColor: "#94a3b8", // ปรับปุ่มยกเลิกให้เป็นสีเทาซอฟต์ๆ
+        cancelButtonColor: "#94a3b8",
         confirmButtonText: "ยืนยันการลบ",
         cancelButtonText: "ยกเลิก",
       });
 
       if (button.isConfirmed) {
-        // 🌟 สร้าง Loading Toast ขณะกำลังรอ API
         const toastId = toast.loading("กำลังลบข้อมูล...");
 
         const res = await axios.delete(
@@ -78,21 +85,19 @@ function BillSale() {
         );
 
         if (res.data.message === "success") {
-          // 🌟 อัปเดต Toast เป็นแบบสำเร็จ
           toast.update(toastId, {
             render: "ยกเลิกออเดอร์ของ " + billSale.customerName + " แล้ว 🗑️",
             type: "success",
             isLoading: false,
-            autoClose: 2000, // ปิดอัตโนมัติใน 2 วินาที
+            autoClose: 2000,
           });
 
-          await fetchData(); // โหลดข้อมูลมาแสดงใหม่
+          await fetchData();
         } else {
           throw new Error("API return not success");
         }
       }
     } catch (e) {
-      // 🌟 แจ้งเตือน Error ด้วย Toast
       toast.error("โง้ววว... ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่ 😿", {
         autoClose: 3000,
       });
@@ -100,9 +105,88 @@ function BillSale() {
     }
   };
 
+  const handlePay = (item) => {
+    handleSumTotalPrice(item);
+    setPayRemark("");
+    setPayAlertDate(currentDate);
+    setPayDate(currentDate);
+    setPayTime(currentDateTime);
+  };
+
+  const formatPayDateTime = (dateString, timeString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+
+    const datePart = date.toLocaleDateString("th-TH", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+    const timePart = timeString ? timeString.substring(0, 5) : "";
+
+    return `${datePart} ${timePart} น.`;
+  };
+
+  const handleConfirmPay = async () => {
+    const button = await Swal.fire({
+      title: "ยืนยันการชําระเงิน",
+      text: "ต้องการชําระเงินใช่หรือไม่?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ea580c",
+      cancelButtonColor: "#94a3b8",
+      confirmButtonText: "ยืนยันการชําระเงิน",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (button.isConfirmed) {
+      const toastId = toast.loading("กำลังบันทึกการชำระเงิน...");
+
+      try {
+        const payload = {
+          billSaleId: billSale.id,
+          payRemark: payRemark,
+          payDate: payDate,
+          payTime: payTime,
+          payAlertDate: payAlertDate,
+        };
+
+        const res = await axios.post(
+          config.apiPath + "/api/lotto/ConfirmPay",
+          payload,
+        );
+
+        if (res.data.message === "success") {
+          toast.update(toastId, {
+            render: "บันทึกการชำระเงินสำเร็จ 💰",
+            type: "success",
+            isLoading: false,
+            autoClose: 2000,
+          });
+
+          await fetchData();
+
+          const closeModalBtn = document.querySelector("#modalPay .btn-close");
+          if (closeModalBtn) {
+            closeModalBtn.click();
+          }
+        } else {
+          throw new Error("ไม่สามารถบันทึกได้");
+        }
+      } catch (e) {
+        toast.update(toastId, {
+          render: "เกิดข้อผิดพลาด ไม่สามารถชำระเงินได้ 😿",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
+        console.error("Pay Error:", e);
+      }
+    }
+  };
 
   return (
-    // 🌟 ใช้แท็ก <> ครอบทั้งหมด เพื่อให้ Modal อยู่ระดับเดียวกับ Home
     <>
       <Home>
         <div style={styles.page}>
@@ -199,13 +283,13 @@ function BillSale() {
                         <tr key={index} style={styles.tableRow}>
                           <td style={styles.td}>
                             <div style={styles.dateBadge}>
-                              <i className="bi bi-calendar-event text-muted"></i>{" "}
+                              <i className="bi bi-calendar-event text-muted me-1"></i>
                               {formatDate(item.createdDate)}
                             </div>
                           </td>
 
                           <td style={styles.tdName}>
-                            <i className="bi bi-person-circle text-muted"></i>{" "}
+                            <i className="bi bi-person-circle text-muted me-1"></i>
                             {item.customerName}
                           </td>
 
@@ -226,12 +310,13 @@ function BillSale() {
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             {item.payDate ? (
                               <span style={styles.statusPaid}>
-                                <i className="bi bi-check-circle-fill"></i>{" "}
-                                {formatDate(item.payDate)}
+                                <i className="bi bi-check-circle-fill me-1"></i>
+                                {formatPayDateTime(item.payDate, item.payTime)}
                               </span>
                             ) : (
                               <span style={styles.statusPending}>
-                                <i className="bi bi-clock-fill"></i> รอชำระเงิน
+                                <i className="bi bi-clock-fill me-1"></i>{" "}
+                                รอชำระเงิน
                               </span>
                             )}
                           </td>
@@ -255,6 +340,9 @@ function BillSale() {
                               </button>
 
                               <button
+                                onClick={(e) => handlePay(item)}
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalPay"
                                 style={styles.btnSuccess}
                                 title="ยืนยันการชำระเงิน"
                               >
@@ -263,7 +351,7 @@ function BillSale() {
                               </button>
 
                               <button
-                               onClick={e => handleRemove(item)}
+                                onClick={(e) => handleRemove(item)}
                                 style={styles.btnCancel}
                                 title="ยกเลิกออเดอร์"
                               >
@@ -293,36 +381,17 @@ function BillSale() {
         </div>
       </Home>
 
-      {/* 🌟 ย้าย Modal ออกมาไว้นอก <Home> และแก้ class เป็น className ทั้งหมด 🌟 */}
+      {/* --- Modal รายละเอียดบิล --- */}
       <div
         className="modal fade"
         id="modalBillSalaDetail"
         tabIndex="-1"
-        aria-labelledby="exampleModalLabel"
         aria-hidden="true"
       >
         <div className="modal-dialog modal-dialog-centered">
-          <div
-            className="modal-content"
-            style={{
-              borderRadius: "20px",
-              border: "none",
-              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
-            }}
-          >
-            <div
-              className="modal-header"
-              style={{
-                backgroundColor: "#f8fafc",
-                borderBottom: "2px solid #fed7aa",
-                padding: "20px 30px",
-              }}
-            >
-              <h5
-                className="modal-title fw-bold"
-                id="exampleModalLabel"
-                style={{ color: "#1e293b", margin: 0 }}
-              >
+          <div className="modal-content" style={styles.modalContent}>
+            <div className="modal-header" style={styles.modalHeader}>
+              <h5 className="modal-title fw-bold" style={styles.modalTitle}>
                 <i className="bi bi-receipt-cutoff me-2"></i>
                 รายละเอียดสั่งซื้อ {billSale.id ? `#${billSale.id}` : ""}
               </h5>
@@ -334,56 +403,60 @@ function BillSale() {
               ></button>
             </div>
 
-            <div className="modal-body" style={{ padding: "20px 30px" }}>
-              <div className="h5 fw-bold" style={{ color: "#ea580c" }}>
-                Bill Sale ID : {billSale.id}
-              </div>
-              <div className="h6 text-muted mb-4">
-                ลูกค้า:{" "}
-                <span className="text-dark fw-bold">
-                  {billSale.customerName}
-                </span>{" "}
-                | โทร:{" "}
-                <span className="text-dark fw-bold">
-                  {billSale.customerPhone || "-"}
-                </span>
+            <div className="modal-body" style={{ padding: "25px 30px" }}>
+              <div
+                className="d-flex justify-content-between align-items-center mb-4 pb-3"
+                style={{ borderBottom: "1px dashed #cbd5e1" }}
+              >
+                <div>
+                  <small className="text-muted d-block mb-1">ลูกค้า</small>
+                  <span className="fw-bold fs-6 text-dark">
+                    {billSale.customerName}
+                  </span>
+                </div>
+                <div className="text-end">
+                  <small className="text-muted d-block mb-1">
+                    เบอร์โทรติดต่อ
+                  </small>
+                  <span className="fw-bold text-dark">
+                    {billSale.customerPhone || "-"}
+                  </span>
+                </div>
               </div>
 
-              <table className="mt-3 table table-borderless table-striped">
-                <thead style={{ borderBottom: "2px solid #e2e8f0" }}>
+              <table className="mt-2 table table-borderless">
+                <thead style={{ borderBottom: "2px solid #f1f5f9" }}>
                   <tr>
-                    <th className="text-muted">ลำดับ</th>
-                    <th className="text-muted">เลข</th>
-                    <th className="text-muted">ราคา</th>
-                    <th width="100%"></th>
+                    <th className="text-muted pb-2" style={{ width: "20%" }}>
+                      ลำดับ
+                    </th>
+                    <th className="text-muted pb-2">เลขสลาก</th>
+                    <th className="text-muted pb-2 text-end">ราคา</th>
                   </tr>
                 </thead>
                 <tbody>
                   {billSale.billSaleDetail !== undefined &&
                   billSale.billSaleDetail.length > 0 ? (
                     billSale.billSaleDetail.map((item, index) => (
-                      <tr key={index}>
-                        <td className="fw-bold">{index + 1}</td>
-                        <td className="fw-bold text-primary">
-                          {item.lotto.numbers || "-"}
+                      <tr
+                        key={index}
+                        style={{ borderBottom: "1px solid #f8fafc" }}
+                      >
+                        <td className="fw-bold text-muted pt-3 pb-3">
+                          {index + 1}
                         </td>
-                        <td className="fw-bold text-primary">
-                          {item.price || "-"}
+                        <td className="fw-bold text-primary pt-3 pb-3 fs-5">
+                          {item.lotto?.numbers || "-"}
                         </td>
-                        <td className="text-end">
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            style={{ borderRadius: "8px" }}
-                          >
-                            <i className="bi bi-x-circle-fill me-2"></i>
-                            ลบ
-                          </button>
+                        <td className="fw-bold text-success text-end pt-3 pb-3">
+                          ฿{item.price || "0"}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" className="text-center text-muted py-4">
+                      <td colSpan="3" className="text-center text-muted py-5">
+                        <i className="bi bi-inbox fs-1 d-block mb-2 text-light"></i>
                         ไม่มีข้อมูลสลากในบิลนี้
                       </td>
                     </tr>
@@ -391,17 +464,127 @@ function BillSale() {
                 </tbody>
               </table>
 
-              <div className="text-center h5">ยอดรวม {totalPrice || 0} บาท</div>
+              <div
+                className="mt-4 p-3 rounded-4 d-flex justify-content-between align-items-center"
+                style={{
+                  backgroundColor: "#fff7ed",
+                  border: "2px dashed #fed7aa",
+                }}
+              >
+                <span className="fw-bold text-muted">ยอดชำระรวม</span>
+                <span className="fw-bold fs-4" style={{ color: "#ea580c" }}>
+                  ฿{totalPrice?.toLocaleString() || 0}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <div className="mt-3 text-center">
-                <button style={styles.btnSuccess} title="ยืนยันการชำระเงิน">
-                  <i className="bi bi-check-circle-fill"></i> ยืนยันชำระ
-                </button>
+      {/* --- Modal ชำระเงิน --- */}
+      <div
+        className="modal fade"
+        id="modalPay"
+        tabIndex="-1"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content" style={styles.modalContent}>
+            <div className="modal-header" style={styles.modalHeader}>
+              <h5 className="modal-title fw-bold" style={styles.modalTitle}>
+                <i className="bi bi-wallet2 me-2"></i>
+                ยืนยันการชำระเงินบิล {billSale.id ? `#${billSale.id}` : ""}
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
 
-                <button 
-                onClick={e => handleRemove(billSale)}
-                style={styles.btnCancel} title="ยกเลิกออเดอร์">
-                  <i className="bi bi-x-circle-fill"></i>
+            <div className="modal-body" style={{ padding: "25px 30px" }}>
+              <div
+                className="d-flex justify-content-between align-items-center mb-4 pb-3"
+                style={{ borderBottom: "1px dashed #cbd5e1" }}
+              >
+                <div>
+                  <small className="text-muted d-block mb-1">สั่งซื้อโดย</small>
+                  <span className="fw-bold text-dark fs-6">
+                    {billSale.customerName}
+                  </span>
+                </div>
+                <div className="text-end">
+                  <small className="text-muted d-block mb-1">
+                    ยอดที่ต้องชำระ
+                  </small>
+                  <span className="fw-bold fs-4 text-success">
+                    ฿{totalPrice?.toLocaleString() || 0}
+                  </span>
+                </div>
+              </div>
+
+              <div
+                className="p-4 rounded-4"
+                style={{
+                  backgroundColor: "#f8fafc",
+                  border: "1px solid #e2e8f0",
+                }}
+              >
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label style={styles.modalLabel}>วันที่ชำระเงิน</label>
+                    <input
+                      onChange={(e) => setPayDate(e.target.value)}
+                      value={payDate}
+                      type="date"
+                      className="form-control"
+                      style={styles.modalInput}
+                    />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label style={styles.modalLabel}>เวลาที่ชำระเงิน</label>
+                    <input
+                      onChange={(e) => setPayTime(e.target.value)}
+                      value={payTime}
+                      type="time"
+                      className="form-control"
+                      style={styles.modalInput}
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label style={styles.modalLabel}>วันที่แจ้งโอน</label>
+                  <input
+                    onChange={(e) => setPayAlertDate(e.target.value)}
+                    value={payAlertDate}
+                    type="date"
+                    className="form-control"
+                    style={styles.modalInput}
+                  />
+                </div>
+
+                <div>
+                  <label style={styles.modalLabel}>หมายเหตุ (ถ้ามี)</label>
+                  <textarea
+                    onChange={(e) => setPayRemark(e.target.value)}
+                    value={payRemark}
+                    className="form-control"
+                    placeholder="เช่น โอนเข้าบัญชีกสิกรไทย..."
+                    rows="2"
+                    style={styles.modalInput}
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="mt-4 text-center">
+                <button
+                  onClick={handleConfirmPay}
+                  style={styles.btnConfirmModal}
+                >
+                  <i className="bi bi-check-circle-fill me-2"></i>{" "}
+                  บันทึกการชำระเงิน
                 </button>
               </div>
             </div>
@@ -412,9 +595,6 @@ function BillSale() {
     </>
   );
 }
-
-
-
 
 // 🟠 CSS ความสวยงามธีม แผงแมวส้ม
 const styles = {
@@ -433,9 +613,7 @@ const styles = {
     position: "relative",
     zIndex: 2,
   },
-  header: {
-    marginBottom: "40px",
-  },
+  header: { marginBottom: "40px" },
   titleMain: {
     fontSize: "32px",
     fontWeight: "900",
@@ -458,8 +636,8 @@ const styles = {
     backgroundColor: "#ffffff",
     borderRadius: "24px",
     padding: "35px 40px",
-    boxShadow: "0 20px 40px rgba(234, 88, 12, 0.08)",
-    borderTop: "10px solid #ea580c",
+    boxShadow: "0 20px 50px rgba(234, 88, 12, 0.08)",
+    borderTop: "8px solid #ea580c",
     animation: "slideUp 0.3s ease-out forwards",
   },
   tableHeaderContainer: {
@@ -481,53 +659,51 @@ const styles = {
   badgeCount: {
     backgroundColor: "#fff7ed",
     color: "#ea580c",
-    fontSize: "15px",
-    fontWeight: "bold",
-    padding: "4px 14px",
-    borderRadius: "20px",
+    fontSize: "14px",
+    fontWeight: "700",
+    padding: "6px 16px",
+    borderRadius: "50rem",
     marginLeft: "15px",
     border: "1px solid #fed7aa",
   },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-  },
+  table: { width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" },
   th: {
     backgroundColor: "#fff7ed",
     padding: "16px",
     textAlign: "left",
-    fontWeight: "800",
-    color: "#9a3412",
-    borderBottom: "2px solid #fed7aa",
+    fontWeight: "700",
+    color: "#c2410c",
     fontSize: "15px",
     whiteSpace: "nowrap",
+    borderTop: "none",
+    borderBottom: "none",
   },
-  tableRow: {
-    borderBottom: "1px solid #f1f5f9",
-    transition: "background-color 0.2s",
-  },
+  tableRow: { transition: "all 0.2s ease" },
   td: {
-    padding: "16px",
+    padding: "18px 16px",
     color: "#475569",
     fontSize: "14px",
     fontWeight: "500",
     verticalAlign: "middle",
+    borderBottom: "1px solid #f1f5f9",
   },
   tdName: {
-    padding: "16px",
+    padding: "18px 16px",
     color: "#1e293b",
     fontSize: "15px",
     fontWeight: "700",
     verticalAlign: "middle",
+    borderBottom: "1px solid #f1f5f9",
   },
   dateBadge: {
     display: "inline-block",
     backgroundColor: "#f8fafc",
     padding: "6px 12px",
-    borderRadius: "8px",
+    borderRadius: "10px",
     border: "1px solid #e2e8f0",
     fontSize: "13px",
     color: "#64748b",
+    fontWeight: "600",
   },
   addressText: {
     maxWidth: "180px",
@@ -537,28 +713,29 @@ const styles = {
   },
   statusPaid: {
     backgroundColor: "#dcfce7",
-    color: "#16a34a",
-    padding: "6px 12px",
-    borderRadius: "20px",
+    color: "#15803d",
+    padding: "8px 16px",
+    borderRadius: "50rem",
     fontSize: "13px",
     fontWeight: "700",
     display: "inline-block",
+    boxShadow: "0 2px 5px rgba(22, 163, 74, 0.1)",
   },
   statusPending: {
     backgroundColor: "#fef3c7",
-    color: "#d97706",
-    padding: "6px 12px",
-    borderRadius: "20px",
+    color: "#b45309",
+    padding: "8px 16px",
+    borderRadius: "50rem",
     fontSize: "13px",
     fontWeight: "700",
     display: "inline-block",
   },
   btnInfo: {
-    background: "#f0f9ff",
-    color: "#0284c7",
-    border: "1px solid #bae6fd",
+    background: "#f8fafc",
+    color: "#3b82f6",
+    border: "1px solid #bfdbfe",
     padding: "8px 16px",
-    borderRadius: "10px",
+    borderRadius: "50rem",
     fontWeight: "700",
     cursor: "pointer",
     fontSize: "13px",
@@ -569,21 +746,21 @@ const styles = {
     background: "linear-gradient(135deg, #10b981, #059669)",
     color: "#ffffff",
     border: "none",
-    padding: "8px 16px",
-    borderRadius: "10px",
+    padding: "8px 18px",
+    borderRadius: "50rem",
     fontWeight: "700",
     cursor: "pointer",
     fontSize: "13px",
     transition: "all 0.2s",
-    boxShadow: "0 4px 10px rgba(16, 185, 129, 0.2)",
+    boxShadow: "0 4px 10px rgba(16, 185, 129, 0.25)",
     whiteSpace: "nowrap",
   },
   btnCancel: {
     background: "#fef2f2",
-    color: "#dc2626",
-    border: "1px solid #fee2e2",
-    padding: "8px 12px",
-    borderRadius: "10px",
+    color: "#ef4444",
+    border: "1px solid #fecaca",
+    padding: "8px 14px",
+    borderRadius: "50rem",
     fontWeight: "700",
     cursor: "pointer",
     fontSize: "13px",
@@ -595,6 +772,50 @@ const styles = {
     padding: "80px 20px",
     fontWeight: "600",
     fontSize: "18px",
+  },
+
+  // --- Modal Styles 🌟 ---
+  modalContent: {
+    borderRadius: "24px",
+    border: "none",
+    overflow: "hidden",
+    boxShadow: "0 25px 50px -12px rgba(234, 88, 12, 0.25)",
+  },
+  modalHeader: {
+    backgroundColor: "#fff7ed",
+    borderBottom: "2px solid #fed7aa",
+    padding: "20px 30px",
+  },
+  modalTitle: { color: "#ea580c", margin: 0, fontSize: "20px" },
+  modalLabel: {
+    fontSize: "14px",
+    color: "#64748b",
+    fontWeight: "700",
+    marginBottom: "8px",
+    display: "block",
+  },
+  modalInput: {
+    border: "2px solid #e2e8f0",
+    borderRadius: "12px",
+    padding: "12px 16px",
+    fontSize: "15px",
+    backgroundColor: "#ffffff",
+    color: "#1e293b",
+    fontFamily: "'Kanit', sans-serif",
+  },
+  btnConfirmModal: {
+    width: "100%",
+    padding: "16px",
+    borderRadius: "16px",
+    border: "none",
+    background: "linear-gradient(135deg, #ea580c, #c2410c)",
+    color: "#ffffff",
+    fontSize: "16px",
+    fontWeight: "700",
+    cursor: "pointer",
+    boxShadow: "0 8px 20px rgba(234, 88, 12, 0.25)",
+    transition: "all 0.2s",
+    fontFamily: "'Kanit', sans-serif",
   },
 };
 
