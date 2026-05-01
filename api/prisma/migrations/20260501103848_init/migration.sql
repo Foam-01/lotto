@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "BonusResultDetail" ALTER COLUMN "number" SET DATA TYPE TEXT,
+ALTER COLUMN "bonusDate" SET DATA TYPE TEXT;

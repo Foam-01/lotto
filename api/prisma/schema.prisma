@@ -70,3 +70,10 @@ model BillSaleForSend {
   remark       String?
   price        Int
 }
+
+model BonusResultDetail {
+  id        Int      @id @default(autoincrement())
+  number    String
+  price     Int
+  bonusDate String
+}

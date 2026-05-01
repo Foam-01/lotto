@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import config from "../config";
 import MyModal from "./componnents/MyModal";
+import * as dayjs from "dayjs";
 
 function LottoForSend() {
   // 🌟 ฟังก์ชันจัดการวันที่และเวลาเริ่มต้นให้ถูกฟอร์แมตของ HTML input
@@ -57,6 +58,19 @@ function LottoForSend() {
   };
 
   const handleSave = async () => {
+    // 🌟 1. สร้างตัวตั้งค่า Notification (Toast) แจ้งเตือนมุมขวาบน
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
+
     const button = await Swal.fire({
       title: "ยืนยันการจัดส่ง",
       text: `กำลังบันทึกการจัดส่งบิล #${billSale.id || "-"}`,
@@ -88,12 +102,10 @@ function LottoForSend() {
         );
 
         if (res.data.message === "success") {
-          Swal.fire({
+          // 🌟 2. เรียกใช้ Notification ตอนบันทึกสำเร็จ
+          Toast.fire({
             icon: "success",
-            title: "บันทึกข้อมูลสลากเรียบร้อย",
-            text: "การจัดส่งสลากสำเร็จ",
-            timer: 1500,
-            showConfirmButton: false,
+            title: "บันทึกจัดส่งสลากเรียบร้อย 📦",
           });
 
           // 🌟 สั่งปิด Modal อัตโนมัติ
@@ -108,11 +120,10 @@ function LottoForSend() {
           }, 300);
         }
       } catch (e) {
-        Swal.fire({
+        // 🌟 3. เรียกใช้ Notification ตอนเกิด Error
+        Toast.fire({
           icon: "error",
-          title: "เกิดข้อผิดพลาด",
-          text: "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
-          confirmButtonColor: "#ea580c",
+          title: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง 🔥",
         });
       }
     }
@@ -178,6 +189,12 @@ function LottoForSend() {
                       </th>
                       <th style={styles.th}>ที่อยู่จัดส่ง</th>
                       <th style={{ ...styles.th, textAlign: "center" }}>
+                        วันที่จัดส่ง
+                      </th>
+                      <th style={{ ...styles.th, textAlign: "center" }}>
+                        ค่าจัดส่ง
+                      </th>
+                      <th style={{ ...styles.th, textAlign: "center" }}>
                         จัดการ
                       </th>
                     </tr>
@@ -206,6 +223,39 @@ function LottoForSend() {
                               {item.customerAddress}
                             </div>
                           </td>
+
+                          {/* 🌟 ส่วนของ วันที่จัดส่ง (อัปเกรดความหล่อ) 🌟 */}
+                          <td style={{ ...styles.td, textAlign: "center" }}>
+                            {item.billSaleForSends?.length > 0 &&
+                            item.billSaleForSends[0].sendDate ? (
+                              <div style={styles.dateBadge}>
+                                <i className="bi bi-calendar-check text-success me-1"></i>
+                                {formatDate(item.billSaleForSends[0].sendDate)}
+                              </div>
+                            ) : (
+                              <span
+                                className="badge bg-light text-secondary border px-3 py-2"
+                                style={{ borderRadius: "10px" }}
+                              >
+                                <i className="bi bi-hourglass-split me-1"></i>{" "}
+                                รอดำเนินการ
+                              </span>
+                            )}
+                          </td>
+
+                          {/* 🌟 ส่วนของ ค่าจัดส่ง (อัปเกรดความหล่อ) 🌟 */}
+                          <td style={{ ...styles.td, textAlign: "center" }}>
+                            {item.billSaleForSends?.length > 0 &&
+                            item.billSaleForSends[0].price !== null ? (
+                              <span className="fw-bold text-primary">
+                                ฿
+                                {item.billSaleForSends[0].price.toLocaleString()}
+                              </span>
+                            ) : (
+                              <span className="text-muted">-</span>
+                            )}
+                          </td>
+
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             <div className="d-flex justify-content-center gap-2">
                               <button
@@ -216,22 +266,27 @@ function LottoForSend() {
                               >
                                 <i className="bi bi-search"></i> ดูเลข
                               </button>
-                              {/* 🌟 เพิ่ม onClick handleInfo ตรงนี้ เพื่อให้รู้ว่ากำลังทำของบิลไหน */}
-                              <button
-                                onClick={() => handleInfo(item)}
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalSend"
-                                style={styles.btnSuccess}
-                              >
-                                <i className="bi bi-truck me-1"></i> จัดส่ง
-                              </button>
+
+                              {item.billSaleForSends.length > 0 ? (
+                                <button style={styles.btnSuccess}>จัดส่งแล้ว</button>
+                              ) : (
+                                <button
+                                  onClick={() => handleInfo(item)}
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#modalSend"
+                                  style={styles.btnSuccess}
+                                >
+                                  <i className="bi bi-truck me-1"></i> จัดส่ง
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="5" style={styles.emptyState}>
+                        {/* 🌟 เปลี่ยน colSpan จาก 5 เป็น 7 ให้ครอบคลุมคอลัมน์ใหม่ที่เพิ่มมา 🌟 */}
+                        <td colSpan="7" style={styles.emptyState}>
                           <div
                             style={{ fontSize: "50px", marginBottom: "15px" }}
                           >

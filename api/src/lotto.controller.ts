@@ -289,6 +289,7 @@ export class LottoController {
               lotto: true,
             },
           },
+          billSaleForSends: true,
         },
       });
 
@@ -306,6 +307,13 @@ export class LottoController {
   @Post('/sendSave')
   async sendSave(@Body('data') data: BillSaleForSend) {
      try {
+      const rowCount = await this.prisma.billSaleForSend.findMany({
+        where: {
+          billSaleId: data.billSaleId
+        }
+      })
+      if (rowCount.length == 0 ) {
+
       const res = await this.prisma.billSaleForSend.create({
         data: data
       })
@@ -313,7 +321,9 @@ export class LottoController {
         return { message: 'success' }
       }
       return { message: 'error' }
-
+    } else {
+      return {message: 'data exist'}
+    }
      } catch (e) {
       return {
         status: 500,

@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { CompanyController } from './company.controller';
 import { LottoController } from './lotto.controller';
-
+import { BonusController } from './bonus.controller';
 
 
 @Module({
@@ -17,7 +17,9 @@ import { LottoController } from './lotto.controller';
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  controllers: [AppController, UserController, CompanyController, LottoController],
+  controllers: [AppController, UserController, CompanyController,
+    
+    LottoController, BonusController],
   providers: [AppService, AuthService, JwtStrategy],
 })
 export class AppModule {}
