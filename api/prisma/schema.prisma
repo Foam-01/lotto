@@ -36,16 +36,17 @@ model Lotto {
 }
 
 model BillSale {
-  id              Int              @id @default(autoincrement())
-  payDate         DateTime?
-  createdDate     DateTime
-  customerName    String
-  customerPhone   String
-  customerAddress String?
-  billSaleDetail  BillSaleDetail[]
-  payTime         String?
-  payRemark       String?
-  payAlertDate    DateTime?
+  id               Int               @id @default(autoincrement())
+  payDate          DateTime?
+  createdDate      DateTime
+  customerName     String
+  customerPhone    String
+  customerAddress  String?
+  billSaleDetail   BillSaleDetail[]
+  payTime          String?
+  payRemark        String?
+  payAlertDate     DateTime?
+  billSaleForSends BillSaleForSend[]
 }
 
 model BillSaleDetail {
@@ -55,4 +56,17 @@ model BillSaleDetail {
   lottoId    Int
   lotto      Lotto    @relation(fields: [lottoId], references: [id])
   price      Int?
+}
+
+model BillSaleForSend {
+  id           Int      @id @default(autoincrement())
+  billSaleId   Int
+  billSale     BillSale @relation(fields: [billSaleId], references: [id])
+  sendName     String?
+  sendDate     DateTime
+  sendTime     String
+  traceCode    String
+  sendPlatform String
+  remark       String?
+  price        Int
 }

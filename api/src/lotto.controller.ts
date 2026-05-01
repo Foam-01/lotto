@@ -11,7 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import type { BillSaleDetail, Lotto } from '@prisma/client';
+import type { BillSaleDetail, BillSaleForSend, Lotto } from '@prisma/client';
 import { start } from 'repl';
 import { startWith } from 'rxjs';
 
@@ -301,5 +301,25 @@ export class LottoController {
         error: 'ข้อมูลอาจไม่ถูกต้อง',
       };
     }
+  }
+
+  @Post('/sendSave')
+  async sendSave(@Body('data') data: BillSaleForSend) {
+     try {
+      const res = await this.prisma.billSaleForSend.create({
+        data: data
+      })
+      if (res.id > 0) {
+        return { message: 'success' }
+      }
+      return { message: 'error' }
+
+     } catch (e) {
+      return {
+        status: 500,
+        message: 'ไม่สามารถบันทึกสลากได้',
+        error: 'ข้อมูลอาจไม่ถูกต้อง',
+      }
+     }
   }
 }
