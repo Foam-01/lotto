@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common'; // 🌟 เติม Param ตรงนี้ครับ
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
 
@@ -85,6 +85,43 @@ export class BonusController {
     } catch (e: any) {
       // 🌟 เติม : any ตรงนี้ครับ เส้นแดงจะหายวับไปทันที
       console.error('🔥 API Error:', e.message);
+      return {
+        status: 'error',
+        message: 'ไม่สามารถดึงข้อมูลและบันทึกสลากได้',
+        detail: e.message,
+      };
+    }
+  }
+
+  @Get('/list')
+  async list() {
+    try {
+      const res = await prisma.bonusResultDetail.groupBy({
+        by: ['bonusDate'],
+        orderBy: { bonusDate: 'desc' },
+      });
+
+      return { results: res };
+    } catch (e: any) {
+      return {
+        status: 'error',
+        message: 'ไม่สามารถดึงข้อมูลและบันทึกสลากได้',
+        detail: e.message,
+      };
+    }
+  }
+
+  @Get('/listDetail/:bonusDate')
+  async listDetail(@Param('bonusDate') bonusDate: string) {
+    try {
+      const res = await prisma.bonusResultDetail.findMany({
+        where: {
+          bonusDate: bonusDate,
+        },
+        orderBy: { price: 'desc' },
+      });
+      return { results: res };
+    } catch (e: any) {
       return {
         status: 'error',
         message: 'ไม่สามารถดึงข้อมูลและบันทึกสลากได้',

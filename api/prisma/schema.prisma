@@ -7,73 +7,105 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 🧑‍💻 ตาราง User: เก็บข้อมูลผู้ใช้งานระบบ (แอดมิน/พนักงาน)
+// ใช้สำหรับระบบ Login และจัดการสิทธิ์ต่างๆ
 model User {
   id      Int     @id @default(autoincrement())
-  name    String?
-  user    String  @unique
-  pwd     String
-  level   String?
+  name    String? // ชื่อ-นามสกุล
+  user    String  @unique // Username สำหรับล็อกอิน
+  pwd     String  // รหัสผ่าน
+  level   String? // ระดับสิทธิ์ เช่น admin, staff
   email   String? @unique
   phone   String?
   address String?
 }
 
+// 🏢 ตาราง Company: เก็บโปรไฟล์ร้านค้า/บริษัทของเรา
+// ใช้สำหรับแสดงผลบนหน้าเว็บ หรือพิมพ์ลงบนใบเสร็จ
 model Company {
   id      Int    @id @default(autoincrement())
-  name    String
-  address String
-  phone   String
+  name    String // ชื่อร้าน
+  address String // ที่ตั้งร้าน
+  phone   String // เบอร์ติดต่อ
 }
 
+// 🎟️ ตาราง Lotto: สต็อกสลากกินแบ่งรัฐบาลที่มีในร้าน
+// เก็บข้อมูลสลากแต่ละใบ/แต่ละชุด เพื่อรอการขาย
 model Lotto {
   id              Int              @id @default(autoincrement())
-  numbers         String
-  roundNumber     Int
-  bookNumber      Int
-  cost            Int
-  sale            Int
-  billSaleDetails BillSaleDetail[]
+  numbers         String           // เลขสลาก (6 หลัก)
+  roundNumber     Int              // งวดที่
+  bookNumber      Int              // เล่มที่
+  cost            Int              // ต้นทุนที่รับมา
+  sale            Int              // ราคาขายหน้าร้าน
+  billSaleDetails BillSaleDetail[] // (Relation) สลากใบนี้ถูกขายไปในบิลไหนบ้าง
 }
 
+// 🧾 ตาราง BillSale: บิลคำสั่งซื้อ (Header)
+// เก็บข้อมูลภาพรวมของ 1 ออเดอร์ (ลูกค้าคือใคร, โอนเงินตอนไหน, ยอดรวมเท่าไหร่)
 model BillSale {
   id               Int               @id @default(autoincrement())
-  payDate          DateTime?
-  createdDate      DateTime
-  customerName     String
-  customerPhone    String
-  customerAddress  String?
-  billSaleDetail   BillSaleDetail[]
-  payTime          String?
-  payRemark        String?
-  payAlertDate     DateTime?
-  billSaleForSends BillSaleForSend[]
+  payDate          DateTime?         // วันที่ลูกค้าชำระเงิน
+  createdDate      DateTime          // วันที่สร้างออเดอร์
+  customerName     String            // ชื่อลูกค้า
+  customerPhone    String            // เบอร์โทรลูกค้า
+  customerAddress  String?           // ที่อยู่จัดส่ง
+  billSaleDetail   BillSaleDetail[]  // (Relation) ชี้ไปหารายละเอียดว่าบิลนี้ซื้อเลขอะไรไปบ้าง
+  payTime          String?           // เวลาที่โอนเงิน
+  payRemark        String?           // หมายเหตุการชำระเงิน
+  payAlertDate     DateTime?         // วันที่แจ้งเตือนชำระเงิน
+  billSaleForSends BillSaleForSend[] // (Relation) ชี้ไปหาข้อมูลการจัดส่งพัสดุ
+  tranferMoneyDate DateTime?         // วันที่โอนเงิน
+  tranferMoneyTime String?           // เวลาที่โอนเงิน
+  deliverDate      DateTime?         // วันที่ส่งมอบสลาก
+  price            Int?              // ยอดเงินรวมของบิลนี้
 }
 
+// 📋 ตาราง BillSaleDetail: รายละเอียดในบิลคำสั่งซื้อ (Line Items)
+// เป็นตารางเชื่อม (Join Table) เพื่อบอกว่า "บิลนี้ (BillSale) ซื้อสลากใบไหน (Lotto) ไปบ้าง"
 model BillSaleDetail {
-  id         Int      @id @default(autoincrement())
-  billSaleId Int
-  billSale   BillSale @relation(fields: [billSaleId], references: [id])
-  lottoId    Int
-  lotto      Lotto    @relation(fields: [lottoId], references: [id])
-  price      Int?
+  id                    Int                     @id @default(autoincrement())
+  billSaleId            Int                     // ID ของบิลคำสั่งซื้อ
+  billSale              BillSale                @relation(fields: [billSaleId], references: [id])
+  lottoId               Int                     // ID ของสลากที่ซื้อ
+  lotto                 Lotto                   @relation(fields: [lottoId], references: [id])
+  price                 Int?                    // ราคาที่ขายไปจริง (เผื่อมีการลดราคาจากราคาตั้งต้น)
+  BillSaleDetailIsBonus BillSaleDetailIsBonus[] // (Relation) ตรวจสอบว่าสลากใบนี้ถูกรางวัลไหม
 }
 
+// 🏆 ตาราง BillSaleDetailIsBonus: บันทึกการถูกรางวัลของลูกค้า
+// เก็บข้อมูลว่าสลากที่ลูกค้าซื้อไปแล้ว (อ้างอิงจาก BillSaleDetail) ถูกรางวัลอะไร ได้เงินกี่บาท
+model BillSaleDetailIsBonus {
+  id               Int            @id @default(autoincrement())
+  billSaleDetailId Int            // อ้างอิงรายการสลากที่ขายไป
+  BillSaleDetail   BillSaleDetail @relation(fields: [billSaleDetailId], references: [id])
+  bonusPrice       Int            // จำนวนเงินรางวัลที่ลูกค้าได้รับ
+  bonusDate        DateTime       // งวดวันที่ถูกรางวัล
+  number           String         // เลขที่ถูกรางวัล
+  cost             Int            // ต้นทุนสลาก
+  price            Int            // ราคาที่ขายไป
+}
+
+// 📦 ตาราง BillSaleForSend: ข้อมูลการจัดส่งพัสดุ
+// ใช้จัดการระบบหลังบ้านเมื่อต้องแพ็คสลากตัวจริงส่งไปรษณีย์ให้ลูกค้า
 model BillSaleForSend {
   id           Int      @id @default(autoincrement())
-  billSaleId   Int
+  billSaleId   Int      // อ้างอิงว่าส่งของบิลไหน
   billSale     BillSale @relation(fields: [billSaleId], references: [id])
-  sendName     String?
-  sendDate     DateTime
-  sendTime     String
-  traceCode    String
-  sendPlatform String
-  remark       String?
-  price        Int
+  sendName     String?  // ชื่อผู้รับ/ผู้ส่ง
+  sendDate     DateTime // วันที่ฝากส่งพัสดุ
+  sendTime     String   // เวลาที่ส่ง
+  traceCode    String   // เลข Tracking Number เอาไว้ให้ลูกค้าเช็คสถานะ
+  sendPlatform String   // ขนส่งที่ใช้ (เช่น ไปรษณีย์ไทย, Kerry, Flash)
+  remark       String?  // หมายเหตุเพิ่มเติม
+  price        Int      // ค่าจัดส่ง
 }
 
+// 📢 ตาราง BonusResultDetail: ข้อมูลผลการออกรางวัล (Master Data)
+// ตารางนี้เอาไว้เก็บ "ผลหวยจาก API" ที่เราดึงมา เพื่อเอาไว้ใช้เทียบตรวจรางวัลในระบบ
 model BonusResultDetail {
-  id        Int      @id @default(autoincrement())
-  number    String
-  price     Int
-  bonusDate String
+  id        Int    @id @default(autoincrement())
+  number    String // เลขที่ออก
+  price     Int    // เงินรางวัลของตำแหน่งนั้นๆ
+  bonusDate String // งวดประจำวันที่ (เช่น "16 เมษายน 2569")
 }

@@ -105,6 +105,10 @@ function Home(props) {
             {/* 🌟 เปลี่ยนเป็นรูปรถขนส่ง (จัดส่งให้ลูกค้า) */}
             <i className="bi bi-truck"></i> <span>รายการที่จัดส่ง</span>
           </Link>
+
+          <Link to="/Bonus" className={`menu-item ${isActive("/Bonus")}`}>
+            <i className="bi bi-gift"></i> <span>ผลรางวัล</span>
+          </Link>
         </div>
 
         <div className="logout-section">

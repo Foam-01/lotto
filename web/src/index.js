@@ -14,6 +14,7 @@ import Index from './pages/Index';
 import BillSale from './pages/BillSale';
 import LottoInShop from './pages/LottoInShop';
 import LottoForSend from './pages/LottoForSend';
+import Bonus from './pages/Bonus';
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
     path: '/lottoForSend',
     element: <LottoForSend />
   },
+  {
+    path: '/bonus',
+    element: <Bonus />
+  }
 ]);
 
 
