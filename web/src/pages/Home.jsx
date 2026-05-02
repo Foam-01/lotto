@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import config from "../config";
 import Swal from "sweetalert2";
-import { Link, useNavigate, useLocation } from "react-router-dom"; // นำเข้า useLocation เพิ่มเพื่อเช็คเมนูที่กำลังแอคทีฟ
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Home.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 function Home(props) {
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
-  const location = useLocation(); // ไว้เช็คว่าตอนนี้อยู่ URL ไหน
+  const location = useLocation();
 
   useEffect(() => {
     fetchDate();
@@ -28,26 +28,24 @@ function Home(props) {
     }
   };
 
-  // ฟังก์ชันเช็คว่าเมนูไหนกำลังถูกเลือก
   const isActive = (path) => {
     return location.pathname === path ? "active" : "";
   };
 
   const handleLogout = (e) => {
-    e.preventDefault(); // ป้องกันไม่ให้ลิงก์เปลี่ยนหน้าทันที
+    e.preventDefault();
 
     Swal.fire({
       title: "ออกจากระบบ?",
       text: "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบแผงแมวส้ม",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // ใช้สีแดงเพื่อเตือนว่าเป็นการออกจากระบบ
-      cancelButtonColor: "#94a3b8", // สีเทาสำหรับปุ่มยกเลิก
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#94a3b8",
       confirmButtonText: "ออกจากระบบ",
       cancelButtonText: "ยกเลิก",
     }).then((result) => {
       if (result.isConfirmed) {
-        // ถ้ายืนยัน ค่อยลบ Token และเปลี่ยนหน้า
         localStorage.removeItem("token");
         navigate("/");
       }
@@ -56,22 +54,26 @@ function Home(props) {
 
   return (
     <div className="layout-wrapper">
-      {/* 🌟 Sidebar แผงแมวส้ม 🌟 */}
+      {/* 🌟 Sidebar 🌟 */}
       <div className="sidebar">
-        <div className="title">
-          <div className="title-emoji">🐈</div>
-          แผงแมวส้ม
-          <br />
-          <span className="title-sub">ADMIN PANEL</span>
+        {/* --- ส่วนหัว --- */}
+        <div>
+          <div className="title">
+            <div className="title-emoji">🐈</div>
+            แผงแมวส้ม
+            <br />
+            <span className="title-sub">ADMIN PANEL</span>
+          </div>
+
+          <div className="user-info">
+            <small className="text-muted d-block fw-bold mb-1">
+              ยินดีต้อนรับเจ้านาย
+            </small>
+            <strong className="user-name-text">🐾 {userName || "Admin"}</strong>
+          </div>
         </div>
 
-        <div className="user-info">
-          <small className="text-muted d-block fw-bold mb-1">
-            ยินดีต้อนรับเจ้านาย
-          </small>
-          <strong className="user-name-text">🐾 {userName || "Admin"}</strong>
-        </div>
-
+        {/* --- ส่วนเมนู --- */}
         <div className="menu">
           <Link to="/home" className={`menu-item ${isActive("/home")}`}>
             <i className="bi bi-house-door-fill"></i> <span>หน้าแรก</span>
@@ -94,7 +96,6 @@ function Home(props) {
             to="/lottoInShop"
             className={`menu-item ${isActive("/lottoInShop")}`}
           >
-            {/* 🌟 เปลี่ยนเป็นรูปร้านค้า (ฝากไว้ที่ร้าน) */}
             <i className="bi bi-inbox"></i> <span>รายการที่ฝากร้าน</span>
           </Link>
 
@@ -102,15 +103,23 @@ function Home(props) {
             to="/lottoForSend"
             className={`menu-item ${isActive("/lottoForSend")}`}
           >
-            {/* 🌟 เปลี่ยนเป็นรูปรถขนส่ง (จัดส่งให้ลูกค้า) */}
             <i className="bi bi-truck"></i> <span>รายการที่จัดส่ง</span>
           </Link>
 
           <Link to="/Bonus" className={`menu-item ${isActive("/Bonus")}`}>
             <i className="bi bi-gift"></i> <span>ผลรางวัล</span>
           </Link>
+
+          <Link
+            to="/saleBonus"
+            className={`menu-item ${isActive("/saleBonus")}`}
+          >
+            <i className="bi bi-trophy-fill"></i>{" "}
+            <span>รายงานผู้ถูกรางวัล</span>
+          </Link>
         </div>
 
+        {/* --- ส่วนออกจากระบบ --- */}
         <div className="logout-section">
           <a href="#" className="menu-item logout-link" onClick={handleLogout}>
             <i className="bi bi-power"></i> <span>ออกจากระบบ</span>
