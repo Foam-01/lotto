@@ -129,4 +129,48 @@ export class BonusController {
       };
     }
   }
+
+  @Get('/checkBonus')
+  async checkBonus() {
+    try {
+      const billSaleDetails = await prisma.billSaleDetail.findMany({
+        include: {
+          lotto: true,
+        },
+        where: {},
+      });
+
+      const lastResult = await prisma.bonusResultDetail.findFirst({
+        orderBy: {
+          bonusDate: 'desc',
+        },
+      });
+
+      const bonusResultDetails = await prisma.bonusResultDetail.findMany({
+        where: {
+          bonusDate: lastResult?.bonusDate,
+        },
+      });
+
+      for (let i = 0; i < billSaleDetails.length; i++) {
+        const item = billSaleDetails[i];
+
+        for (let j = 0; j < bonusResultDetails.length; j++) {
+          const item2 = bonusResultDetails[j];
+
+          if (item.lotto.numbers === item2.number) {
+            console.log('lucky', item2.price);
+          }
+        }
+      }
+
+      return { results: bonusResultDetails };
+    } catch (e: any) {
+      return {
+        status: 'error',
+        message: 'ไม่สามารถดึงข้อมูลและบันทึกสลากได้',
+        detail: e.message,
+      };
+    }
+  }
 }
