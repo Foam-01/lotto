@@ -62,8 +62,8 @@ function Index() {
     setSearchQuery("");
     setSearchedDigits(Array(NUM_DIGITS).fill(""));
     try {
-      const res = await axios.get(config.apiPath + "/api/lotto/list");
-      setLottos(res.data.result ?? []);
+      const res = await axios.get(config.apiPath + "/api/lotto/listForSale");
+      setLottos(res.data.results ?? []);
     } catch (e) {
       console.error("Error fetching lottos:", e);
     } finally {

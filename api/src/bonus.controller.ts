@@ -1,8 +1,35 @@
-import { Controller, Get, Param } from '@nestjs/common'; // 🌟 เติม Param ตรงนี้ครับ
+import { Controller, Get, Param } from '@nestjs/common';
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+// 🌟 ฟังก์ชันแปลงวันที่ภาษาไทยเป็น Date Object สำหรับฐานข้อมูล
+function parseThaiDate(thaiDateStr: string): Date {
+  const months = [
+    'มกราคม',
+    'กุมภาพันธ์',
+    'มีนาคม',
+    'เมษายน',
+    'พฤษภาคม',
+    'มิถุนายน',
+    'กรกฎาคม',
+    'สิงหาคม',
+    'กันยายน',
+    'ตุลาคม',
+    'พฤศจิกายน',
+    'ธันวาคม',
+  ];
+  const parts = thaiDateStr.trim().split(' ');
+
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10);
+    const monthIndex = months.indexOf(parts[1]);
+    const year = parseInt(parts[2], 10) - 543; // แปลง พ.ศ. เป็น ค.ศ.
+    return new Date(Date.UTC(year, monthIndex, day));
+  }
+  return new Date(); // กันเหนียว
+}
 
 @Controller('/api/bonus')
 export class BonusController {
@@ -13,7 +40,6 @@ export class BonusController {
       const data = res.data.response;
       const bonusDate = data.date; // "16 เมษายน 2569"
 
-      // 🌟 1. เช็คก่อนว่ามีข้อมูลของงวดนี้ในระบบหรือยัง (ดักกดซ้ำ)
       const row = await prisma.bonusResultDetail.findMany({
         where: {
           bonusDate: bonusDate,
@@ -25,19 +51,14 @@ export class BonusController {
           status: 'success',
           date: bonusDate,
           message: 'ข้อมูลของงวดนี้ถูกอัปเดตในระบบเรียบร้อยแล้ว (ไม่บันทึกซ้ำ)',
-          //raw_data: data, // 📦 ส่งข้อมูลดิบแบบเต็มๆ กลับไปให้ด้วย
         };
       }
 
-      // =======================================================
-      // 🌟 2. โค้ดส่วนดึงและบันทึกข้อมูล (ทำงานเมื่อยังไม่มีข้อมูล)
-      // =======================================================
       const insertData: { number: string; price: number; bonusDate: string }[] =
         [];
 
-      // 🔥 วนลูปเก็บ "รางวัลหลัก" ทั้งหมด (ที่ 1 ถึง 5 และรางวัลข้างเคียง)
       data.prizes.forEach((prizeGroup) => {
-        const reward = Number(prizeGroup.reward); // ดึงยอดเงินของกลุ่มนั้นๆ
+        const reward = Number(prizeGroup.reward);
         prizeGroup.number.forEach((num) => {
           insertData.push({
             number: num,
@@ -47,7 +68,6 @@ export class BonusController {
         });
       });
 
-      // 🔥 วนลูปเก็บ "รางวัลเลขหน้า/ท้าย" ทั้งหมด (หน้า 3, ท้าย 3, ท้าย 2)
       data.runningNumbers.forEach((runGroup) => {
         const reward = Number(runGroup.reward);
         runGroup.number.forEach((num) => {
@@ -59,36 +79,36 @@ export class BonusController {
         });
       });
 
-      // 🌟 3. บันทึกลงฐานข้อมูลรวดเดียวจบ (จะได้ข้อมูลประมาณ 173 แถวต่องวด)
       await prisma.bonusResultDetail.createMany({
         data: insertData,
       });
 
-      // 🌟 4. จัดแพ็กเกจส่งไปให้หน้า React (ส่งให้ครบทุกหมวด)
       return {
         status: 'success',
         date: bonusDate,
         message: `บันทึกข้อมูลสลากและเงินรางวัลจำนวน ${insertData.length} รายการเรียบร้อยแล้ว`,
         lotto_result: {
-          prize1: data.prizes[0].number[0], // รางวัลที่ 1 (1 รางวัล)
-          prize1Near: data.prizes[1].number, // ข้างเคียง (2 รางวัล)
-          prize2: data.prizes[2].number, // รางวัลที่ 2 (5 รางวัล)
-          prize3: data.prizes[3].number, // รางวัลที่ 3 (10 รางวัล)
-          prize4: data.prizes[4].number, // รางวัลที่ 4 (50 รางวัล)
-          prize5: data.prizes[5].number, // รางวัลที่ 5 (100 รางวัล)
-          front3: data.runningNumbers[0].number, // หน้า 3 ตัว (2 รางวัล)
-          back3: data.runningNumbers[1].number, // ท้าย 3 ตัว (2 รางวัล)
-          back2: data.runningNumbers[2].number[0], // ท้าย 2 ตัว (1 รางวัล)
+          prize1: data.prizes[0].number[0],
+          prize1Near: data.prizes[1].number,
+          prize2: data.prizes[2].number,
+          prize3: data.prizes[3].number,
+          prize4: data.prizes[4].number,
+          prize5: data.prizes[5].number,
+          front3: data.runningNumbers[0].number,
+          back3: data.runningNumbers[1].number,
+          back2: data.runningNumbers[2].number[0],
         },
-        //raw_data: data, // 📦 ส่งข้อมูลดิบแบบเต็มๆ กลับไปให้ด้วย
       };
     } catch (e: any) {
-      // 🌟 เติม : any ตรงนี้ครับ เส้นแดงจะหายวับไปทันที
-      console.error('🔥 API Error:', e.message);
+      // ดึงรายละเอียด Error ออกมาให้ลึกขึ้น ถ้าฝั่งนู้นแนบมาให้
+      const errorDetail = e.response?.data || e.message;
+
+      console.error('🔥 API Error:', errorDetail);
+
       return {
         status: 'error',
-        message: 'ไม่สามารถดึงข้อมูลและบันทึกสลากได้',
-        detail: e.message,
+        message: 'ไม่สามารถดึงข้อมูลและบันทึกสลากได้ (API ต้นทางอาจมีปัญหา)',
+        detail: errorDetail,
       };
     }
   }
@@ -137,7 +157,18 @@ export class BonusController {
         include: {
           lotto: true,
         },
-        where: {},
+        where: {
+          // 🌟 เช็คแค่เงื่อนไขเดียว: "บิลนี้ลูกค้าโอนเงินหรือยัง?"
+          billSale: {
+            payDate: {
+              not: null,
+            },
+            // ❌ ลบเงื่อนไข customerAddress ออกไปแล้วครับ! ว่างก็ตรวจให้!
+          },
+          lotto: {
+            isCheckBonus: 0, // สลากต้องยังไม่เคยถูกตรวจ
+          },
+        },
       });
 
       const lastResult = await prisma.bonusResultDetail.findFirst({
@@ -152,20 +183,68 @@ export class BonusController {
         },
       });
 
+      console.log(
+        '📦 สลากที่ผ่านเงื่อนไข (จ่ายเงินแล้ว):',
+        billSaleDetails.length,
+        'ใบ',
+      );
+
       for (let i = 0; i < billSaleDetails.length; i++) {
         const item = billSaleDetails[i];
 
         for (let j = 0; j < bonusResultDetails.length; j++) {
           const item2 = bonusResultDetails[j];
+          let isWin = false;
 
-          if (item.lotto.numbers === item2.number) {
-            console.log('lucky', item2.price);
+          if (
+            item2.number.length === 2 &&
+            item.lotto.numbers.endsWith(item2.number)
+          ) {
+            isWin = true;
+          } else if (
+            item2.number.length === 3 &&
+            (item.lotto.numbers.startsWith(item2.number) ||
+              item.lotto.numbers.endsWith(item2.number))
+          ) {
+            isWin = true;
+          } else if (item.lotto.numbers === item2.number) {
+            isWin = true;
+          }
+
+          if (isWin) {
+            await prisma.billSaleDetailIsBonus.create({
+              data: {
+                billSaleDetailId: item.id,
+                bonusResultDetailId: item2.id,
+              },
+            });
           }
         }
+
+        await prisma.lotto.update({
+          data: {
+            isCheckBonus: 1,
+          },
+          where: {
+            id: item.lotto.id,
+          },
+        });
       }
 
-      return { results: bonusResultDetails };
+      const resultBonus = await prisma.billSaleDetailIsBonus.findMany({
+        include: {
+          BillSaleDetail: {
+            include: {
+              billSale: true,
+            },
+          },
+          BonusResultDetail: true,
+        },
+      });
+
+      return { message: 'success', results: resultBonus };
     } catch (e: any) {
+      console.error(e);
       return {
         status: 'error',
         message: 'ไม่สามารถดึงข้อมูลและบันทึกสลากได้',

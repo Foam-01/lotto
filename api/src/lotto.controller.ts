@@ -45,6 +45,37 @@ export class LottoController {
     };
   }
 
+  @Get('listForSale')
+  async listForSale() {
+    try {
+      // 🌟 ใช้ Prisma คิวรีรวดเดียวจบ ไม่ต้องเอามาวนลูป for แล้ว
+      const results = await this.prisma.lotto.findMany({
+        where: {
+          // ดึงเฉพาะสลากที่ "ไม่มี" (none) รายการสั่งซื้อที่ชำระเงินแล้ว
+          billSaleDetails: {
+            none: {
+              billSale: {
+                payDate: {
+                  not: null,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { id: 'desc' },
+      });
+
+      return { results };
+    } catch (e: any) {
+      console.error('🔥 Error listForSale:', e.message); // แนะนำให้ log error ไว้ดูด้วยครับ
+      return {
+        status: 500,
+        message: 'ไม่สามารถดึงข้อมูลได้',
+        error: e.message,
+      };
+    }
+  }
+
   @Delete('remove/:id')
   async remove(@Param('id') id: string) {
     try {
@@ -306,30 +337,29 @@ export class LottoController {
 
   @Post('/sendSave')
   async sendSave(@Body('data') data: BillSaleForSend) {
-     try {
+    try {
       const rowCount = await this.prisma.billSaleForSend.findMany({
         where: {
-          billSaleId: data.billSaleId
+          billSaleId: data.billSaleId,
+        },
+      });
+      if (rowCount.length == 0) {
+        const res = await this.prisma.billSaleForSend.create({
+          data: data,
+        });
+        if (res.id > 0) {
+          return { message: 'success' };
         }
-      })
-      if (rowCount.length == 0 ) {
-
-      const res = await this.prisma.billSaleForSend.create({
-        data: data
-      })
-      if (res.id > 0) {
-        return { message: 'success' }
+        return { message: 'error' };
+      } else {
+        return { message: 'data exist' };
       }
-      return { message: 'error' }
-    } else {
-      return {message: 'data exist'}
-    }
-     } catch (e) {
+    } catch (e) {
       return {
         status: 500,
         message: 'ไม่สามารถบันทึกสลากได้',
         error: 'ข้อมูลอาจไม่ถูกต้อง',
-      }
-     }
+      };
+    }
   }
 }
