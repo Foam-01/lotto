@@ -146,7 +146,7 @@ function Company() {
                 <span className="me-3" style={styles.headerEmoji}>
                   🐈
                 </span>
-                แผงแมวส้ม: จัดการข้อมูลร้าน
+                 จัดการข้อมูลร้าน
               </h2>
               <p style={styles.subtitleMain}>
                 ตั้งค่าโปรไฟล์แผงแมวส้มของคุณ

@@ -117,6 +117,13 @@ function Home(props) {
             <i className="bi bi-trophy-fill"></i>{" "}
             <span>รายงานผู้ถูกรางวัล</span>
           </Link>
+
+          <Link
+            to="/reportIncome"  
+            className={`menu-item ${isActive("/reportIncome")}`}
+          >
+            <i className="bi bi-cash-coin"></i> <span>รายงานรายได้</span>
+          </Link>
         </div>
 
         {/* --- ส่วนออกจากระบบ --- */}

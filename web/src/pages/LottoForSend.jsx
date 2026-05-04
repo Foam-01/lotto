@@ -159,7 +159,7 @@ function LottoForSend() {
                   <span className="me-3" style={styles.headerEmoji}>
                     🚚
                   </span>
-                  แผงแมวส้ม: รายการที่ต้องจัดส่ง
+                   รายการที่ต้องจัดส่ง
                 </h2>
                 <p style={styles.subtitleMain}>
                   จัดการคิวส่งสลากตัวจริงให้ลูกค้าทางไปรษณีย์

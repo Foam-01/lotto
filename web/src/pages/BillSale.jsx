@@ -240,7 +240,7 @@ function BillSale() {
                   <span className="me-3" style={styles.headerEmoji}>
                     🐈
                   </span>
-                  แผงแมวส้ม: รายการสั่งซื้อ
+                   รายการสั่งซื้อ
                 </h2>
                 <p style={styles.subtitleMain}>
                   ตรวจสอบรายการสั่งซื้อสลาก และอัปเดตสถานะการชำระเงินของลูกค้า

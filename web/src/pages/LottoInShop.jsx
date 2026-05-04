@@ -97,7 +97,7 @@ function LottoInShop() {
                   <span className="me-3" style={styles.headerEmoji}>
                     🏪
                   </span>
-                  แผงแมวส้ม: รายการที่ฝากร้าน
+                   รายการที่ฝากร้าน
                 </h2>
                 <p style={styles.subtitleMain}>
                   ตรวจสอบรายการสลากที่ลูกค้าชำระเงินแล้วและต้องการฝากไว้ที่แผง

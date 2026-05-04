@@ -92,4 +92,31 @@ export class BillSaleController {
       };
     }
   }
+
+  @Post('/income')
+  async income(
+    @Body('fromDate') fromDate: string,
+    @Body('toDate') toDate: string,
+  ) {
+    try {
+        const res = await prisma.billSaleDetail.findMany({
+            where: {
+                billSale: {
+                    payDate: {
+                        not: null,
+                        gte: new Date(fromDate).toISOString(),
+                        lte: new Date(toDate).toISOString(),
+                    }
+                }
+            }
+        })
+        return { results: res }
+    } catch (e) {
+        return {
+            status: 500,
+            message: 'ไม่สามารถบันทึกสลากได้',
+            error: 'ข้อมูลอาจไม่ถูกต้อง',
+        }
+    }
+  }
 }
