@@ -8,6 +8,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { CompanyController } from './company.controller';
 import { LottoController } from './lotto.controller';
 import { BonusController } from './bonus.controller';
+import { BillSaleController } from './billSale.controller';
 
 
 @Module({
@@ -19,7 +20,7 @@ import { BonusController } from './bonus.controller';
   ],
   controllers: [AppController, UserController, CompanyController,
     
-    LottoController, BonusController],
+    LottoController, BonusController,BillSaleController],
   providers: [AppService, AuthService, JwtStrategy],
 })
 export class AppModule {}
