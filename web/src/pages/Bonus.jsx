@@ -3,7 +3,7 @@ import Home from "./Home";
 import axios from "axios";
 import config from "../config";
 import { useEffect, useState } from "react";
-import MyModal from "./componnents/MyModal";
+import MyModal from "../components/MyModal";
 
 function Bonus() {
   const [bonusDetails, setBonusDetails] = useState([]);

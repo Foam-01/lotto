@@ -7,38 +7,62 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { LottoService } from './lotto.service';
 import { ConfirmBuyDto, ConfirmPayDto, SearchLottoDto } from './dto/lotto.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'; // 🌟 ดึงยามมาจากโฟลเดอร์ common
 
 @Controller('/api/lotto')
 export class LottoController {
   constructor(private readonly lottoService: LottoService) {}
 
-  @Post('create') async create(@Body() lotto: any) {
+  // ----------------------------------------------------
+  // 🔒 โซนของพนักงาน (Admin) -> ต้อง Login เท่านั้น!
+  // ----------------------------------------------------
+  @UseGuards(JwtAuthGuard)
+  @Post('create')
+  async create(@Body() lotto: any) {
     return this.lottoService.create(lotto);
   }
-  @Get('list') async list() {
+
+  @UseGuards(JwtAuthGuard)
+  @Get('list')
+  async list() {
     return this.lottoService.list();
   }
-  @Get('listForSale') async listForSale() {
-    return this.lottoService.listForSale();
-  }
-  @Delete('remove/:id') async remove(@Param('id', ParseIntPipe) id: number) {
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('remove/:id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
     return this.lottoService.remove(id);
   }
-  @Put('edit/:id') async edit(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() lotto: any,
-  ) {
+
+  @UseGuards(JwtAuthGuard)
+  @Put('edit/:id')
+  async edit(@Param('id', ParseIntPipe) id: number, @Body() lotto: any) {
     return this.lottoService.edit(id, lotto);
   }
-  @Post('search') async search(@Body() dto: SearchLottoDto) {
+
+  // ----------------------------------------------------
+  // 🔓 โซนของลูกค้า (Public) -> ไม่ต้อง Login ก็ยิงได้
+  // ----------------------------------------------------
+  @Get('listForSale')
+  async listForSale() {
+    return this.lottoService.listForSale();
+  }
+
+  @Post('search')
+  async search(@Body() dto: SearchLottoDto) {
     return this.lottoService.search(dto);
   }
-  @Post('ConfirmBuy') async confirmBuy(@Body() dto: ConfirmBuyDto) {
+
+  @Post('ConfirmBuy')
+  async confirmBuy(@Body() dto: ConfirmBuyDto) {
     return this.lottoService.confirmBuy(dto);
   }
+
+  // ... ฟังก์ชันที่เหลือด้านล่าง คุณสามารถเลือกแปะ @UseGuards(JwtAuthGuard) ได้ตามความเหมาะสมเลยครับ
   @Get('billSale') async billSale() {
     return this.lottoService.getBillSale();
   }

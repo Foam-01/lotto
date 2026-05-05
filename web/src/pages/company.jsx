@@ -1,7 +1,6 @@
 import Home from "./Home";
 import { useEffect, useState } from "react";
-import config from "../config";
-import axios from "axios";
+import CompanyService from "../services/company.service";
 import Swal from "sweetalert2";
 // 🌟 เปลี่ยนมาใช้ SweetAlert2 สำหรับแจ้งเตือนทั้งหมดแทน react-toastify
 import "sweetalert2/dist/sweetalert2.min.css";
@@ -18,7 +17,8 @@ function Company() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(config.apiPath + "/api/company/info");
+      // 🌟 ใช้ Service ดึงข้อมูล
+      const res = await CompanyService.getInfo();
       if (res.data.id !== undefined) {
         setName(res.data.name);
         setPhone(res.data.phone);
@@ -36,7 +36,6 @@ function Company() {
   };
 
   const handleSave = async () => {
-    // 🌟 สร้าง Notification (Toast) ของ SweetAlert2 เตรียมไว้
     const Toast = Swal.mixin({
       toast: true,
       position: "top-end",
@@ -50,11 +49,10 @@ function Company() {
     });
 
     try {
-      // โชว์ Loading เล็กๆ ที่มุมขวาบน
       Toast.fire({
         title: "กำลังบันทึกข้อมูลแผงแมวส้ม...",
         icon: "info",
-        timer: null, // ให้หมุนไปเรื่อยๆ จนกว่าจะโหลดเสร็จ
+        timer: null,
         showConfirmButton: false,
       });
 
@@ -66,29 +64,26 @@ function Company() {
 
       let res;
       if (id === 0) {
-        res = await axios.post(config.apiPath + "/api/company/create", payload);
-        setId(0); // หรือดึง ID ใหม่กลับมาเซ็ตก็ได้
+        // 🌟 ใช้ Service สร้างข้อมูลใหม่
+        res = await CompanyService.create(payload);
+        setId(0);
       } else {
-        res = await axios.put(
-          config.apiPath + "/api/company/edit/" + id,
-          payload,
-        );
+        // 🌟 ใช้ Service แก้ไขข้อมูล
+        res = await CompanyService.edit(id, payload);
       }
 
       if (res.data.id !== undefined || res.data.message === "success") {
-        // เมื่อบันทึกสำเร็จ เปลี่ยน Toast เป็นหน้าตาสำเร็จ
         Toast.fire({
           icon: "success",
           title: "บันทึกข้อมูลแผงแมวส้มเรียบร้อย! 🐈",
           timer: 2500,
         });
-        fetchData(); // ดึงข้อมูลใหม่มาแสดง
+        fetchData();
       } else {
         throw new Error("Insert or Update failed");
       }
     } catch (e) {
       console.error(e);
-      // เมื่อเกิด Error แจ้งเตือนสีแดง
       Toast.fire({
         icon: "error",
         title: "โง้ววว... บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่ 😿",

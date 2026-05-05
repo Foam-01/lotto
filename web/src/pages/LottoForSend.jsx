@@ -3,7 +3,7 @@ import Home from "./Home";
 import Swal from "sweetalert2";
 import axios from "axios";
 import config from "../config";
-import MyModal from "./componnents/MyModal";
+import MyModal from '../components/MyModal';
 import * as dayjs from "dayjs";
 
 function LottoForSend() {

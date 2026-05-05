@@ -1,6 +1,6 @@
-import axios from "axios";
+
 import { useEffect, useRef, useState } from "react";
-import config from "../config";
+import LottoService from "../services/lotto.service";
 import Swal from "sweetalert2";
 import "./Index.css";
 
@@ -62,7 +62,8 @@ function Index() {
     setSearchQuery("");
     setSearchedDigits(Array(NUM_DIGITS).fill(""));
     try {
-      const res = await axios.get(config.apiPath + "/api/lotto/listForSale");
+      // 🌟 เปลี่ยนมาเรียกใช้ Service
+      const res = await LottoService.getListForSale();
       setLottos(res.data.results ?? []);
     } catch (e) {
       console.error("Error fetching lottos:", e);
@@ -114,8 +115,9 @@ function Index() {
 
     try {
       setLoading(true);
-      const res = await axios.get(config.apiPath + "/api/lotto/list");
-      const allLottos = res.data.result ?? [];
+      // 🌟 เปลี่ยนมาใช้ getListForSale() ของ Service (ไม่โดน Guard บล็อกแน่นอน)
+      const res = await LottoService.getListForSale();
+      const allLottos = res.data.results ?? []; // 🌟 เปลี่ยนเป็น results แทน result
 
       const exactMatches = allLottos.filter((lotto) => {
         for (let i = 0; i < 6; i++) {
@@ -195,11 +197,8 @@ function Index() {
          carts: carts,
        };
 
-       // ยิง API
-       const res = await axios.post(
-         config.apiPath + "/api/lotto/ConfirmBuy",
-         payload,
-       );
+       // 🌟 เปลี่ยนมาเรียกใช้ Service
+       const res = await LottoService.confirmBuy(payload);
 
        if (res.data.message === "success") {
          // 🌟 2. เรียกใช้ Notification แบบ Success แทนการใช้ Modal ใหญ่

@@ -1,13 +1,13 @@
 import Home from "./Home";
 import { useEffect, useState, useRef } from "react";
-import config from "../config";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// 🌟 Import Service ที่เราเพิ่งสร้างมาใช้แทน Axios
+import LottoService from "../services/lotto.service";
+
 function Lotto() {
-  // 👇 โลจิกของคุณล้วนๆ (ปรับแค่สีปุ่ม Swal ให้เป็นสีส้ม)
   const [number, setNumber] = useState("");
   const [roundNumber, setRoundNumber] = useState("");
   const [bookNumber, setBookNumber] = useState("");
@@ -25,17 +25,28 @@ function Lotto() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(config.apiPath + "/api/lotto/list");
+      // 🌟 ใช้ Service ดึงข้อมูล (โค้ดสั้นลง และอ่านรู้เรื่องทันทีว่ากำลังทำอะไร)
+      const res = await LottoService.getList();
+
       if (res.data.result !== undefined) {
         setLottos(res.data.result);
       }
     } catch (e) {
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
-      });
+      if (e.response && e.response.status === 401) {
+        Swal.fire({
+          icon: "warning",
+          title: "เซสชันหมดอายุ",
+          text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+          confirmButtonColor: "#ea580c",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
+          confirmButtonColor: "#ea580c",
+        });
+      }
     }
   };
 
@@ -51,12 +62,11 @@ function Lotto() {
       let res;
 
       if (id === 0) {
-        res = await axios.post(config.apiPath + "/api/lotto/create", payload);
+        // 🌟 เรียกใช้ Service สร้างข้อมูล
+        res = await LottoService.create(payload);
       } else {
-        res = await axios.put(
-          config.apiPath + "/api/lotto/edit/" + id,
-          payload,
-        );
+        // 🌟 เรียกใช้ Service แก้ไขข้อมูล
+        res = await LottoService.edit(id, payload);
       }
 
       if (res.data.result.id !== undefined) {
@@ -76,13 +86,13 @@ function Lotto() {
         setCost("");
         setSale("");
         fetchData();
-        setId(0); // เคลียร์ ID กลับเป็นสถานะเพิ่มใหม่
+        setId(0);
       }
     } catch (e) {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: "ไม่สามารถบันทึกข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
+        text: "ไม่สามารถบันทึกข้อมูลสลากได้ (คุณอาจไม่มีสิทธิ์ หรือ เซสชันหมดอายุ)",
         confirmButtonColor: "#ea580c",
       });
     }
@@ -94,18 +104,16 @@ function Lotto() {
       title: "คุณต้องการลบสลากนี้หรือไม่?",
       text: `เลขสลาก: ${item.numbers}`,
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // แดง
-      cancelButtonColor: "#94a3b8", // เทา
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#94a3b8",
       confirmButtonText: "ยืนยันการลบ",
       cancelButtonText: "ยกเลิก",
     }).then(async (res) => {
       if (res.isConfirmed) {
         const toastId = toast.loading("กำลังลบข้อมูล...");
-
         try {
-          const resFromApi = await axios.delete(
-            config.apiPath + "/api/lotto/remove/" + item.id,
-          );
+          // 🌟 เรียกใช้ Service ลบข้อมูล
+          const resFromApi = await LottoService.remove(item.id);
 
           if (resFromApi.data.result.id !== undefined) {
             toast.update(toastId, {
@@ -119,7 +127,7 @@ function Lotto() {
           }
         } catch (e) {
           toast.update(toastId, {
-            render: "ไม่สามารถลบข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
+            render: "ไม่สามารถลบข้อมูลสลากได้ (อาจไม่มีสิทธิ์)",
             type: "error",
             isLoading: false,
             autoClose: 3000,
@@ -136,8 +144,9 @@ function Lotto() {
     setCost(item.cost);
     setSale(item.sale);
     setId(item.id);
-    window.scrollTo({ top: 0, behavior: "smooth" }); // เลื่อนจอขึ้นไปหาฟอร์มให้ด้วย
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  
 
   // 👇 ส่วน UI ที่ปรับความสวยงามแบบ แผงแมวส้ม 🐈 👇
   return (
@@ -209,7 +218,6 @@ function Lotto() {
             </div>
 
             <div style={{ marginTop: "25px" }}>
-              {/* เลขสลาก 6 หลัก */}
               <div style={{ marginBottom: "25px" }}>
                 <label style={styles.label}>เลขสลาก (6 หลัก)</label>
                 <input
@@ -220,11 +228,10 @@ function Lotto() {
                   placeholder="0 0 0 0 0 0"
                   maxLength="6"
                   value={number}
-                  onChange={(e) => setNumber(e.target.value.replace(/\D/g, ""))} // กันพิมพ์ตัวอักษร
+                  onChange={(e) => setNumber(e.target.value.replace(/\D/g, ""))}
                 />
               </div>
 
-              {/* ข้อมูลรอง 4 ช่อง */}
               <div style={styles.inputGrid}>
                 <div>
                   <label style={styles.label}>เล่มที่</label>
@@ -275,14 +282,11 @@ function Lotto() {
                 </div>
               </div>
 
-              {/* ปุ่มบันทึก */}
               <div style={styles.footerAction}>
                 <button style={styles.btnSave} onClick={handleSave}>
                   <i
                     className={`bi ${id === 0 ? "bi-plus-circle-fill" : "bi-check-circle-fill"}`}
-                    style={{
-                      marginRight: "10px",
-                    }} /* 👈 เพิ่มตรงนี้เพื่อดันข้อความออกไป */
+                    style={{ marginRight: "10px" }}
                   ></i>
                   {id === 0 ? "นำสลากขึ้นแผง" : "บันทึกการแก้ไข"}
                 </button>
@@ -310,7 +314,6 @@ function Lotto() {
             <div style={styles.tableHeaderContainer}>
               <h4 style={styles.cardTitle}>
                 📋 สลากทั้งหมดบนแผง
-                {/* 🌟 เพิ่มป้ายบอกจำนวนใบตรงนี้ 🌟 */}
                 <span
                   style={{
                     backgroundColor: "#fff7ed",
@@ -428,9 +431,7 @@ const styles = {
     position: "relative",
     zIndex: 2,
   },
-  header: {
-    marginBottom: "40px",
-  },
+  header: { marginBottom: "40px" },
   titleMain: {
     fontSize: "32px",
     fontWeight: "900",
@@ -497,7 +498,7 @@ const styles = {
     border: "2px solid #e2e8f0",
     fontSize: "42px",
     fontWeight: "900",
-    color: "#ea580c", // ตัวเลขสีส้ม
+    color: "#ea580c",
     textAlign: "center",
     letterSpacing: "15px",
     backgroundColor: "#f8fafc",
@@ -522,10 +523,10 @@ const styles = {
     width: "100%",
     padding: "16px",
     borderRadius: "12px",
-    border: "2px solid #fdba74", // ขอบส้ม
+    border: "2px solid #fdba74",
     fontSize: "18px",
     fontWeight: "bold",
-    color: "#dc2626", // ตัวเลขสีแดง
+    color: "#dc2626",
     backgroundColor: "#fff7ed",
     boxSizing: "border-box",
   },
@@ -573,28 +574,7 @@ const styles = {
     flexWrap: "wrap",
     gap: "15px",
   },
-  inputWrapper: {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-  },
-  searchIcon: {
-    position: "absolute",
-    left: "16px",
-    color: "#94a3b8",
-  },
-  searchInput: {
-    padding: "12px 16px 12px 45px",
-    borderRadius: "12px",
-    border: "2px solid #e2e8f0",
-    width: "280px",
-    fontSize: "15px",
-    backgroundColor: "#f8fafc",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-  },
+  table: { width: "100%", borderCollapse: "collapse" },
   th: {
     backgroundColor: "#fff7ed",
     padding: "16px",
@@ -629,7 +609,7 @@ const styles = {
   },
   btnEdit: {
     background: "#f8fafc",
-    color: "#0284c7", // ฟ้า
+    color: "#0284c7",
     border: "1px solid #e0f2fe",
     padding: "8px 16px",
     borderRadius: "10px",
@@ -640,7 +620,7 @@ const styles = {
   },
   btnDelete: {
     background: "#fef2f2",
-    color: "#dc2626", // แดง
+    color: "#dc2626",
     border: "1px solid #fee2e2",
     padding: "8px 16px",
     borderRadius: "10px",
