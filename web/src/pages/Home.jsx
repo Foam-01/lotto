@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import config from "../config";
+import AuthService from "../services/auth.service";
 import Swal from "sweetalert2";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Home.css";
@@ -17,10 +16,7 @@ function Home(props) {
 
   const fetchDate = async () => {
     try {
-      const res = await axios.get(
-        config.apiPath + "/api/user/info",
-        config.headers(),
-      );
+      const res = await AuthService.getUserInfo();
       setUserName(res.data.payload.user);
     } catch (e) {
       localStorage.removeItem("token");
@@ -119,7 +115,7 @@ function Home(props) {
           </Link>
 
           <Link
-            to="/reportIncome"  
+            to="/reportIncome"
             className={`menu-item ${isActive("/reportIncome")}`}
           >
             <i className="bi bi-cash-coin"></i> <span>รายงานรายได้</span>

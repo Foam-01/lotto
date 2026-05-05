@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import Swal from "sweetalert2";
-import axios from "axios";
-import config from "../config";
+import AuthService from "../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
@@ -28,7 +27,8 @@ function Login() {
         pwd: password,
       };
 
-      const res = await axios.post(config.apiPath + "/api/user/login", payload);
+      // 🌟 เปลี่ยนมาเรียกใช้ AuthService
+      const res = await AuthService.login(payload);
 
       if (res.data && res.data.token) {
         localStorage.setItem("token", res.data.token);

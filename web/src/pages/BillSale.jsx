@@ -5,6 +5,7 @@ import BillSaleService from "../services/bill-sale.service";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as dayjs from "dayjs";
+import { formatDate, formatDateTime } from "../utils/format";
 
 function BillSale() {
   const currentDate = dayjs(new Date()).format("YYYY-MM-DD");
@@ -37,18 +38,6 @@ function BillSale() {
         confirmButtonColor: "#ea580c",
       });
     }
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("th-TH", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   const handleSumTotalPrice = (item) => {
@@ -108,21 +97,6 @@ function BillSale() {
     setPayAlertDate(currentDate);
     setPayDate(currentDate);
     setPayTime(currentDateTime);
-  };
-
-  const formatPayDateTime = (dateString, timeString) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-
-    const datePart = date.toLocaleDateString("th-TH", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-
-    const timePart = timeString ? timeString.substring(0, 5) : "";
-
-    return `${datePart} ${timePart} น.`;
   };
 
   const handleConfirmPay = async () => {
@@ -234,7 +208,7 @@ function BillSale() {
                   <span className="me-3" style={styles.headerEmoji}>
                     🐈
                   </span>
-                   รายการสั่งซื้อ
+                  รายการสั่งซื้อ
                 </h2>
                 <p style={styles.subtitleMain}>
                   ตรวจสอบรายการสั่งซื้อสลาก และอัปเดตสถานะการชำระเงินของลูกค้า
@@ -305,7 +279,7 @@ function BillSale() {
                             {item.payDate ? (
                               <span style={styles.statusPaid}>
                                 <i className="bi bi-check-circle-fill me-1"></i>
-                                {formatPayDateTime(item.payDate, item.payTime)}
+                                {formatDateTime(item.payDate, item.payTime)}
                               </span>
                             ) : (
                               <span style={styles.statusPending}>

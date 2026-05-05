@@ -3,6 +3,7 @@ import Home from "./Home";
 import Swal from "sweetalert2";
 import BillSaleService from "../services/bill-sale.service";
 import MyModal from "../components/MyModal";
+import { formatDate, formatTime } from "../utils/format";
 
 function LottoInShop() {
   const [billSales, setBillSales] = useState([]);
@@ -30,23 +31,6 @@ function LottoInShop() {
 
   const handleInfo = (item) => {
     setBillSale(item);
-  };
-
-  // 🌟 ฟังก์ชันแปลงวันที่ให้สวยงาม
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("th-TH", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  // 🌟 ฟังก์ชันจัดการเวลา
-  const formatTime = (timeString) => {
-    if (!timeString) return "-";
-    return timeString.substring(0, 5) + " น.";
   };
 
   return (
@@ -96,7 +80,7 @@ function LottoInShop() {
                   <span className="me-3" style={styles.headerEmoji}>
                     🏪
                   </span>
-                   รายการที่ฝากร้าน
+                  รายการที่ฝากร้าน
                 </h2>
                 <p style={styles.subtitleMain}>
                   ตรวจสอบรายการสลากที่ลูกค้าชำระเงินแล้วและต้องการฝากไว้ที่แผง

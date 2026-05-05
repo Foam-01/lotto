@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import Home from "./Home";
 import Swal from "sweetalert2";
 import BillSaleService from "../services/bill-sale.service";
-import MyModal from '../components/MyModal';
-
+import MyModal from "../components/MyModal";
+import { formatDate,  } from "../utils/format";
 
 function LottoForSend() {
   // 🌟 ฟังก์ชันจัดการวันที่และเวลาเริ่มต้นให้ถูกฟอร์แมตของ HTML input
@@ -125,22 +125,6 @@ function LottoForSend() {
     }
   };
 
-  // ฟังก์ชันแปลงวันที่ให้สวยงาม
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("th-TH", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatTime = (timeString) => {
-    if (!timeString) return "-";
-    return timeString.substring(0, 5) + " น.";
-  };
-
   return (
     <>
       <Home>
@@ -155,7 +139,7 @@ function LottoForSend() {
                   <span className="me-3" style={styles.headerEmoji}>
                     🚚
                   </span>
-                   รายการที่ต้องจัดส่ง
+                  รายการที่ต้องจัดส่ง
                 </h2>
                 <p style={styles.subtitleMain}>
                   จัดการคิวส่งสลากตัวจริงให้ลูกค้าทางไปรษณีย์
@@ -264,7 +248,9 @@ function LottoForSend() {
                               </button>
 
                               {item.billSaleForSends.length > 0 ? (
-                                <button style={styles.btnSuccess}>จัดส่งแล้ว</button>
+                                <button style={styles.btnSuccess}>
+                                  จัดส่งแล้ว
+                                </button>
                               ) : (
                                 <button
                                   onClick={() => handleInfo(item)}

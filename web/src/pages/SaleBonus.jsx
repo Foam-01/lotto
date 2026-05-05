@@ -3,7 +3,7 @@ import Home from "./Home";
 import BonusService from "../services/bonus.service";
 import { useEffect, useState } from "react";
 import MyModal from "../components/MyModal";
-import moment from "moment";
+import * as dayjs from "dayjs";
 
 function SaleBonus() {
   const [billSaleDetailsBonus, setBillSaleDetailsBonus] = useState([]);
@@ -508,18 +508,18 @@ function SaleBonus() {
                                     โอนเงินแล้ว
                                   </span>
                                   <span className="text-dark">
-                                    {moment(
+                                    {dayjs(
                                       item.BillSaleDetail.billSale
                                         .tranferMoneyDate,
                                     ).format("DD/MM/YYYY")}
                                   </span>
+                                  {/* 👇 เหลือแค่นี้พอครับ 👇 */}
                                   <span className="text-muted ms-1">
                                     (
-                                    {moment(
-                                      item.BillSaleDetail.billSale
-                                        .tranferMoneyTime,
-                                      "HH:mm",
-                                    ).format("HH:mm")}{" "}
+                                    {item.BillSaleDetail.billSale.tranferMoneyTime?.substring(
+                                      0,
+                                      5,
+                                    )}{" "}
                                     น.)
                                   </span>
                                 </div>
@@ -530,7 +530,7 @@ function SaleBonus() {
                                     มอบเงินสดแล้ว
                                   </span>
                                   <span className="text-dark">
-                                    {moment(
+                                    {dayjs(
                                       item.BillSaleDetail.billSale.deliverDate,
                                     ).format("DD/MM/YYYY")}
                                   </span>
@@ -587,10 +587,10 @@ function SaleBonus() {
 
                                       const now = new Date();
                                       setTranferMoneyDate(
-                                        moment(now).format("YYYY-MM-DD"),
+                                        dayjs(now).format("YYYY-MM-DD"),
                                       );
                                       setTranferMoneyTime(
-                                        moment(now).format("HH:mm"),
+                                        dayjs(now).format("HH:mm"),
                                       );
                                     }}
                                   >
@@ -628,7 +628,7 @@ function SaleBonus() {
                                         item.BonusResultDetail?.price || 0,
                                       );
                                       setDeliverDate(
-                                        moment(new Date()).format("YYYY-MM-DD"),
+                                        dayjs(new Date()).format("YYYY-MM-DD"),
                                       );
                                     }}
                                   >
