@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import Home from "./Home";
 import Swal from "sweetalert2";
-import axios from "axios";
-import config from "../config";
+import BillSaleService from "../services/bill-sale.service";
 import MyModal from '../components/MyModal';
-import * as dayjs from "dayjs";
+
 
 function LottoForSend() {
   // 🌟 ฟังก์ชันจัดการวันที่และเวลาเริ่มต้นให้ถูกฟอร์แมตของ HTML input
@@ -39,7 +38,7 @@ function LottoForSend() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(config.apiPath + "/api/lotto/lottoForSend");
+      const res = await BillSaleService.getLottoForSend(); // 🌟 ใช้ Service
       if (res.data.results !== undefined) {
         setBillSales(res.data.results);
       }
@@ -96,10 +95,7 @@ function LottoForSend() {
           },
         };
 
-        const res = await axios.post(
-          config.apiPath + "/api/lotto/sendSave",
-          payload,
-        );
+        const res = await BillSaleService.sendSave(payload); // 🌟 ใช้ Service
 
         if (res.data.message === "success") {
           // 🌟 2. เรียกใช้ Notification ตอนบันทึกสำเร็จ

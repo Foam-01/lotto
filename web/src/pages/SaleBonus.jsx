@@ -1,7 +1,6 @@
 import Swal from "sweetalert2";
 import Home from "./Home";
-import axios from "axios";
-import config from "../config";
+import BonusService from "../services/bonus.service";
 import { useEffect, useState } from "react";
 import MyModal from "../components/MyModal";
 import moment from "moment";
@@ -25,7 +24,7 @@ function SaleBonus() {
   const fetchDate = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.get(config.apiPath + "/api/bonus/checkBonus");
+      const res = await BonusService.getCheckBonus(); // 🌟 ใช้ Service
       if (res.data.results !== undefined) {
         setBillSaleDetailsBonus(res.data.results);
       }
@@ -66,10 +65,7 @@ function SaleBonus() {
           tranferMoneyTime: tranferMoneyTime,
           price: parseInt(price),
         };
-        const res = await axios.post(
-          config.apiPath + "/api/billSale/TranferMoney",
-          payload,
-        );
+        const res = await BonusService.transferMoney(payload); // 🌟 ใช้ Service
 
         if (res.data.message === "success") {
           const Toast = Swal.mixin({
@@ -130,10 +126,7 @@ function SaleBonus() {
           deliverDate: new Date(deliverDate),
           price: parseInt(price),
         };
-        const res = await axios.post(
-          config.apiPath + "/api/billSale/deliverMoney",
-          payload,
-        );
+        const res = await BonusService.deliverMoney(payload); // 🌟 ใช้ Service
 
         if (res.data.message === "success") {
           const Toast = Swal.mixin({

@@ -1,8 +1,7 @@
 import Swal from "sweetalert2";
 import Home from "./Home";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import config from "../config";
+import BillSaleService from "../services/bill-sale.service";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as dayjs from "dayjs";
@@ -25,7 +24,7 @@ function BillSale() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(config.apiPath + "/api/lotto/billSale");
+      const res = await BillSaleService.getBillSales(); // 🌟 ใช้ Service
 
       if (res.data.result && res.data.result.length > 0) {
         setBillSales(res.data.result);
@@ -80,9 +79,7 @@ function BillSale() {
       if (button.isConfirmed) {
         const toastId = toast.loading("กำลังลบข้อมูล...");
 
-        const res = await axios.delete(
-          config.apiPath + "/api/lotto/removeBill/" + billSale.id,
-        );
+        const res = await BillSaleService.removeBill(billSale.id); // 🌟 ใช้ Service
 
         if (res.data.message === "success") {
           toast.update(toastId, {
@@ -152,10 +149,7 @@ function BillSale() {
           payAlertDate: payAlertDate,
         };
 
-        const res = await axios.post(
-          config.apiPath + "/api/lotto/ConfirmPay",
-          payload,
-        );
+        const res = await BillSaleService.confirmPay(payload);
 
         if (res.data.message === "success") {
           toast.update(toastId, {

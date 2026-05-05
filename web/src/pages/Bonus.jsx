@@ -1,7 +1,6 @@
 import Swal from "sweetalert2";
 import Home from "./Home";
-import axios from "axios";
-import config from "../config";
+import BonusService from "../services/bonus.service";
 import { useEffect, useState } from "react";
 import MyModal from "../components/MyModal";
 
@@ -16,7 +15,7 @@ function Bonus() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(config.apiPath + "/api/bonus/list");
+      const res = await BonusService.getList(); // 🌟 ใช้ Service
       if (res.data.results !== undefined) {
         setBonusDetails(res.data.results);
       }
@@ -40,7 +39,7 @@ function Bonus() {
         },
       });
 
-      const res = await axios.get(config.apiPath + "/api/bonus/getBonus");
+      const res = await BonusService.getLatestBonus(); // 🌟 ใช้ Service
 
       if (res.data.status === "success") {
         Swal.fire({
@@ -72,9 +71,7 @@ function Bonus() {
   const handleDetail = async (bonusDate) => {
     setSelectedDate(bonusDate);
     try {
-      const res = await axios.get(
-        config.apiPath + "/api/bonus/listDetail/" + bonusDate,
-      );
+      const res = await BonusService.getDetail(bonusDate); // 🌟 ใช้ Service
       if (res.data.results !== undefined) {
         setDetails(res.data.results);
       }

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import Home from "./Home";
 import Swal from "sweetalert2";
-import axios from "axios";
-import config from "../config";
+import BillSaleService from "../services/bill-sale.service";
 import MyModal from "../components/MyModal";
 
 function LottoInShop() {
@@ -15,7 +14,7 @@ function LottoInShop() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(config.apiPath + "/api/lotto/lottoInShop");
+      const res = await BillSaleService.getLottoInShop(); // 🌟 ใช้ Service
       if (res.data.results !== undefined) {
         setBillSales(res.data.results);
       }
