@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConfirmBuyDto, ConfirmPayDto, SearchLottoDto } from './dto/lotto.dto';
+import { it } from 'node:test';
 
 @Injectable()
 export class LottoService {
@@ -68,29 +69,42 @@ export class LottoService {
 
   async confirmBuy(dto: ConfirmBuyDto) {
     try {
-      const res = await this.prisma.billSale.create({
-        data: {
-          customerName: dto.customerName,
-          customerPhone: dto.customerPhone,
-          customerAddress: dto.customerAddress,
-          createdDate: new Date(),
-        },
-      });
-
-      for (let i = 0; i < dto.carts.length; i++) {
-        const cartData = dto.carts[i];
-        const lotto = await this.prisma.lotto.findFirst({
-          where: { id: cartData.item.id },
-        });
-        await this.prisma.billSaleDetail.create({
+      return await this.prisma.$transaction(async (tx) => {
+        // 1. สร้างบิล
+        const bill = await tx.billSale.create({
           data: {
-            billSaleId: res.id,
-            lottoId: cartData.item.id,
-            price: lotto?.sale ?? 0,
+            customerName: dto.customerName,
+            customerPhone: dto.customerPhone,
+            customerAddress: dto.customerAddress,
+            createdDate: new Date(),
           },
         });
-      }
-      return { message: 'success' };
+
+        // 2. เตรียมข้อมูลและอัปเดตสถานะ
+        for (const cartData of dto.carts) {
+          const lottoId = cartData.item.id;
+
+          // ดึงราคาล่าสุด
+          const lotto = await tx.lotto.findUnique({ where: { id: lottoId } });
+
+          // สร้างรายละเอียดบิล
+          await tx.billSaleDetail.create({
+            data: {
+              billSaleId: bill.id,
+              lottoId: lottoId,
+              price: lotto?.sale ?? 0,
+            },
+          });
+
+          // อัปเดตสถานะว่าขายแล้ว
+          await tx.lotto.update({
+            where: { id: lottoId },
+            data: { inSale: 1 },
+          });
+        }
+
+        return { message: 'success' };
+      });
     } catch (e) {
       console.error('🔥 Error ConfirmBuy:', e);
       throw new InternalServerErrorException('ไม่สามารถบันทึกคำสั่งซื้อได้');

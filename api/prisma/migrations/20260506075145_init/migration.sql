@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Lotto" ADD COLUMN     "inSale" INTEGER NOT NULL DEFAULT 0;

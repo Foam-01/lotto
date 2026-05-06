@@ -34,6 +34,7 @@ model Lotto {
   sale            Int
   billSaleDetails BillSaleDetail[]
   isCheckBonus    Int              @default(0)
+  inSale          Int              @default(0)
 }
 
 model BillSale {
@@ -86,9 +87,9 @@ model BonusResultDetail {
 }
 
 model BillSaleDetailIsBonus {
-  id                    Int                 @id @default(autoincrement())
-  billSaleDetailId      Int
-  BillSaleDetail        BillSaleDetail      @relation(fields: [billSaleDetailId], references: [id])
-  bonusResultDetailId   Int?
-  BonusResultDetail     BonusResultDetail?  @relation(fields: [bonusResultDetailId], references: [id])
+  id                  Int                @id @default(autoincrement())
+  billSaleDetailId    Int
+  BillSaleDetail      BillSaleDetail     @relation(fields: [billSaleDetailId], references: [id])
+  bonusResultDetailId Int?
+  BonusResultDetail   BonusResultDetail? @relation(fields: [bonusResultDetailId], references: [id])
 }
