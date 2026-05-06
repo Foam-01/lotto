@@ -58,6 +58,10 @@ export class BillSaleService {
             },
           },
         },
+        include: {
+          lotto: true,
+          billSale: true,
+        }
       });
       return { results: res };
     } catch (e) {

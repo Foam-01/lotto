@@ -9,14 +9,13 @@ const getHeaders = () => {
 
 const ReportService = {
   // 📊 ส่งวันที่ไปดึงรายงานจาก Backend
-  getIncome: async (startDate, endDate) => {
-    return await axios.get(`${config.apiPath}/api/report/income`, {
-      ...getHeaders(),
-      params: {
-        startDate: startDate,
-        endDate: endDate,
-      },
-    });
+  getIncome: async (payload) => {
+    // 🌟 ส่งตามสูตร: axios.post(URL, Body, Header)
+    return await axios.post(
+      `${config.apiPath}/api/billSale/income`,
+      payload,
+      getHeaders(),
+    );
   },
 };
 
