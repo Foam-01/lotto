@@ -19,7 +19,7 @@ export class LottoService {
 
   async list() {
     return {
-      result: await this.prisma.lotto.findMany({ orderBy: { id: 'desc' } }),
+      result: await this.prisma.lotto.findMany({ orderBy: { inSale: 'desc' } }),
     };
   }
 
@@ -69,42 +69,29 @@ export class LottoService {
 
   async confirmBuy(dto: ConfirmBuyDto) {
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        // 1. สร้างบิล
-        const bill = await tx.billSale.create({
+      const res = await this.prisma.billSale.create({
+        data: {
+          customerName: dto.customerName,
+          customerPhone: dto.customerPhone,
+          customerAddress: dto.customerAddress,
+          createdDate: new Date(),
+        },
+      });
+
+      for (let i = 0; i < dto.carts.length; i++) {
+        const cartData = dto.carts[i];
+        const lotto = await this.prisma.lotto.findFirst({
+          where: { id: cartData.item.id },
+        });
+        await this.prisma.billSaleDetail.create({
           data: {
-            customerName: dto.customerName,
-            customerPhone: dto.customerPhone,
-            customerAddress: dto.customerAddress,
-            createdDate: new Date(),
+            billSaleId: res.id,
+            lottoId: cartData.item.id,
+            price: lotto?.sale ?? 0,
           },
         });
-
-        // 2. เตรียมข้อมูลและอัปเดตสถานะ
-        for (const cartData of dto.carts) {
-          const lottoId = cartData.item.id;
-
-          // ดึงราคาล่าสุด
-          const lotto = await tx.lotto.findUnique({ where: { id: lottoId } });
-
-          // สร้างรายละเอียดบิล
-          await tx.billSaleDetail.create({
-            data: {
-              billSaleId: bill.id,
-              lottoId: lottoId,
-              price: lotto?.sale ?? 0,
-            },
-          });
-
-          // อัปเดตสถานะว่าขายแล้ว
-          await tx.lotto.update({
-            where: { id: lottoId },
-            data: { inSale: 1 },
-          });
-        }
-
-        return { message: 'success' };
-      });
+      }
+      return { message: 'success' };
     } catch (e) {
       console.error('🔥 Error ConfirmBuy:', e);
       throw new InternalServerErrorException('ไม่สามารถบันทึกคำสั่งซื้อได้');
@@ -138,17 +125,39 @@ export class LottoService {
 
   async confirmPay(dto: ConfirmPayDto) {
     try {
-      await this.prisma.billSale.update({
-        where: { id: dto.billSaleId },
-        data: {
-          payAlertDate: new Date(dto.payAlertDate),
-          payDate: new Date(dto.payDate),
-          payRemark: dto.payRemark,
-          payTime: dto.payTime,
-        },
+      // ใช้ $transaction เพื่อให้มั่นใจว่าบิลกับลอตเตอรี่จะอัปเดตพร้อมกันเสมอ
+      return await this.prisma.$transaction(async (tx) => {
+        // 1. อัปเดตข้อมูลการชำระเงินใน BillSale
+        const updatedBill = await tx.billSale.update({
+          where: { id: dto.billSaleId },
+          data: {
+            payAlertDate: new Date(dto.payAlertDate),
+            payDate: new Date(dto.payDate),
+            payRemark: dto.payRemark,
+            payTime: dto.payTime,
+            // สมมติว่ามีสถานะบิล เช่น status: 'paid' ควรใส่ตรงนี้ด้วยครับ
+          },
+        });
+
+        // 2. ดึงรายการลอตเตอรี่ทั้งหมดในบิลนี้ออกมา
+        const billDetails = await tx.billSaleDetail.findMany({
+          where: { billSaleId: dto.billSaleId },
+        });
+
+        // 3. Loop เพื่ออัปเดตลอตเตอรี่ "ทุกใบ" ในบิลให้สถานะเป็นขายแล้ว (isSale: 1)
+        for (const detail of billDetails) {
+          await tx.lotto.update({
+            where: { id: detail.lottoId },
+            data: {
+              inSale: 1, 
+            },
+          });
+        }
+
+        return { message: 'success' };
       });
-      return { message: 'success' };
     } catch (e) {
+      console.error('🔥 ConfirmPay Error:', e);
       throw new InternalServerErrorException('ไม่สามารถบันทึกการชำระเงินได้');
     }
   }

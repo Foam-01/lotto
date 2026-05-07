@@ -3,8 +3,6 @@ import { useEffect, useState, useRef } from "react";
 import Swal from "sweetalert2";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-// 🌟 Import Service ที่เราเพิ่งสร้างมาใช้แทน Axios
 import LottoService from "../services/lotto.service";
 
 function Lotto() {
@@ -25,9 +23,7 @@ function Lotto() {
 
   const fetchData = async () => {
     try {
-      // 🌟 ใช้ Service ดึงข้อมูล (โค้ดสั้นลง และอ่านรู้เรื่องทันทีว่ากำลังทำอะไร)
       const res = await LottoService.getList();
-
       if (res.data.result !== undefined) {
         setLottos(res.data.result);
       }
@@ -62,10 +58,8 @@ function Lotto() {
       let res;
 
       if (id === 0) {
-        // 🌟 เรียกใช้ Service สร้างข้อมูล
         res = await LottoService.create(payload);
       } else {
-        // 🌟 เรียกใช้ Service แก้ไขข้อมูล
         res = await LottoService.edit(id, payload);
       }
 
@@ -112,7 +106,6 @@ function Lotto() {
       if (res.isConfirmed) {
         const toastId = toast.loading("กำลังลบข้อมูล...");
         try {
-          // 🌟 เรียกใช้ Service ลบข้อมูล
           const resFromApi = await LottoService.remove(item.id);
 
           if (resFromApi.data.result.id !== undefined) {
@@ -144,11 +137,21 @@ function Lotto() {
     setCost(item.cost);
     setSale(item.sale);
     setId(item.id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-  
 
-  // 👇 ส่วน UI ที่ปรับความสวยงามแบบ แผงแมวส้ม 🐈 👇
+    setTimeout(() => {
+      if (myRef.current) {
+        // เลื่อนจอแบบนุ่มนวล
+        myRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+        // โฟกัสช่องโดยไม่ให้จอกระตุก
+        myRef.current.focus({ preventScroll: true });
+      }
+    }, 100);
+  };
+
+  // 🌟 แยกข้อมูลสลากออกเป็น 2 กอง
+  const availableLottos = lottos.filter((item) => item.inSale !== 1);
+  const soldLottos = lottos.filter((item) => item.inSale === 1);
+
   return (
     <Home>
       <div style={styles.page}>
@@ -244,7 +247,6 @@ function Lotto() {
                     onChange={(e) => setBookNumber(e.target.value)}
                   />
                 </div>
-
                 <div>
                   <label style={styles.label}>งวดที่</label>
                   <input
@@ -256,7 +258,6 @@ function Lotto() {
                     onChange={(e) => setRoundNumber(e.target.value)}
                   />
                 </div>
-
                 <div>
                   <label style={styles.label}>ราคาทุน (฿)</label>
                   <input
@@ -268,7 +269,6 @@ function Lotto() {
                     onChange={(e) => setCost(e.target.value)}
                   />
                 </div>
-
                 <div>
                   <label style={styles.label}>ราคาขาย (฿)</label>
                   <input
@@ -311,6 +311,7 @@ function Lotto() {
 
           {/* --- Table Section --- */}
           <div style={styles.tableCard}>
+            {/* 🌟 ยอดรวมทั้งหมด */}
             <div style={styles.tableHeaderContainer}>
               <h4 style={styles.cardTitle}>
                 📋 สลากทั้งหมดบนแผง
@@ -331,80 +332,189 @@ function Lotto() {
               </h4>
             </div>
 
-            <div style={{ overflowX: "auto" }}>
-              <table style={styles.table}>
-                <thead>
-                  <tr>
-                    <th style={styles.th}>เลขสลาก</th>
-                    <th style={{ ...styles.th, textAlign: "center" }}>
-                      งวดที่ / เล่มที่
-                    </th>
-                    <th style={{ ...styles.th, textAlign: "right" }}>
-                      ราคาทุน
-                    </th>
-                    <th style={{ ...styles.th, textAlign: "right" }}>
-                      ราคาขาย
-                    </th>
-                    <th style={{ ...styles.th, textAlign: "center" }}>
-                      จัดการ
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lottos.length > 0 ? (
-                    lottos.map((item, index) => (
-                      <tr key={item.id || index} style={styles.tableRow}>
-                        <td style={styles.tdLottoNo}>{item.numbers}</td>
-                        <td style={{ ...styles.td, textAlign: "center" }}>
-                          {item.roundNumber} / {item.bookNumber}
-                        </td>
-                        <td style={{ ...styles.td, textAlign: "right" }}>
-                          ฿{item.cost.toLocaleString("th-TH")}
-                        </td>
-                        <td
-                          style={{ ...styles.tdHighlight, textAlign: "right" }}
-                        >
-                          ฿{item.sale.toLocaleString("th-TH")}
-                        </td>
+            {/* 🌟 Split Table Section 🌟 */}
+            <div style={styles.splitTableLayout}>
+              {/* 🟢 ฝั่งซ้าย: ตาราง "พร้อมขาย" */}
+              <div style={styles.halfTableCard}>
+                <div style={{ marginBottom: "15px" }}>
+                  <h4
+                    style={{
+                      ...styles.cardTitle,
+                      color: "#16a34a",
+                      fontSize: "18px",
+                    }}
+                  >
+                    <i className="bi bi-stars me-2"></i> พร้อมขาย
+                    <span
+                      style={{
+                        ...styles.badge,
+                        backgroundColor: "#dcfce7",
+                        color: "#16a34a",
+                        borderColor: "#bbf7d0",
+                        marginLeft: "10px",
+                      }}
+                    >
+                      {availableLottos.length} ใบ
+                    </span>
+                  </h4>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={styles.table}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>เลขสลาก</th>
+                        <th style={{ ...styles.th, textAlign: "center" }}>
+                          งวด / เล่ม
+                        </th>
+                        <th style={{ ...styles.th, textAlign: "right" }}>
+                          ราคาขาย
+                        </th>
+                        <th style={{ ...styles.th, textAlign: "center" }}>
+                          จัดการ
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {availableLottos.length > 0 ? (
+                        availableLottos.map((item, index) => (
+                          <tr key={item.id || index} style={styles.tableRow}>
+                            <td style={styles.tdLottoNo}>{item.numbers}</td>
+                            <td style={{ ...styles.td, textAlign: "center" }}>
+                              {item.roundNumber} / {item.bookNumber}
+                            </td>
+                            <td
+                              style={{
+                                ...styles.tdHighlight,
+                                textAlign: "right",
+                              }}
+                            >
+                              ฿{item.sale.toLocaleString()}
+                            </td>
+                            <td style={{ ...styles.td, textAlign: "center" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  gap: "8px",
+                                }}
+                              >
+                                <button
+                                  style={styles.btnEdit}
+                                  onClick={() => handleEdit(item)}
+                                  title="แก้ไข"
+                                >
+                                  <i className="bi bi-pencil-square"></i>
+                                </button>
+                                <button
+                                  style={styles.btnDelete}
+                                  onClick={() => handleDelete(item)}
+                                  title="ลบ"
+                                >
+                                  <i className="bi bi-trash3-fill"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="4" style={styles.emptyState}>
+                            แผงโล่งมากเจ้านาย
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                        <td style={{ ...styles.td, textAlign: "center" }}>
-                          <div
+              {/* 🔴 ฝั่งขวา: ตาราง "ขายแล้ว" */}
+              <div style={styles.halfTableCard}>
+                <div style={{ marginBottom: "15px" }}>
+                  <h4
+                    style={{
+                      ...styles.cardTitle,
+                      color: "#ef4444",
+                      fontSize: "18px",
+                    }}
+                  >
+                    <i className="bi bi-check-circle-fill me-2"></i> ขายแล้ว
+                    <span
+                      style={{
+                        ...styles.badge,
+                        backgroundColor: "#fee2e2",
+                        color: "#ef4444",
+                        borderColor: "#fecaca",
+                        marginLeft: "10px",
+                      }}
+                    >
+                      {soldLottos.length} ใบ
+                    </span>
+                  </h4>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={styles.table}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>เลขสลาก</th>
+                        <th style={{ ...styles.th, textAlign: "center" }}>
+                          งวด / เล่ม
+                        </th>
+                        <th style={{ ...styles.th, textAlign: "right" }}>
+                          ราคาขาย
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {soldLottos.length > 0 ? (
+                        soldLottos.map((item, index) => (
+                          <tr
+                            key={item.id || index}
                             style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              gap: "8px",
+                              ...styles.tableRow,
+                              backgroundColor: "#fafaf9",
                             }}
                           >
-                            <button
-                              style={styles.btnEdit}
-                              onClick={(e) => handleEdit(item)}
-                              title="แก้ไข"
+                            <td
+                              style={{
+                                ...styles.tdLottoNo,
+                                color: "#94a3b8",
+                                textDecoration: "line-through",
+                              }}
                             >
-                              <i className="bi bi-pencil-square"></i> แก้ไข
-                            </button>
-                            <button
-                              style={styles.btnDelete}
-                              onClick={(e) => handleDelete(item)}
-                              title="ลบ"
+                              {item.numbers}
+                            </td>
+                            <td
+                              style={{
+                                ...styles.td,
+                                textAlign: "center",
+                                color: "#94a3b8",
+                              }}
                             >
-                              <i className="bi bi-trash3-fill"></i> ลบ
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="5" style={styles.emptyState}>
-                        <div style={{ fontSize: "50px", marginBottom: "15px" }}>
-                          😿
-                        </div>
-                        แผงโล่งมากเลยเจ้านาย ยังไม่มีสลากในระบบ
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                              {item.roundNumber} / {item.bookNumber}
+                            </td>
+                            <td
+                              style={{
+                                ...styles.tdHighlight,
+                                textAlign: "right",
+                                color: "#94a3b8",
+                              }}
+                            >
+                              ฿{item.sale.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="3" style={styles.emptyState}>
+                            ยังไม่มีสลากที่ขายออก
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -426,7 +536,7 @@ const styles = {
     overflow: "hidden",
   },
   container: {
-    maxWidth: "1000px",
+    maxWidth: "1200px", // 🌟 ขยายเพื่อให้แสดง 2 ตารางได้ไม่อึดอัด
     margin: "0 auto",
     position: "relative",
     zIndex: 2,
@@ -570,17 +680,28 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "25px",
-    flexWrap: "wrap",
-    gap: "15px",
+    marginBottom: "20px",
+    paddingBottom: "15px",
+    borderBottom: "2px solid #fed7aa", // 🌟 เส้นคั่นหัวข้อหลัก
+  },
+  splitTableLayout: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+    gap: "30px", // 🌟 ช่องไฟระหว่างตารางซ้ายขวา
+  },
+  halfTableCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: "16px",
+    border: "2px dashed #fed7aa", // 🌟 กรอบไข่ปลาสีส้ม
+    padding: "20px",
   },
   table: { width: "100%", borderCollapse: "collapse" },
   th: {
-    backgroundColor: "#fff7ed",
+    backgroundColor: "#fff7ed", // 🌟 คืนชีพสีครีมส้ม
     padding: "16px",
     textAlign: "left",
     fontWeight: "800",
-    color: "#9a3412",
+    color: "#9a3412", // 🌟 คืนชีพตัวหนังสือสีส้มเข้ม
     borderBottom: "2px solid #fed7aa",
     fontSize: "15px",
   },
@@ -589,20 +710,20 @@ const styles = {
     transition: "background-color 0.2s",
   },
   td: {
-    padding: "18px 16px",
+    padding: "16px 14px",
     color: "#475569",
     fontSize: "15px",
     fontWeight: "500",
   },
   tdLottoNo: {
-    padding: "18px 16px",
+    padding: "16px 14px",
     fontWeight: "900",
-    fontSize: "20px",
-    letterSpacing: "3px",
+    fontSize: "18px",
+    letterSpacing: "2px",
     color: "#ea580c",
   },
   tdHighlight: {
-    padding: "18px 16px",
+    padding: "16px 14px",
     fontWeight: "800",
     color: "#dc2626",
     fontSize: "16px",
@@ -611,30 +732,26 @@ const styles = {
     background: "#f8fafc",
     color: "#0284c7",
     border: "1px solid #e0f2fe",
-    padding: "8px 16px",
-    borderRadius: "10px",
-    fontWeight: "700",
+    padding: "6px 12px",
+    borderRadius: "8px",
     cursor: "pointer",
-    fontSize: "13px",
     transition: "all 0.2s",
   },
   btnDelete: {
     background: "#fef2f2",
     color: "#dc2626",
     border: "1px solid #fee2e2",
-    padding: "8px 16px",
-    borderRadius: "10px",
-    fontWeight: "700",
+    padding: "6px 12px",
+    borderRadius: "8px",
     cursor: "pointer",
-    fontSize: "13px",
     transition: "all 0.2s",
   },
   emptyState: {
     textAlign: "center",
     color: "#94a3b8",
-    padding: "80px 20px",
+    padding: "60px 20px",
     fontWeight: "600",
-    fontSize: "18px",
+    fontSize: "16px",
   },
 };
 
