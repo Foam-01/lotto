@@ -8,6 +8,7 @@ export class BonusService {
 
   async getBonus() {
     try {
+      // API สำหรับดูผลสลากกินแบ่งรัฐบาลงวดล่าสุด   เรย์ริฟฟี
       const res = await axios.get('https://lotto.api.rayriffy.com/latest');
       const data = res.data.response;
       const bonusDate = data.date; // "16 เมษายน 2569"

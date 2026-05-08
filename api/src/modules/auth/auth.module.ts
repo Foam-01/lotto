@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './jwt.strategy'; // 🌟 Import เข้ามา
+import { JwtStrategy } from './jwt.strategy'; 
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { JwtStrategy } from './jwt.strategy'; // 🌟 Import เข้ามา
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy], // 🌟 เสียบ JwtStrategy ตรงนี้
+  providers: [AuthService, JwtStrategy], //  JwtStrategy 
   exports: [AuthService],
 })
 export class AuthModule {}

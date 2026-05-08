@@ -8,7 +8,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: 'your-secret-key', // 🌟 ต้องตรงกับรหัสลับใน auth.module.ts
+      secretOrKey: 'your-secret-key', // auth.module.ts
     });
   }
 
@@ -18,6 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       userId: payload.sub,
       username: payload.user,
       level: payload.level,
+      // รหัสผผ่านไม่ต้องส่ง
     };
   }
 }
