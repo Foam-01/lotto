@@ -84,6 +84,7 @@ model BonusResultDetail {
   price                 Int
   bonusDate             String
   BillSaleDetailIsBonus BillSaleDetailIsBonus[]
+  lottoIsBonuses        LottoIsBonus[]
 }
 
 model BillSaleDetailIsBonus {
@@ -92,4 +93,12 @@ model BillSaleDetailIsBonus {
   BillSaleDetail      BillSaleDetail     @relation(fields: [billSaleDetailId], references: [id])
   bonusResultDetailId Int?
   BonusResultDetail   BonusResultDetail? @relation(fields: [bonusResultDetailId], references: [id])
+}
+
+model LottoIsBonus {
+  id                  Int               @id @default(autoincrement())
+  // relation = รี-เล-ชั่น = เชื่อมความสัมพันธ์   // references =  เรฟ-เฟอ-เริน = อ้างอิง
+  // SQL query = คำสั่งค้นข้อมูล จากฐานข้อมูล  = คิว-รี่
+  bonusResultDetailId Int
+  BonusResultDetail   BonusResultDetail @relation(fields: [bonusResultDetailId], references: [id])
 }
