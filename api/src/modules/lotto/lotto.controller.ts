@@ -83,4 +83,7 @@ export class LottoController {
   @Post('sendSave') async sendSave(@Body('data') data: any) {
     return this.lottoService.sendSave(data);
   }
+  @Get('lottoIsBonus') async lottoIsBonus() {
+    return this.lottoService.lottoIsBonus();
+  }
 }

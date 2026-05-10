@@ -115,6 +115,14 @@ function Home(props) {
           </Link>
 
           <Link
+            to="/lottoIsBonus"
+            className={`menu-item ${isActive("/lottoIsBonus")}`}
+          >
+            <i className="bi bi-award-fill"></i>{" "}
+            <span>รายงานรางวัลของตัวเอง</span>
+          </Link>
+
+          <Link
             to="/reportIncome"
             className={`menu-item ${isActive("/reportIncome")}`}
           >

@@ -149,7 +149,7 @@ export class LottoService {
           await tx.lotto.update({
             where: { id: detail.lottoId },
             data: {
-              inSale: 1, 
+              inSale: 1,
             },
           });
         }
@@ -206,6 +206,59 @@ export class LottoService {
       return { message: 'data exist' };
     } catch (e) {
       throw new InternalServerErrorException('ไม่สามารถบันทึกได้');
+    }
+  }
+
+  async lottoIsBonus() {
+    try {
+      // 1. หาผลรางวัลล่าสุด
+      const bonusRow = await this.prisma.bonusResultDetail.findFirst({
+        orderBy: {
+          bonusDate: 'desc',
+        },
+      });
+
+      if (!bonusRow) return { message: 'ยังไม่มีผลรางวัลในระบบ' };
+      // 2. ผลรางวัลทั้งหมดในงวดล่าสุด
+      const bonusResults = await this.prisma.bonusResultDetail.findMany({
+        where: {
+          bonusDate: bonusRow.bonusDate,
+        },
+      });
+      // 3. ล็อตเตอรี่ที่ยังอยู่ในแผง (inSale: 0)
+      const lottos = await this.prisma.lotto.findMany({
+        where: {
+          inSale: 0,
+        },
+      });
+
+      // 4. วนลูปตรวจรางวัล
+      for (let i = 0; i < lottos.length; i++) {
+        const item = lottos[i];
+        for (let j = 0; j < bonusResults.length; j++) {
+          const bonusResult = bonusResults[j];
+
+          if (bonusResult.number === item.numbers) {
+            // บันทึกผลรางวัลเก็บไว้
+            const fileRow = await this.prisma.lottoIsBonus.findFirst({
+              where: {
+                bonusResultDetailId: bonusResult.id,
+              },
+            });
+            
+            if (fileRow === null) {
+              await this.prisma.lottoIsBonus.create({
+                data: {
+                  bonusResultDetailId: bonusResult.id,
+                },
+              });
+            }
+          }
+        }
+      }
+      return { message: 'success' };
+    } catch (e) {
+      throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลได้');
     }
   }
 }
