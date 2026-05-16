@@ -83,23 +83,40 @@ export class BillSaleService {
               gte: fromDate,
               lte: toDate,
             },
-          }
-        }
-      })
+          },
+        },
+      });
 
       const lottoIsBonus = await this.prisma.lottoIsBonus.findMany({
-        where: {
-          BonusResultDetail: {
-            bonusDate: {
-              gte: fromDate,
-              lte: toDate,
-            }
-          }
-        },
         include: {
-          BonusResultDetail: true,
-        }
-      })
+          BonusResultDetail: true, // ดึงข้อมูลรายละเอียดรางวัลมาด้วย
+        },
+      });
+      
+      // 🌟 1. คำนวณยอดขายรวมจากบิลลูกค้า
+      const totalSale = billSaleDetails.reduce(
+        (sum, item) => sum + (item.price || 0),
+        0,
+      );
+
+      // 🌟 2. คำนวณยอดเงินรางวัลรวมที่แผงเราถูกเอง
+      const totalBonus = lottoIsBonus.reduce((sum, item) => {
+        return sum + (item.BonusResultDetail?.price || 0);
+      }, 0);
+
+      // 🌟 3. รายรับรวมทั้งหมด (ยอดขาย + เงินรางวัล)
+      const grandTotal = totalSale + totalBonus;
+
+      // ส่งกลับไปให้หน้าบ้านแบบแพ็คเกจพรีเมียม!
+      return {
+        billSaleDetails,
+        lottoIsBonus,
+        summary: {
+          totalSale: totalSale,
+          totalBonus: totalBonus,
+          grandTotal: grandTotal,
+        },
+      };
 
       return { billSaleDetails: billSaleDetails, lottoIsBonus: lottoIsBonus };
     } catch (e) {

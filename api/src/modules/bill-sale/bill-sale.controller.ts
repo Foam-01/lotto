@@ -4,6 +4,7 @@ import {
   TransferMoneyDto,
   DeliverMoneyDto,
   IncomeDto,
+  ProfitDto,
 } from './dto/bill-sale.dto';
 
 @Controller('/api/billSale')
@@ -26,7 +27,7 @@ export class BillSaleController {
   }
 
   @Post('/profit')
-  async profit(@Body() dto: IncomeDto) {
-    return this.billSaleService.getIncome(dto);
+  async profit(@Body() dto: ProfitDto) {
+    return this.billSaleService.getProfit(dto);
   }
 }

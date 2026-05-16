@@ -17,6 +17,7 @@ import Bonus from "./pages/Bonus";
 import SaleBonus from "./pages/SaleBonus";
 import ReportIncome from "./pages/ReportIncome";
 import LottoIsBonus from "./pages/LottoIsBonus";
+import ReportProfit from "./pages/ReportProfit";
 
 const router = createBrowserRouter([
   {
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
     path: "/lottoIsBonus",
     element: <LottoIsBonus />,
   },
+  {
+    path: '/reportProfit',
+    element: <ReportProfit />,
+  }
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

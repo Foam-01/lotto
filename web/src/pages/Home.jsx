@@ -128,6 +128,14 @@ function Home(props) {
           >
             <i className="bi bi-cash-coin"></i> <span>รายงานรายได้</span>
           </Link>
+
+          <Link
+            to="/reportProfit"
+            className={`menu-item ${isActive("/reportProfit")}`}
+          >
+            <i className="bi bi-piggy-bank"></i>{" "}
+            <span>รายงานผลกำไร</span>
+          </Link>
         </div>
 
         {/* --- ส่วนออกจากระบบ --- */}
