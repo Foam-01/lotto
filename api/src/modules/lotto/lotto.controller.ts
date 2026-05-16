@@ -86,4 +86,8 @@ export class LottoController {
   @Get('lottoIsBonus') async lottoIsBonus() {
     return this.lottoService.lottoIsBonus();
   }
+  @Get('lottoIsBonuslist')
+  async lottoIsBonuslist() {
+    return this.lottoService.lottoIsBonuslist();
+  }
 }

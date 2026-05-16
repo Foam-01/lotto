@@ -24,4 +24,6 @@ export class BonusController {
   async checkBonus() {
     return this.bonusService.checkBonus();
   }
+
+  
 }

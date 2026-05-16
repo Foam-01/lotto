@@ -36,8 +36,14 @@ const LottoService = {
   confirmBuy: async (payload) =>
     await axios.post(`${config.apiPath}/api/lotto/ConfirmBuy`, payload),
 
+
+
+  
   lottoIsBonus: async () =>
     await axios.get(`${config.apiPath}/api/lotto/lottoIsBonus`),
-};
+
+  lottoIsBonuslist: async () =>
+    await axios.get(`${config.apiPath}/api/lotto/lottoIsBonuslist`),
+}; 
 
 export default LottoService;

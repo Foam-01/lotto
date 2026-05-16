@@ -73,9 +73,24 @@ export class BonusService {
     try {
       const res = await this.prisma.bonusResultDetail.groupBy({
         by: ['bonusDate'],
-        orderBy: { bonusDate: 'desc' },
+        // 🌟 1. ดึงค่า ID ที่มากที่สุดของแต่ละกลุ่มงวดออกมา
+        _max: {
+          id: true,
+        },
+        // 🌟 2. สั่งเรียงลำดับกลุ่ม โดยยึดจาก ID ล่าสุด (desc) แทนการเรียงตามชื่อตัวอักษร
+        orderBy: {
+          _max: {
+            id: 'desc',
+          },
+        },
       });
-      return { results: res };
+
+      // 🌟 3. (Optional) คลีนข้อมูลก่อนส่งกลับไปให้หน้าบ้าน จะได้ไม่ต้องแก้โค้ด React
+      const cleanResults = res.map((item) => ({
+        bonusDate: item.bonusDate,
+      }));
+
+      return { results: cleanResults };
     } catch (e: any) {
       console.error('🔥 Error (list bonus):', e.message);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลได้');

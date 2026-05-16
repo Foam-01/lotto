@@ -245,7 +245,7 @@ export class LottoService {
                 bonusResultDetailId: bonusResult.id,
               },
             });
-            
+
             if (fileRow === null) {
               await this.prisma.lottoIsBonus.create({
                 data: {
@@ -259,6 +259,22 @@ export class LottoService {
       return { message: 'success' };
     } catch (e) {
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลได้');
+    }
+  }
+  async lottoIsBonuslist() {
+    try {
+      const res = await this.prisma.lottoIsBonus.findMany({
+        orderBy: {
+          id: 'desc',
+        },
+        include: {
+          BonusResultDetail: true,
+        },
+      });
+      return { results: res };
+    } catch (e: any) {
+      console.error('🔥 Error (lottoIsBonuslist):', e);
+      throw new InternalServerErrorException('ไม่สามารถตรวจสอบสลากได้');
     }
   }
 }
