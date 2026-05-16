@@ -8,7 +8,7 @@ const getHeaders = () => {
 };
 
 const ReportService = {
-  // 📊 ส่งวันที่ไปดึงรายงานจาก Backend
+ 
   getIncome: async (payload) => {
     // 🌟 ส่งตามสูตร: axios.post(URL, Body, Header)
     return await axios.post(
@@ -17,6 +17,9 @@ const ReportService = {
       getHeaders(),
     );
   },
+
+  getProfit: async (payload) =>
+    await axios.post(`${config.apiPath}/api/billSale/profit`, payload),
 };
 
 export default ReportService;

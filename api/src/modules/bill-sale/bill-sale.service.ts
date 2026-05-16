@@ -85,6 +85,9 @@ export class BillSaleService {
             },
           },
         },
+        include: {
+          lotto: true,
+        }
       });
 
       const lottoIsBonus = await this.prisma.lottoIsBonus.findMany({
@@ -92,7 +95,7 @@ export class BillSaleService {
           BonusResultDetail: true, // ดึงข้อมูลรายละเอียดรางวัลมาด้วย
         },
       });
-      
+
       // 🌟 1. คำนวณยอดขายรวมจากบิลลูกค้า
       const totalSale = billSaleDetails.reduce(
         (sum, item) => sum + (item.price || 0),
