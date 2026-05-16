@@ -4,6 +4,7 @@ import {
   TransferMoneyDto,
   DeliverMoneyDto,
   IncomeDto,
+  ProfitDto,
 } from './dto/bill-sale.dto';
 
 @Injectable()
@@ -61,12 +62,49 @@ export class BillSaleService {
         include: {
           lotto: true,
           billSale: true,
-        }
+        },
       });
       return { results: res };
     } catch (e) {
       console.error('🔥 Prisma Error (Income):', e);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลรายได้ได้');
+    }
+  }
+
+  async getProfit(dto: ProfitDto) {
+    try {
+      const fromDate = new Date(dto.fromDate).toISOString();
+      const toDate = new Date(dto.toDate).toISOString();
+
+      const billSaleDetails = await this.prisma.billSaleDetail.findMany({
+        where: {
+          billSale: {
+            payDate: {
+              gte: fromDate,
+              lte: toDate,
+            },
+          }
+        }
+      })
+
+      const lottoIsBonus = await this.prisma.lottoIsBonus.findMany({
+        where: {
+          BonusResultDetail: {
+            bonusDate: {
+              gte: fromDate,
+              lte: toDate,
+            }
+          }
+        },
+        include: {
+          BonusResultDetail: true,
+        }
+      })
+
+      return { billSaleDetails: billSaleDetails, lottoIsBonus: lottoIsBonus };
+    } catch (e) {
+      console.error('🔥 Prisma Error (Profit):', e);
+      throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลกำไรได้');
     }
   }
 }

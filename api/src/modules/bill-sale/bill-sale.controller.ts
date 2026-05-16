@@ -24,4 +24,9 @@ export class BillSaleController {
   async income(@Body() dto: IncomeDto) {
     return this.billSaleService.getIncome(dto);
   }
+
+  @Post('/profit')
+  async profit(@Body() dto: IncomeDto) {
+    return this.billSaleService.getIncome(dto);
+  }
 }

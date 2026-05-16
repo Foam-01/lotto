@@ -17,3 +17,8 @@ export class IncomeDto {
   @IsDateString() @IsNotEmpty() fromDate!: string;
   @IsDateString() @IsNotEmpty() toDate!: string;
 }
+
+export class ProfitDto {
+  @IsDateString() @IsNotEmpty() fromDate!: string;
+  @IsDateString() @IsNotEmpty() toDate!: string;
+}
