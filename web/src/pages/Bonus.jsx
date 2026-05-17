@@ -212,8 +212,10 @@ function Bonus() {
                 </thead>
                 <tbody>
                   {bonusDetails.length > 0 ? (
-                    bonusDetails.map((item) => (
-                      <tr key={item.id}>
+                    // 🌟 1. เพิ่มคำว่า index เข้ามาในวงเล็บตรงนี้ครับ
+                    bonusDetails.map((item, index) => (
+                      // 🌟 2. เปลี่ยนจาก item.id เป็น index ตรงนี้เลยครับ!
+                      <tr key={index}>
                         <td className="px-4 py-4">
                           <div className="d-flex align-items-center">
                             {/* ไอคอนหน้ารายการ (เปลี่ยนเป็นโบว์/ของขวัญ น่ารักๆ) */}
@@ -245,7 +247,6 @@ function Bonus() {
                             onClick={() => handleDetail(item.bonusDate)}
                             data-bs-toggle="modal"
                             data-bs-target="#myModal"
-                            // 🌟 เติม text-nowrap ตรงนี้ เพื่อบังคับให้อยู่บรรทัดเดียว
                             className="btn rounded-pill px-4 py-2 fw-medium shadow-sm transition-all text-nowrap"
                             style={{
                               backgroundColor: "#fff7f2",

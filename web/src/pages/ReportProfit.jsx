@@ -1,14 +1,18 @@
 import Home from "./Home";
-import ReportService from "../services/report.service"; 
+import ReportService from "../services/report.service";
 import { useEffect, useState } from "react";
 import { formatDateTime } from "../utils/format";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
+import MyModal from "../components/MyModal"; 
 
 function ReportProfit() {
   const [billSaleDetails, setBillSaleDetails] = useState([]);
   const [lottoIsBonus, setLottoIsBonus] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // 🌟 State สำหรับจัดการ Modal
+  const [selectedBillDetail, setSelectedBillDetail] = useState(null); // เก็บข้อมูลสลากที่ถูกคลิก
 
   // 🌟 ตั้งค่าเริ่มต้นวันที่
   const [fromDate, setFromDate] = useState(dayjs().format("YYYY-MM-DD"));
@@ -26,7 +30,6 @@ function ReportProfit() {
         toDate: toDate,
       };
 
-     
       const res = await ReportService.getProfit(payload);
 
       if (res.data) {
@@ -46,10 +49,8 @@ function ReportProfit() {
   };
 
   // ==========================================
-  // 🌟 ระบบคำนวณกำไร (คำนวณสดๆ ฝั่งหน้าบ้าน)
+  // 🌟 ระบบคำนวณกำไร
   // ==========================================
-
-  // 1. กำไรจากการขาย (ยอดขาย - ราคาทุน)
   let totalSale = 0;
   let totalCost = 0;
   billSaleDetails.forEach((item) => {
@@ -58,14 +59,21 @@ function ReportProfit() {
   });
   const profitFromSale = totalSale - totalCost;
 
-  // 2. เงินรางวัลที่แผงเราถูกเอง
   const totalBonusPrize = lottoIsBonus.reduce(
     (sum, item) => sum + (item.BonusResultDetail?.price || 0),
     0,
   );
 
-  // 3. กำไรสุทธิรวม (Grand Total)
   const grandTotalProfit = profitFromSale + totalBonusPrize;
+
+  // ==========================================
+  // 🌟 ฟังก์ชันจัดการปุ่ม Modal
+  // ==========================================
+  const handleOpenDetailModal = (item) => {
+    setSelectedBillDetail(item); // ยัดข้อมูลใส่ State
+    // ตัว Modal ใน Bootstrap ปกติถ้าใช้ ID มันจะใช้ Data-bs-toggle เปิดให้เองครับ
+    // หรือถ้า MyModal เจ้านายใช้คำสั่งอื่น ก็ใช้ state จัดการเปิดปิดตรงนี้ได้เลย
+  };
 
   return (
     <>
@@ -74,14 +82,13 @@ function ReportProfit() {
           className="container-fluid px-3 px-md-4 pb-4 pt-3"
           style={{ backgroundColor: "#fafaf9", minHeight: "100vh" }}
         >
-          {/* 🌟 Header */}
+          {/* ... (Header และ กล่องค้นหาเหมือนเดิม) ... */}
           <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
             <div className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
               📊 สรุปผลกำไร
             </div>
           </div>
 
-          {/* 🌟 กล่องค้นหาวันที่ (Filter Box) */}
           <div className="card border-0 shadow-sm rounded-4 mb-4 p-2">
             <div className="card-body">
               <h6 className="fw-bold mb-3" style={{ color: "#ea580c" }}>
@@ -140,9 +147,8 @@ function ReportProfit() {
             </div>
           </div>
 
-          {/* 🌟 KPI Cards (3 กล่องสรุปยอด) */}
+          {/* ... (KPI Cards ทั้ง 3 กล่อง เหมือนเดิม) ... */}
           <div className="row g-4 mb-4">
-            {/* กล่องที่ 1: กำไรจากการขาย */}
             <div className="col-12 col-md-4">
               <div
                 className="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden"
@@ -178,7 +184,6 @@ function ReportProfit() {
               </div>
             </div>
 
-            {/* กล่องที่ 2: เงินรางวัลที่แผงถูก */}
             <div className="col-12 col-md-4">
               <div
                 className="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden"
@@ -217,7 +222,6 @@ function ReportProfit() {
               </div>
             </div>
 
-            {/* กล่องที่ 3: กำไรสุทธิรวม (Grand Total) */}
             <div className="col-12 col-md-4">
               <div
                 className="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden"
@@ -257,7 +261,7 @@ function ReportProfit() {
             </div>
           </div>
 
-          {/* 🌟 2 ตารางด้านล่าง แบ่งครึ่งซ้ายขวาในหน้าจอใหญ่ */}
+          {/* 🌟 2 ตารางด้านล่าง แบ่งครึ่งซ้ายขวา */}
           <div className="row g-4">
             {/* --- ตารางฝั่งซ้าย: ประวัติการขาย --- */}
             <div className="col-12 col-xl-7">
@@ -306,8 +310,17 @@ function ReportProfit() {
                         ) : billSaleDetails.length > 0 ? (
                           billSaleDetails.map((item, index) => (
                             <tr key={index}>
-                              <td className="fw-bold text-dark">
-                                {item.lotto?.numbers}
+                              {/* 🌟 เปลี่ยน เลขสลาก ให้เป็นปุ่มกดเปิด Modal */}
+                              <td>
+                                <button
+                                  className="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 shadow-sm"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#modalSaleDetail"
+                                  onClick={() => handleOpenDetailModal(item)}
+                                >
+                                  <i className="bi bi-search me-1"></i>
+                                  {item.lotto?.numbers}
+                                </button>
                               </td>
                               <td className="text-muted">
                                 ฿{item.lotto?.cost}
@@ -411,6 +424,104 @@ function ReportProfit() {
           </div>
         </div>
       </Home>
+
+      {/* ========================================== */}
+      {/* 🌟 เรียกใช้ Component MyModal */}
+      {/* ========================================== */}
+      <MyModal id="modalSaleDetail" title="📄 รายละเอียดการขาย (ใบเสร็จ)">
+        {selectedBillDetail ? (
+          <div className="p-2">
+            {/* ส่วนข้อมูลสลาก */}
+            <div className="alert alert-primary border-0 shadow-sm rounded-4 mb-3">
+              <h5 className="alert-heading fw-bold mb-3 border-bottom pb-2">
+                <i className="bi bi-ticket-perforated me-2"></i>ข้อมูลสลาก
+              </h5>
+              <div className="row g-2 mb-2">
+                <div className="col-4 text-muted small">เลขสลาก:</div>
+                <div className="col-8 fw-bold fs-5 text-primary">
+                  {selectedBillDetail.lotto?.numbers}
+                </div>
+              </div>
+              <div className="row g-2 mb-2">
+                <div className="col-4 text-muted small">งวด/เล่ม:</div>
+                <div className="col-8 fw-bold">
+                  {selectedBillDetail.lotto?.roundNumber} /{" "}
+                  {selectedBillDetail.lotto?.bookNumber}
+                </div>
+              </div>
+              <div className="row g-2 mb-2">
+                <div className="col-4 text-muted small">ราคาขาย:</div>
+                <div className="col-8 fw-bold text-dark">
+                  ฿{selectedBillDetail.price?.toLocaleString()}
+                </div>
+              </div>
+            </div>
+
+            {/* ส่วนข้อมูลลูกค้า */}
+            <div className="alert alert-secondary border-0 shadow-sm rounded-4 mb-3 bg-light">
+              <h5 className="alert-heading fw-bold mb-3 border-bottom pb-2 text-dark">
+                <i className="bi bi-person-lines-fill me-2"></i>ข้อมูลลูกค้า
+              </h5>
+              <div className="row g-2 mb-2">
+                <div className="col-4 text-muted small">ชื่อลูกค้า:</div>
+                <div className="col-8 fw-bold text-dark">
+                  {selectedBillDetail.billSale?.customerName || "-"}
+                </div>
+              </div>
+              <div className="row g-2 mb-2">
+                <div className="col-4 text-muted small">เบอร์โทร:</div>
+                <div className="col-8 fw-bold text-dark">
+                  {selectedBillDetail.billSale?.customerPhone || "-"}
+                </div>
+              </div>
+              <div className="row g-2 mb-2">
+                <div className="col-4 text-muted small">ที่อยู่จัดส่ง:</div>
+                <div className="col-8 text-dark small">
+                  {selectedBillDetail.billSale?.customerAddress || "-"}
+                </div>
+              </div>
+            </div>
+
+            {/* ส่วนข้อมูลการโอนเงิน */}
+            <div className="alert alert-success border-0 shadow-sm rounded-4 mb-0">
+              <h5 className="alert-heading fw-bold mb-3 border-bottom pb-2">
+                <i className="bi bi-check-circle-fill me-2"></i>
+                ประวัติการโอนเงิน
+              </h5>
+              <div className="row g-2 mb-2">
+                <div className="col-4 text-muted small">วันที่โอน:</div>
+                <div className="col-8 fw-bold">
+                  {selectedBillDetail.billSale?.payDate
+                    ? dayjs(selectedBillDetail.billSale.payDate).format(
+                        "DD/MM/YYYY",
+                      )
+                    : "-"}
+                </div>
+              </div>
+              <div className="row g-2 mb-2">
+                <div className="col-4 text-muted small">เวลาที่โอน:</div>
+                <div className="col-8 fw-bold">
+                  {selectedBillDetail.billSale?.payTime || "-"}
+                </div>
+              </div>
+              <div className="row g-2 mb-0">
+                <div className="col-4 text-muted small">หมายเหตุ:</div>
+                <div className="col-8 small">
+                  {selectedBillDetail.billSale?.payRemark || "-"}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center p-4 text-muted">
+            <div
+              className="spinner-border text-primary mb-2"
+              role="status"
+            ></div>
+            <div>กำลังโหลดข้อมูล...</div>
+          </div>
+        )}
+      </MyModal>
     </>
   );
 }

@@ -87,6 +87,7 @@ export class BillSaleService {
         },
         include: {
           lotto: true,
+          billSale: true,
         }
       });
 

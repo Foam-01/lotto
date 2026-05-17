@@ -48,100 +48,210 @@ function Home(props) {
     });
   };
 
+  // 🌟 สไตล์พิเศษสำหรับ "Compact Mode" (บีบอัดเมนูให้ฟิตพอดีจอ)
+  const compactMenuItem = {
+    padding: "6px 15px", // ลดช่องไฟบนล่างให้บางลง
+    marginBottom: "2px", // ลดระยะห่างระหว่างปุ่ม
+    fontSize: "14px", // ขนาดฟอนต์กำลังดี อ่านง่าย ไม่ล้น
+    display: "flex",
+    alignItems: "center",
+    whiteSpace: "nowrap", // 🚨 บังคับให้อยู่บรรทัดเดียว ห้ามตกบรรทัด
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  };
+
   return (
     <div className="layout-wrapper">
       {/* 🌟 Sidebar 🌟 */}
-      <div className="sidebar">
-        {/* --- ส่วนหัว --- */}
-        <div>
-          <div className="title">
-            <div className="title-emoji">🐈</div>
-            แผงแมวส้ม
+      <div
+        className="sidebar"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh", // ล็อคความสูงเท่าหน้าจอ
+          overflow: "hidden", // ปิด Scroll รวม
+        }}
+      >
+        {/* --- ส่วนหัว (🌟 รีดไขมัน ลดขนาดลงให้กระชับที่สุด) --- */}
+        <div style={{ flexShrink: 0, paddingBottom: "5px" }}>
+          <div
+            className="title"
+            style={{
+              marginBottom: "5px",
+              lineHeight: "1.1",
+              paddingTop: "5px",
+            }}
+          >
+            {/* ย่อขนาดแมวส้มลงมานิดนึง */}
+            <div
+              className="title-emoji"
+              style={{ fontSize: "2rem", marginBottom: "0" }}
+            >
+              🐈
+            </div>
+            <span style={{ fontSize: "1.1rem", fontWeight: "900" }}>
+              แผงแมวส้ม
+            </span>
             <br />
-            <span className="title-sub">ADMIN PANEL</span>
+            <span
+              className="title-sub"
+              style={{ fontSize: "0.65rem", letterSpacing: "1px" }}
+            >
+              ADMIN PANEL
+            </span>
           </div>
 
-          <div className="user-info">
-            <small className="text-muted d-block fw-bold mb-1">
+          <div
+            className="user-info"
+            style={{ marginBottom: "5px", padding: "6px", borderRadius: "8px" }}
+          >
+            <small
+              className="text-muted d-block fw-bold"
+              style={{ fontSize: "0.7rem", marginBottom: "2px" }}
+            >
               ยินดีต้อนรับเจ้านาย
             </small>
-            <strong className="user-name-text">🐾 {userName || "Admin"}</strong>
+            <strong className="user-name-text" style={{ fontSize: "0.9rem" }}>
+              🐾 {userName || "Admin"}
+            </strong>
           </div>
         </div>
 
-        {/* --- ส่วนเมนู --- */}
-        <div className="menu">
-          <Link to="/home" className={`menu-item ${isActive("/home")}`}>
-            <i className="bi bi-house-door-fill"></i> <span>หน้าแรก</span>
+        {/* --- ส่วนเมนู (จัดระเบียบให้พอดีจอ) --- */}
+        <div
+          className="menu"
+          style={{
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            overflowY: "auto", // ถ้าจอเล็กมากจริงๆ ถึงจะยอมให้เลื่อน
+            scrollbarWidth: "none", // ซ่อน Scrollbar
+            msOverflowStyle: "none",
+          }}
+        >
+          {/* ซ่อน Scrollbar ของ Chrome/Safari */}
+          <style>{`.menu::-webkit-scrollbar { display: none; }`}</style>
+
+          <Link
+            to="/home"
+            className={`menu-item ${isActive("/home")}`}
+            style={compactMenuItem}
+          >
+            <i className="bi bi-house-door-fill me-2"></i> <span>หน้าแรก</span>
           </Link>
 
-          <Link to="/company" className={`menu-item ${isActive("/company")}`}>
-            <i className="bi bi-shop-window"></i> <span>ข้อมูลร้าน</span>
+          <Link
+            to="/company"
+            className={`menu-item ${isActive("/company")}`}
+            style={compactMenuItem}
+          >
+            <i className="bi bi-shop-window me-2"></i> <span>ข้อมูลร้าน</span>
           </Link>
 
-          <Link to="/lotto" className={`menu-item ${isActive("/lotto")}`}>
-            <i className="bi bi-ticket-detailed-fill"></i>{" "}
+          <Link
+            to="/lotto"
+            className={`menu-item ${isActive("/lotto")}`}
+            style={compactMenuItem}
+          >
+            <i className="bi bi-ticket-detailed-fill me-2"></i>{" "}
             <span>จัดการสลาก</span>
           </Link>
 
-          <Link to="/billSale" className={`menu-item ${isActive("/billSale")}`}>
-            <i className="bi bi-receipt-cutoff"></i> <span>รายการสั่งซื้อ</span>
+          <Link
+            to="/billSale"
+            className={`menu-item ${isActive("/billSale")}`}
+            style={compactMenuItem}
+          >
+            <i className="bi bi-receipt-cutoff me-2"></i>{" "}
+            <span>รายการสั่งซื้อ</span>
           </Link>
 
           <Link
             to="/lottoInShop"
             className={`menu-item ${isActive("/lottoInShop")}`}
+            style={compactMenuItem}
           >
-            <i className="bi bi-inbox"></i> <span>รายการที่ฝากร้าน</span>
+            <i className="bi bi-inbox me-2"></i> <span>รายการที่ฝากร้าน</span>
           </Link>
 
           <Link
             to="/lottoForSend"
             className={`menu-item ${isActive("/lottoForSend")}`}
+            style={compactMenuItem}
           >
-            <i className="bi bi-truck"></i> <span>รายการที่จัดส่ง</span>
+            <i className="bi bi-truck me-2"></i> <span>รายการที่จัดส่ง</span>
           </Link>
 
-          <Link to="/Bonus" className={`menu-item ${isActive("/Bonus")}`}>
-            <i className="bi bi-gift"></i> <span>ผลรางวัล</span>
+          <Link
+            to="/Bonus"
+            className={`menu-item ${isActive("/Bonus")}`}
+            style={compactMenuItem}
+          >
+            <i className="bi bi-gift me-2"></i> <span>ผลรางวัล</span>
           </Link>
 
           <Link
             to="/saleBonus"
             className={`menu-item ${isActive("/saleBonus")}`}
+            style={compactMenuItem}
           >
-            <i className="bi bi-trophy-fill"></i>{" "}
+            <i className="bi bi-trophy-fill me-2"></i>{" "}
             <span>รายงานผู้ถูกรางวัล</span>
           </Link>
 
+          {/* 🌟 เปลี่ยนชื่อให้สั้นลง ไม่ทะลุจอ */}
           <Link
             to="/lottoIsBonus"
             className={`menu-item ${isActive("/lottoIsBonus")}`}
+            style={compactMenuItem}
           >
-            <i className="bi bi-award-fill"></i>{" "}
-            <span>รายงานรางวัลของตัวเอง</span>
+            <i className="bi bi-award-fill me-2"></i> <span>รางวัลของร้าน</span>
           </Link>
 
           <Link
             to="/reportIncome"
             className={`menu-item ${isActive("/reportIncome")}`}
+            style={compactMenuItem}
           >
-            <i className="bi bi-cash-coin"></i> <span>รายงานรายได้</span>
+            <i className="bi bi-cash-coin me-2"></i> <span>รายงานรายได้</span>
           </Link>
 
           <Link
             to="/reportProfit"
             className={`menu-item ${isActive("/reportProfit")}`}
+            style={compactMenuItem}
           >
-            <i className="bi bi-piggy-bank"></i>{" "}
-            <span>รายงานผลกำไร</span>
+            <i className="bi bi-piggy-bank me-2"></i> <span>รายงานผลกำไร</span>
+          </Link>
+
+          <Link
+            to="/user"
+            className={`menu-item ${isActive("/user")}`}
+            style={compactMenuItem}
+          >
+            <i className="bi bi-person me-2"></i> <span>ข้อมูลผู้ใช้</span>
           </Link>
         </div>
 
-        {/* --- ส่วนออกจากระบบ --- */}
-        <div className="logout-section">
-          <a href="#" className="menu-item logout-link" onClick={handleLogout}>
-            <i className="bi bi-power"></i> <span>ออกจากระบบ</span>
+        {/* --- ส่วนออกจากระบบ (🌟 ล็อคติดขอบล่าง 100%) --- */}
+        <div
+          className="logout-section"
+          style={{
+            flexShrink: 0,
+            marginTop: "auto", // ดันให้ติดขอบล่าง
+            paddingBottom: "15px",
+            borderTop: "1px dashed #fed7aa",
+            paddingTop: "8px",
+          }}
+        >
+          <a
+            href="#"
+            className="menu-item logout-link"
+            onClick={handleLogout}
+            style={compactMenuItem}
+          >
+            <i className="bi bi-power me-2"></i> <span>ออกจากระบบ</span>
           </a>
         </div>
       </div>
