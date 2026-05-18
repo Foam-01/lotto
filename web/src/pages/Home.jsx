@@ -159,6 +159,15 @@ function Home(props) {
           </Link>
 
           <Link
+            to="/changePrice"
+            className={`menu-item ${isActive("/changePrice")}`}
+            style={compactMenuItem}
+          >
+            <i className="bi bi-lightning-charge-fill me-2"></i>{" "}
+            <span>ปรับราคา เร่งด่วน</span>
+          </Link>
+
+          <Link
             to="/billSale"
             className={`menu-item ${isActive("/billSale")}`}
             style={compactMenuItem}

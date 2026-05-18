@@ -277,4 +277,21 @@ export class LottoService {
       throw new InternalServerErrorException('ไม่สามารถตรวจสอบสลากได้');
     }
   }
+
+  async changePrice(lottos: any[]) {
+    try {
+      for (let i = 0; i < lottos.length; i++) {
+        const item = lottos[i];
+
+        await this.prisma.lotto.update({
+          where: { id: item.id },
+          data: { sale: item.newPrice },
+        });
+      }
+
+      return { message: 'success' };
+    } catch (e) {
+      throw new InternalServerErrorException('ไม่สามารถปรับราคาได้');
+    }
+  }
 }

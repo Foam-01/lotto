@@ -90,4 +90,9 @@ export class LottoController {
   async lottoIsBonuslist() {
     return this.lottoService.lottoIsBonuslist();
   }
+
+  @Put('changePrice')
+  async changePrice(@Body('lottos') lottos: any[]) {
+    return this.lottoService.changePrice(lottos);
+  }
 }
