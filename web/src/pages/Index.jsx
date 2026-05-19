@@ -1,8 +1,10 @@
-
 import { useEffect, useRef, useState } from "react";
 import LottoService from "../services/lotto.service";
 import Swal from "sweetalert2";
 import "./Index.css";
+
+import FloatingBanner from "../components/FloatingBanner";
+import BannerSlider, { SidebarBanner } from "../components/BannerSlider";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -49,7 +51,7 @@ function Index() {
   const [carts, setCarts] = useState([]);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false); 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const inputRefs = useRef([]);
 
@@ -161,75 +163,86 @@ function Index() {
 
   const filledCount = digits.filter(Boolean).length;
 
+  const handleConfirmBuy = async () => {
+    // 🌟 1. สร้างตัวตั้งค่าสำหรับ Notification (Toast)
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end", // เด้งที่มุมขวาบน (เปลี่ยนเป็น top, bottom, bottom-end ได้)
+      showConfirmButton: false,
+      timer: 3000, // แสดง 3 วินาที
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      },
+    });
 
- const handleConfirmBuy = async () => {
-   // 🌟 1. สร้างตัวตั้งค่าสำหรับ Notification (Toast)
-   const Toast = Swal.mixin({
-     toast: true,
-     position: "top-end", // เด้งที่มุมขวาบน (เปลี่ยนเป็น top, bottom, bottom-end ได้)
-     showConfirmButton: false,
-     timer: 3000, // แสดง 3 วินาที
-     timerProgressBar: true,
-     didOpen: (toast) => {
-       toast.onmouseenter = Swal.stopTimer;
-       toast.onmouseleave = Swal.resumeTimer;
-     },
-   });
+    // ถามยืนยันการซื้อ (อันนี้ยังคงเป็น Modal ตรงกลางเหมือนเดิม ดีแล้วครับ)
+    const button = await Swal.fire({
+      title: "ยืนยันการซื้อ",
+      text: "คุณต้องการซื้อสลากใช่หรือไม่?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#ea580c",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "ยืนยัน",
+      cancelButtonText: "ยกเลิก",
+    });
 
-   // ถามยืนยันการซื้อ (อันนี้ยังคงเป็น Modal ตรงกลางเหมือนเดิม ดีแล้วครับ)
-   const button = await Swal.fire({
-     title: "ยืนยันการซื้อ",
-     text: "คุณต้องการซื้อสลากใช่หรือไม่?",
-     icon: "question",
-     showCancelButton: true,
-     confirmButtonColor: "#ea580c",
-     cancelButtonColor: "#d33",
-     confirmButtonText: "ยืนยัน",
-     cancelButtonText: "ยกเลิก",
-   });
+    if (button.isConfirmed) {
+      try {
+        const payload = {
+          customerName: customerName,
+          customerPhone: customerPhone,
+          customerAddress: customerAddress,
+          carts: carts,
+        };
 
-   if (button.isConfirmed) {
-     try {
-       const payload = {
-         customerName: customerName,
-         customerPhone: customerPhone,
-         customerAddress: customerAddress,
-         carts: carts,
-       };
+        // 🌟 เปลี่ยนมาเรียกใช้ Service
+        const res = await LottoService.confirmBuy(payload);
 
-       // 🌟 เปลี่ยนมาเรียกใช้ Service
-       const res = await LottoService.confirmBuy(payload);
+        if (res.data.message === "success") {
+          // 🌟 2. เรียกใช้ Notification แบบ Success แทนการใช้ Modal ใหญ่
+          Toast.fire({
+            icon: "success",
+            title: "สั่งซื้อสำเร็จ! บันทึกข้อมูลเรียบร้อย",
+          });
 
-       if (res.data.message === "success") {
-         // 🌟 2. เรียกใช้ Notification แบบ Success แทนการใช้ Modal ใหญ่
-         Toast.fire({
-           icon: "success",
-           title: "สั่งซื้อสำเร็จ! บันทึกข้อมูลเรียบร้อย",
-         });
+          // เคลียร์ฟอร์มและตะกร้า
+          setCarts([]);
+          setCustomerName("");
+          setCustomerPhone("");
+          setCustomerAddress("");
 
-         // เคลียร์ฟอร์มและตะกร้า
-         setCarts([]);
-         setCustomerName("");
-         setCustomerPhone("");
-         setCustomerAddress("");
+          // ปิด Modal หน้าต่างชำระเงิน
+          setShowPaymentModal(false);
+        }
+      } catch (error) {
+        console.error(error);
 
-         // ปิด Modal หน้าต่างชำระเงิน
-         setShowPaymentModal(false);
-       }
-     } catch (error) {
-       console.error(error);
-
-       // 🌟 3. เรียกใช้ Notification แบบ Error
-       Toast.fire({
-         icon: "error",
-         title: "เกิดข้อผิดพลาด ไม่สามารถบันทึกข้อมูลได้",
-       });
-     }
-   }
- };
+        // 🌟 3. เรียกใช้ Notification แบบ Error
+        Toast.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด ไม่สามารถบันทึกข้อมูลได้",
+        });
+      }
+    }
+  };
 
   return (
     <div className="page">
+      {/* 🌟 ใส่แบนเนอร์ลอยได้ที่นี่! */}
+      <FloatingBanner
+        side="left"
+        imageUrl="https://scontent.fphs3-1.fna.fbcdn.net/v/t39.30808-6/300420149_434544808699257_1159983105418325809_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFgrVprguAIjb0OsSGt4DpohDSlrf9boU2ENKWt_1uhTUUiniPkWD8VuBUnbUNKTEOQaM1VY0jcN2Euauexgumu&_nc_ohc=2PvPacjsc1cQ7kNvwFz77Uo&_nc_oc=Ado4kUWme0YflxT5QDo3t-F2_0PubLIsNkU9HFW3CKmD1tKIz4DhThkMyVuEBVwKARpc7cIkK27dr11ZI0DFH01q&_nc_zt=23&_nc_ht=scontent.fphs3-1.fna&_nc_gid=0K5hqdrKCwxKB5OCeiGdWw&_nc_ss=7b2a8&oh=00_Af6KLwOb0igx3WUVc3m9rviE_X4CyDyfBdst1EUZn8z6Ug&oe=6A1225F1"
+        link="https://www.facebook.com/photo/?fbid=434544818699256&set=a.434544785365926"
+      />
+      <FloatingBanner
+        side="right"
+        imageUrl="https://scontent.fphs3-1.fna.fbcdn.net/v/t39.30808-6/300420149_434544808699257_1159983105418325809_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFgrVprguAIjb0OsSGt4DpohDSlrf9boU2ENKWt_1uhTUUiniPkWD8VuBUnbUNKTEOQaM1VY0jcN2Euauexgumu&_nc_ohc=2PvPacjsc1cQ7kNvwFz77Uo&_nc_oc=Ado4kUWme0YflxT5QDo3t-F2_0PubLIsNkU9HFW3CKmD1tKIz4DhThkMyVuEBVwKARpc7cIkK27dr11ZI0DFH01q&_nc_zt=23&_nc_ht=scontent.fphs3-1.fna&_nc_gid=0K5hqdrKCwxKB5OCeiGdWw&_nc_ss=7b2a8&oh=00_Af6KLwOb0igx3WUVc3m9rviE_X4CyDyfBdst1EUZn8z6Ug&oe=6A1225F1"
+        link="https://www.facebook.com/photo/?fbid=434544818699256&set=a.434544785365926"
+      />
+
       <div className="sunburst-bg"></div>
       <div className="bg-pattern"></div>
 
@@ -374,61 +387,85 @@ function Index() {
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <div className="hero-section">
-        <div className="container">
-          <div className="hero-grid">
-            <div className="hero-left">
-              <div className="mascot-area">
-                <span className="mascot-emoji">🐈</span>
-                <div>
-                  <h1 className="hero-title">แผงแมวส้ม</h1>
-                  <p className="hero-subtitle">ตัวตึงเรื่องให้โชค!</p>
-                </div>
-              </div>
-            </div>
+        <div className="container" style={{ position: "relative" }}>
+          {/* 🌟 Sidebar ซ้าย (ลอยด้านซ้าย) */}
+          <div
+            className="d-none d-xl-block"
+            style={{ position: "absolute", left: "-150px", top: "0" }}
+          >
+            <SidebarBanner position="left" />
+          </div>
 
-            <div className="search-card">
-              <div className="search-body">
-                <p className="search-label">กรอกตัวเลข ค้นหารางวัลที่ 1</p>
+          {/* 🌟 Sidebar ขวา (ลอยด้านขวา) */}
+          <div
+            className="d-none d-xl-block"
+            style={{ position: "absolute", right: "-150px", top: "0" }}
+          >
+            <SidebarBanner position="right" />
+          </div>
 
-                <div className="inputs-row">
-                  {digits.map((digit, idx) => (
-                    <input
-                      key={idx}
-                      ref={(el) => (inputRefs.current[idx] = el)}
-                      id={`ball-${idx}`}
-                      className={`digit-box ${digit ? "filled" : ""}`}
-                      maxLength="1"
-                      inputMode="numeric"
-                      pattern="[0-9]"
-                      value={digit}
-                      placeholder={(idx + 1).toString()}
-                      onChange={(e) => handleDigitChange(idx, e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(idx, e)}
-                      autoComplete="off"
-                    />
-                  ))}
-                </div>
-
-                {filledCount > 0 && (
-                  <p className="live-status">
-                    กำลังระบุตัวเลข... กดปุ่มค้นหาเพื่อดูผลลัพธ์
-                  </p>
-                )}
-
-                <div className="btn-row">
-                  <button className="btn-search" onClick={handleSearchStartEnd}>
-                    <i className="bi bi-search me-2"></i> ค้นหาสลาก
-                  </button>
-                </div>
-
-                {filledCount > 0 && (
-                  <div style={{ textAlign: "center", marginTop: "12px" }}>
-                    <button className="btn-clear" onClick={handleClear}>
-                      <i className="bi bi-arrow-counterclockwise me-1"></i>{" "}
-                      ล้างข้อมูลและเริ่มใหม่
-                    </button>
+          {/* 🌟 เนื้อหาหลัก */}
+          <div className="row justify-content-center">
+            <div className="col-12 col-lg-10">
+              <BannerSlider /> {/* แบนเนอร์บนสุด */}
+              {/* แผงแมวส้ม และส่วนค้นหา */}
+              <div className="hero-grid">
+                <div className="hero-left">
+                  <div className="mascot-area">
+                    <span className="mascot-emoji">🐈</span>
+                    <div>
+                      <h1 className="hero-title">แผงแมวส้ม</h1>
+                      <p className="hero-subtitle">ตัวตึงเรื่องให้โชค!</p>
+                    </div>
                   </div>
-                )}
+                </div>
+
+                <div className="search-card">
+                  <div className="search-body">
+                    <p className="search-label">กรอกตัวเลข ค้นหารางวัลที่ 1</p>
+                    <div className="inputs-row">
+                      {digits.map((digit, idx) => (
+                        <input
+                          key={idx}
+                          ref={(el) => (inputRefs.current[idx] = el)}
+                          id={`ball-${idx}`}
+                          className={`digit-box ${digit ? "filled" : ""}`}
+                          maxLength="1"
+                          inputMode="numeric"
+                          pattern="[0-9]"
+                          value={digit}
+                          placeholder={(idx + 1).toString()}
+                          onChange={(e) =>
+                            handleDigitChange(idx, e.target.value)
+                          }
+                          onKeyDown={(e) => handleKeyDown(idx, e)}
+                          autoComplete="off"
+                        />
+                      ))}
+                    </div>
+                    {filledCount > 0 && (
+                      <p className="live-status">
+                        กำลังระบุตัวเลข... กดปุ่มค้นหาเพื่อดูผลลัพธ์
+                      </p>
+                    )}
+                    <div className="btn-row">
+                      <button
+                        className="btn-search"
+                        onClick={handleSearchStartEnd}
+                      >
+                        <i className="bi bi-search me-2"></i> ค้นหาสลาก
+                      </button>
+                    </div>
+                    {filledCount > 0 && (
+                      <div style={{ textAlign: "center", marginTop: "12px" }}>
+                        <button className="btn-clear" onClick={handleClear}>
+                          <i className="bi bi-arrow-counterclockwise me-1"></i>{" "}
+                          ล้างข้อมูลและเริ่มใหม่
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -562,8 +599,8 @@ function Index() {
                 <div className="form-group mb-3">
                   <label>ชื่อผู้ซื้อ</label>
                   <input
-                  value={customerName}
-                  onChange={e => setCustomerName(e.target.value)}
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
                     type="text"
                     className="cat-input"
                     placeholder="กรอกชื่อ-นามสกุล"
@@ -572,8 +609,8 @@ function Index() {
                 <div className="form-group mb-3">
                   <label>เบอร์โทรศัพท์</label>
                   <input
-                  value={customerPhone}
-                    onChange={e => setCustomerPhone(e.target.value)}
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
                     type="tel"
                     className="cat-input"
                     placeholder="08X-XXX-XXXX"
@@ -587,8 +624,8 @@ function Index() {
                     </span>
                   </label>
                   <textarea
-                  value={customerAddress}
-                  onChange={e => setCustomerAddress(e.target.value)}
+                    value={customerAddress}
+                    onChange={(e) => setCustomerAddress(e.target.value)}
                     className="cat-input"
                     rows="2"
                     placeholder="กรอกที่อยู่สำหรับจัดส่งสลากใบจริง..."
@@ -597,9 +634,7 @@ function Index() {
               </div>
 
               {/* ปุ่มยืนยัน */}
-              <button 
-              onClick={handleConfirmBuy}
-              className="btn-confirm-order">
+              <button onClick={handleConfirmBuy} className="btn-confirm-order">
                 <i className="bi bi-check-circle-fill me-2"></i>
                 ยืนยันการสั่งซื้อ
               </button>
@@ -655,8 +690,6 @@ function EmptyState({ searched, query, onClear }) {
       )}
     </div>
   );
-
- 
 }
 
 export default Index;

@@ -10,6 +10,7 @@ import { BonusModule } from './modules/bonus/bonus.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { LottoModule } from './modules/lotto/lotto.module';
+import { BannerModule } from './modules/banner/banner.module'; // 🌟 อย่าลืมเพิ่ม BannerModule ด้วยนะครับ
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { LottoModule } from './modules/lotto/lotto.module';
     AuthModule, // 🌟 เสียบปลั๊ก Auth
     UserModule, // 🌟 เสียบปลั๊ก User
     LottoModule,
+    BannerModule, // 🌟 เสียบปลั๊ก Banner
   ],
   controllers: [AppController],
   providers: [AppService],
