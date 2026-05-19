@@ -102,3 +102,25 @@ model LottoIsBonus {
   bonusResultDetailId Int
   BonusResultDetail   BonusResultDetail @relation(fields: [bonusResultDetailId], references: [id])
 }
+
+model Banner {
+  id        Int      @id @default(autoincrement())
+  name      String   // ชื่อแบนเนอร์ (เอาไว้ให้ Admin ดูง่ายๆ)
+  src       String   // URL หรือที่อยู่ของไฟล์รูปภาพ
+
+  // 🌟 1. สิ่งที่ "ควรมี" (เสริมความเก่งให้ระบบ)
+  link      String?  // ลิงก์ปลายทาง (เวลากดรูปแล้วให้เด้งไปหน้าไหน ใส่ ? เพราะบางรูปอาจจะแค่โชว์เฉยๆ ไม่มีลิงก์)
+  alt       String?  // คำอธิบายรูปภาพ (สำคัญมากสำหรับ SEO และผู้พิการทางสายตา)
+  sequence  Int      @default(0) // ลำดับการโชว์รูป (เลขน้อยขึ้นก่อน จะได้เรียงลำดับแบนเนอร์ได้ตามใจชอบ)
+  isActive  Boolean  @default(true) // ปุ่มเปิด-ปิด (หมดโปรโมชั่นก็แค่กดปิด ไม่ต้องลบรูบทิ้ง)
+
+  // 🌟 2. ถ้าระบบเป็น V.VIP (ตั้งเวลาแสดงผลอัตโนมัติ)
+  startDate DateTime? // ตั้งเวลาให้แบนเนอร์เริ่มโชว์
+  endDate   DateTime? // ตั้งเวลาให้แบนเนอร์หายไปเอง (เหมาะกับโปรโมชั่นที่มีวันหมดอายุ)
+
+  // 🌟 3. ข้อมูลพื้นฐานที่ "ต้องมี" ทุกตาราง (Audit Trail)
+  createdAt DateTime @default(now()) // บันทึกว่าสร้างเมื่อไหร่
+  updatedAt DateTime @updatedAt      // บันทึกว่าอัปเดตครั้งสุดท้ายเมื่อไหร่
+}
+
+
