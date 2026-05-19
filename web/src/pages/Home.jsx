@@ -138,15 +138,20 @@ function Home(props) {
             className={`menu-item ${isActive("/home")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-house-door-fill me-2"></i> <span>หน้าแรก</span>
+            <i
+              className="bi bi-house-door-fill me-2"
+              style={{ color: "#ea580c" }}
+            ></i>
+            <span>หน้าแรก</span>
           </Link>
 
           <Link
-            to="/company"
-            className={`menu-item ${isActive("/company")}`}
+            to="/banner"
+            className={`menu-item ${isActive("/banner")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-shop-window me-2"></i> <span>ข้อมูลร้าน</span>
+            <i className="bi bi-gem me-2" style={{ color: "#f59e0b" }}></i>
+            <span>ป้ายโฆษณา</span>
           </Link>
 
           <Link
@@ -154,7 +159,10 @@ function Home(props) {
             className={`menu-item ${isActive("/lotto")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-ticket-detailed-fill me-2"></i>{" "}
+            <i
+              className="bi bi-ticket-detailed-fill me-2"
+              style={{ color: "#3b82f6" }}
+            ></i>{" "}
             <span>จัดการสลาก</span>
           </Link>
 
@@ -163,7 +171,10 @@ function Home(props) {
             className={`menu-item ${isActive("/changePrice")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-lightning-charge-fill me-2"></i>{" "}
+            <i
+              className="bi bi-lightning-charge-fill me-2"
+              style={{ color: "#ef4444" }}
+            ></i>{" "}
             <span>ปรับราคา เร่งด่วน</span>
           </Link>
 
@@ -172,7 +183,10 @@ function Home(props) {
             className={`menu-item ${isActive("/billSale")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-receipt-cutoff me-2"></i>{" "}
+            <i
+              className="bi bi-receipt-cutoff me-2"
+              style={{ color: "#10b981" }}
+            ></i>{" "}
             <span>รายการสั่งซื้อ</span>
           </Link>
 
@@ -181,7 +195,8 @@ function Home(props) {
             className={`menu-item ${isActive("/lottoInShop")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-inbox me-2"></i> <span>รายการที่ฝากร้าน</span>
+            <i className="bi bi-inbox me-2" style={{ color: "#8b5cf6" }}></i>
+            <span>รายการที่ฝากร้าน</span>
           </Link>
 
           <Link
@@ -189,7 +204,8 @@ function Home(props) {
             className={`menu-item ${isActive("/lottoForSend")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-truck me-2"></i> <span>รายการที่จัดส่ง</span>
+            <i className="bi bi-truck me-2" style={{ color: "#06b6d4" }}></i>
+            <span>รายการที่จัดส่ง</span>
           </Link>
 
           <Link
@@ -197,7 +213,8 @@ function Home(props) {
             className={`menu-item ${isActive("/Bonus")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-gift me-2"></i> <span>ผลรางวัล</span>
+            <i className="bi bi-gift me-2" style={{ color: "#ec4899" }}></i>
+            <span>ผลรางวัล</span>
           </Link>
 
           <Link
@@ -205,17 +222,23 @@ function Home(props) {
             className={`menu-item ${isActive("/saleBonus")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-trophy-fill me-2"></i>{" "}
+            <i
+              className="bi bi-trophy-fill me-2"
+              style={{ color: "#eab308" }}
+            ></i>{" "}
             <span>รายงานผู้ถูกรางวัล</span>
           </Link>
 
-          {/* 🌟 เปลี่ยนชื่อให้สั้นลง ไม่ทะลุจอ */}
           <Link
             to="/lottoIsBonus"
             className={`menu-item ${isActive("/lottoIsBonus")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-award-fill me-2"></i> <span>รางวัลของร้าน</span>
+            <i
+              className="bi bi-award-fill me-2"
+              style={{ color: "#f97316" }}
+            ></i>
+            <span>รางวัลของร้าน</span>
           </Link>
 
           <Link
@@ -223,7 +246,11 @@ function Home(props) {
             className={`menu-item ${isActive("/reportIncome")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-cash-coin me-2"></i> <span>รายงานรายได้</span>
+            <i
+              className="bi bi-cash-coin me-2"
+              style={{ color: "#10b981" }}
+            ></i>
+            <span>รายงานรายได้</span>
           </Link>
 
           <Link
@@ -231,7 +258,23 @@ function Home(props) {
             className={`menu-item ${isActive("/reportProfit")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-piggy-bank me-2"></i> <span>รายงานผลกำไร</span>
+            <i
+              className="bi bi-piggy-bank me-2"
+              style={{ color: "#059669" }}
+            ></i>
+            <span>รายงานผลกำไร</span>
+          </Link>
+
+          <Link
+            to="/company"
+            className={`menu-item ${isActive("/company")}`}
+            style={compactMenuItem}
+          >
+            <i
+              className="bi bi-shop-window me-2"
+              style={{ color: "#64748b" }}
+            ></i>
+            <span>ข้อมูลร้าน</span>
           </Link>
 
           <Link
@@ -239,7 +282,8 @@ function Home(props) {
             className={`menu-item ${isActive("/user")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-person me-2"></i> <span>ข้อมูลผู้ใช้</span>
+            <i className="bi bi-person me-2" style={{ color: "#475569" }}></i>
+            <span>ข้อมูลผู้ใช้</span>
           </Link>
         </div>
 

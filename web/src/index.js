@@ -20,6 +20,7 @@ import LottoIsBonus from "./pages/LottoIsBonus";
 import ReportProfit from "./pages/ReportProfit";
 import User from "./pages/User";
 import ChangePrice from "./pages/ChangePrice";
+import Banner from "./pages/Banner";
 
 const router = createBrowserRouter([
   {
@@ -82,6 +83,10 @@ const router = createBrowserRouter([
     path: "/changePrice",
     element: <ChangePrice />,
   },
+  {
+    path: '/banner',
+    element: <Banner />,
+  }
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
