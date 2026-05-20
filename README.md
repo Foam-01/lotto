@@ -35,6 +35,9 @@ A comprehensive, full-stack web application designed for lottery management. Thi
 - 🔴 **Live Demo**: [https://thai-english-dictionary.netlify.app/](https://daily-effort-tracking-app.netlify.app/)
 - 📦 **GitHub**: [https://github.com/Foam-01/Daily-Effort-Tracking-App](https://github.com/Foam-01/Daily-Effort-Tracking-App)
 
+## 🔐 Test Accounts
+* **Username:** `admin`
+* **Password:** `1234`
 
 Clone the repository:
 ```
