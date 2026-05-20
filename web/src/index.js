@@ -21,6 +21,7 @@ import ReportProfit from "./pages/ReportProfit";
 import User from "./pages/User";
 import ChangePrice from "./pages/ChangePrice";
 import Banner from "./pages/Banner";
+import Dashboard from "./pages/Dashboard";
 
 const router = createBrowserRouter([
   {
@@ -33,7 +34,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/home",
-    element: <Home />,
+    element: <Dashboard />,
   },
   {
     path: "/company",
