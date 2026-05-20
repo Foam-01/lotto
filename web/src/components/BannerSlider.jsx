@@ -9,78 +9,66 @@ function BannerSlider() {
   }, []);
 
   const fetchActiveBanners = async () => {
-    const res = await BannerService.list();
-    setBanners(res.data.filter((b) => b.isActive));
+    try {
+      const res = await BannerService.list();
+      setBanners(res.data.filter((b) => b.isActive));
+    } catch (e) {
+      console.error("ดึงข้อมูลแบนเนอร์ไม่สำเร็จ", e);
+    }
   };
 
   if (banners.length === 0) return null;
 
-  // 🌟 แยกแบนเนอร์: 4 อันแรกไว้ซ้าย-ขวา, ที่เหลือไว้บน
-  const sideBanners = banners.slice(0, 4);
-  const topBanners = banners.slice(4);
+  // 🌟 แบนเนอร์ 1-4 เอาไปทำป้ายลอยด้านข้างแล้ว
+  // เอาตั้งแต่รูปที่ 5 เป็นต้นไป มาโชว์ด้านบน
+  const topBanners = banners;
+
+  if (topBanners.length === 0) return null;
 
   return (
-    <>
-      {/* 🌟 แบนเนอร์ด้านบน (ถ้ามีเกิน 4 อัน) */}
-      {topBanners.length > 0 && (
-        <div
-          className="carousel slide mb-4"
-          id="topBanner"
-          data-bs-ride="carousel"
-        >
-          <div className="carousel-inner rounded-4">
-            {topBanners.map((b, i) => (
-              <div
-                key={b.id}
-                className={`carousel-item ${i === 0 ? "active" : ""}`}
-              >
-                <img
-                  src={b.src}
-                  className="d-block w-100"
-                  style={{ height: "150px", objectFit: "cover" }}
-                />
-              </div>
-            ))}
+    <div className="mb-4 mt-2">
+      {/* 🌟 ใช้ Bootstrap Grid (row) และแบ่งครึ่ง (col-6) เพื่อให้ได้แถวละ 2 อัน */}
+      <div className="row g-3">
+        {topBanners.map((b) => (
+          <div key={b.id} className="col-12 col-md-6">
+            <a
+              href={b.link || "#"}
+              target={b.link ? "_blank" : "_self"}
+              rel="noreferrer"
+              style={{
+                display: "block",
+                overflow: "hidden",
+                borderRadius: "12px", // ปรับความมนให้ดูเพรียวขึ้น
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              }}
+            >
+              <img
+                src={b.src}
+                className="w-100"
+                style={{
+                  height: "90px", // 🌟 ปรับตรงนี้! ลดความสูงให้เป็นป้ายเรียวยาว
+                  objectFit: "cover", // ให้รูปตัดพอดีกรอบ ไม่เบี้ยว
+                  transition: "transform 0.3s ease",
+                }}
+                alt={b.name || "Banner"}
+                onError={(e) => {
+                  e.target.src =
+                    "https://placehold.co/600x90/f1f5f9/94a3b8?text=Image+Error";
+                }}
+                // Effect ซูมตอนเอาเมาส์ชี้
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.03)")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
+              />
+            </a>
           </div>
-        </div>
-      )}
-
-      {/* 🌟 สำหรับ Sidebar (ต้องเอาไปเรียกใช้ในหน้า Index.js) */}
-      {/* ผมทำแยกเป็น Component ให้เจ้านายเอาไปแปะใน Grid ซ้าย-ขวา */}
-    </>
-  );
-}
-
-// 🌟 ตัวนี้เอาไว้เรียกในหน้า Index.js (Sidebar Banner)
-export const SidebarBanner = ({ position }) => {
-  const [banners, setBanners] = useState([]);
-  useEffect(() => {
-    BannerService.list().then((res) =>
-      setBanners(res.data.filter((b) => b.isActive)),
-    );
-  }, []);
-
-  // กรองเอาตามตำแหน่ง (สมมติ Sequence 1,2 คือซ้าย / 3,4 คือขวา)
-  const myBanners =
-    position === "left" ? banners.slice(0, 2) : banners.slice(2, 4);
-
-  return (
-    <div className="d-flex flex-column gap-3">
-      {myBanners.map((b) => (
-        <a key={b.id} href={b.link} target="_blank">
-          <img
-            src={b.src}
-            style={{
-              width: "120px",
-              height: "240px",
-              borderRadius: "12px",
-              objectFit: "cover",
-            }}
-          />
-        </a>
-      ))}
+        ))}
+      </div>
     </div>
   );
-};
+}
 
 export default BannerSlider;

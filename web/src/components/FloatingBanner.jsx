@@ -9,14 +9,14 @@ function FloatingBanner({ imageUrl, link, side = "right" }) {
     <div
       style={{
         position: "fixed",
-        bottom: "20px",
+        top: "50%", // 🌟 ดันลงมาครึ่งจอ
+        transform: "translateY(-50%)", // 🌟 จัดให้อยู่กึ่งกลางเป๊ะๆ
         [side]: "20px",
         zIndex: 9999,
         width: "120px",
         borderRadius: "16px",
         overflow: "hidden",
         boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-        transition: "transform 0.3s ease",
       }}
     >
       <button
@@ -34,6 +34,9 @@ function FloatingBanner({ imageUrl, link, side = "right" }) {
           fontSize: "12px",
           cursor: "pointer",
           zIndex: 10,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         ✕
