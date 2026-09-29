@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 // 🌟 Import Modules ที่เราจัดระเบียบแล้ว
 import { PrismaModule } from './prisma/prisma.module';
@@ -12,6 +14,8 @@ import { BannerModule } from './modules/banner/banner.module'; // 🌟 อย่
 
 @Module({
   imports: [
+    // 🔐 จำกัดจำนวน request ต่อ IP กันการยิงสุ่มรหัสผ่าน/ยิงถล่ม API (ค่าเริ่มต้น: 60 ครั้ง/นาที)
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
     PrismaModule,
     BillSaleModule,
     CompanyModule,
@@ -21,5 +25,6 @@ import { BannerModule } from './modules/banner/banner.module'; // 🌟 อย่
     LottoModule,
     BannerModule, // 🌟 เสียบปลั๊ก Banner
   ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

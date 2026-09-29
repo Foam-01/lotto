@@ -97,19 +97,25 @@ export class BillSaleService {
         },
       });
 
-      // 🌟 1. คำนวณยอดขายรวมจากบิลลูกค้า
-      const totalSale = billSaleDetails.reduce(
-        (sum, item) => sum + (item.price || 0),
-        0,
-      );
+      // 🌟 1. คำนวณยอดขายรวมจากบิลลูกค้า และต้นทุนรวมของสลากที่ขายได้
+      let totalSale = 0;
+      let totalCost = 0;
+      billSaleDetails.forEach((item) => {
+        totalSale += item.price || 0;
+        totalCost += item.lotto?.cost || 0;
+      });
+      const profitFromSale = totalSale - totalCost;
 
       // 🌟 2. คำนวณยอดเงินรางวัลรวมที่แผงเราถูกเอง
+      // หมายเหตุ: lottoIsBonus ด้านบนไม่ได้กรองตามช่วงวันที่ fromDate/toDate เหมือน billSaleDetails
+      // เพราะ BonusResultDetail.bonusDate เก็บเป็นข้อความไทย (เช่น "16 เมษายน 2569") ไม่ใช่ DateTime
+      // จึงกรองตามช่วงวันที่ด้วย query ปกติไม่ได้ ยอดนี้จึงยังเป็นยอดสะสมทั้งหมด ไม่ใช่เฉพาะช่วงที่เลือก
       const totalBonus = lottoIsBonus.reduce((sum, item) => {
         return sum + (item.BonusResultDetail?.price || 0);
       }, 0);
 
-      // 🌟 3. รายรับรวมทั้งหมด (ยอดขาย + เงินรางวัล)
-      const grandTotal = totalSale + totalBonus;
+      // 🌟 3. กำไรสุทธิรวมทั้งหมด (กำไรจากการขายหักต้นทุนแล้ว + เงินรางวัลที่แผงถูกเอง)
+      const grandTotal = profitFromSale + totalBonus;
 
       // ส่งกลับไปให้หน้าบ้านแบบแพ็คเกจพรีเมียม!
       return {
@@ -117,6 +123,8 @@ export class BillSaleService {
         lottoIsBonus,
         summary: {
           totalSale: totalSale,
+          totalCost: totalCost,
+          profitFromSale: profitFromSale,
           totalBonus: totalBonus,
           grandTotal: grandTotal,
         },

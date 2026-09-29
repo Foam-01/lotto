@@ -1,13 +1,10 @@
 import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
-import axios from "axios";
 import "./index.css";
-import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./pages/Login";
-import Home from "./pages/Home";
 import Index from "./pages/Index";
 
 // 🌟 หน้าอื่นๆ ที่ไม่ได้เปิดเป็นหน้าแรก โหลดแบบ Code Splitting (React.lazy)
@@ -46,24 +43,8 @@ function withSuspense(element) {
   return <Suspense fallback={<RouteLoading />}>{element}</Suspense>;
 }
 
-// 🌟 เมื่อ Token หมดอายุ (401) ให้เคลียร์ session แล้วพากลับไปหน้า Login
-// ทำงานเฉพาะตอนที่เคย "ล็อกอินอยู่" จริง (มี token ค้างอยู่) และไม่ใช่ตอนที่กรอกรหัสผ่าน Login ผิด
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const isLoginRequest = error.config?.url?.includes("/user/login");
-    const hadToken = !!localStorage.getItem("token");
-
-    if (error.response?.status === 401 && hadToken && !isLoginRequest) {
-      localStorage.removeItem("token");
-      if (!window.location.pathname.startsWith("/login")) {
-        window.location.href = "/login";
-      }
-    }
-
-    return Promise.reject(error);
-  },
-);
+// 🌟 การจัดการ session หมดอายุ (401) ย้ายไปอยู่ที่ src/config/index.js แล้ว
+// เพราะทุก service เรียกผ่าน apiClient ตัวกลาง ไม่ใช่ axios เปล่าๆ อีกต่อไป
 
 const router = createBrowserRouter([
   {

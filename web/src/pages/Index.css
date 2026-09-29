@@ -510,6 +510,45 @@
     gap: 30px;
 }
 
+.pagination-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 32px;
+}
+
+.page-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 10px;
+    border: 2px solid var(--brand-200);
+    background-color: var(--color-white);
+    color: var(--brand-700);
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color .15s, color .15s, border-color .15s;
+}
+
+.page-btn:hover:not(:disabled) {
+    background-color: var(--brand-100);
+    border-color: var(--brand-300);
+}
+
+.page-btn.active {
+    background-color: var(--brand-600);
+    border-color: var(--brand-600);
+    color: var(--color-white);
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .ticket-card {
     background-color: #292524;
     border-radius: var(--radius-xl);

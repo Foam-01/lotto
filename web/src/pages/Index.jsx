@@ -52,6 +52,7 @@ function Index() {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const inputRefs = useRef([]);
 
@@ -160,6 +161,18 @@ function Index() {
   };
 
   const filledCount = digits.filter(Boolean).length;
+
+  const PAGE_SIZE = 20;
+  const totalPages = Math.max(1, Math.ceil(lottos.length / PAGE_SIZE));
+  const pagedLottos = lottos.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
+  // 🌟 กลับไปหน้า 1 ทุกครั้งที่รายการสลากเปลี่ยน (โหลดใหม่/ค้นหาใหม่)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [lottos]);
 
   // 🌟 ปิด Modal ชำระเงินด้วยปุ่ม Escape (คีย์บอร์ด) เมื่อเปิดอยู่
   useEffect(() => {
@@ -470,8 +483,9 @@ function Index() {
           {loading ? (
             <LoadingDots />
           ) : lottos.length > 0 ? (
+            <>
             <div className="grid-container">
-              {lottos.map((item, index) => (
+              {pagedLottos.map((item, index) => (
                 <div key={item.id ?? index} className="ticket-card">
                   <div className="ticket-visual">
                     <div className="ticket-stub">
@@ -523,6 +537,47 @@ function Index() {
                 </div>
               ))}
             </div>
+
+            {totalPages > 1 && (
+              <nav className="pagination-nav" aria-label="เปลี่ยนหน้าสลาก">
+                <button
+                  type="button"
+                  className="page-btn"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  aria-label="หน้าก่อนหน้า"
+                >
+                  <i className="bi bi-chevron-left"></i>
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      type="button"
+                      key={page}
+                      className={`page-btn ${page === currentPage ? "active" : ""}`}
+                      onClick={() => setCurrentPage(page)}
+                      aria-current={page === currentPage ? "page" : undefined}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  type="button"
+                  className="page-btn"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                  aria-label="หน้าถัดไป"
+                >
+                  <i className="bi bi-chevron-right"></i>
+                </button>
+              </nav>
+            )}
+            </>
           ) : (
             <EmptyState
               searched={!!searchQuery}

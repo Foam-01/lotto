@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -23,14 +24,22 @@ export class LottoService {
       const res = await this.prisma.lotto.create({ data: dto });
       return { result: res };
     } catch (e) {
+      console.error('🔥 Error (lotto create):', e);
       throw new InternalServerErrorException('ไม่สามารถบันทึกสลากได้');
     }
   }
 
   async list() {
-    return {
-      result: await this.prisma.lotto.findMany({ orderBy: { inSale: 'desc' } }),
-    };
+    try {
+      return {
+        result: await this.prisma.lotto.findMany({
+          orderBy: { inSale: 'desc' },
+        }),
+      };
+    } catch (e) {
+      console.error('🔥 Error (lotto list):', e);
+      throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลสลากได้');
+    }
   }
 
   async listForSale() {
@@ -43,6 +52,7 @@ export class LottoService {
       });
       return { results };
     } catch (e) {
+      console.error('🔥 Error (listForSale):', e);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลได้');
     }
   }
@@ -51,6 +61,10 @@ export class LottoService {
     try {
       return { result: await this.prisma.lotto.delete({ where: { id } }) };
     } catch (e) {
+      if ((e as { code?: string })?.code === 'P2025') {
+        throw new NotFoundException('ไม่พบสลากใบนี้ในระบบ');
+      }
+      console.error('🔥 Error (lotto remove):', e);
       throw new InternalServerErrorException('ไม่สามารถลบข้อมูลได้');
     }
   }
@@ -61,20 +75,29 @@ export class LottoService {
         result: await this.prisma.lotto.update({ where: { id }, data: dto }),
       };
     } catch (e) {
+      if ((e as { code?: string })?.code === 'P2025') {
+        throw new NotFoundException('ไม่พบสลากใบนี้ในระบบ');
+      }
+      console.error('🔥 Error (lotto edit):', e);
       throw new InternalServerErrorException('ไม่สามารถแก้ไขข้อมูลได้');
     }
   }
 
   async search(dto: SearchLottoDto) {
-    const condition =
-      dto.position === 'start'
-        ? { startsWith: dto.numbers }
-        : { endsWith: dto.numbers };
-    return {
-      results: await this.prisma.lotto.findMany({
-        where: { numbers: condition },
-      }),
-    };
+    try {
+      const condition =
+        dto.position === 'start'
+          ? { startsWith: dto.numbers }
+          : { endsWith: dto.numbers };
+      return {
+        results: await this.prisma.lotto.findMany({
+          where: { numbers: condition },
+        }),
+      };
+    } catch (e) {
+      console.error('🔥 Error (lotto search):', e);
+      throw new InternalServerErrorException('ไม่สามารถค้นหาสลากได้');
+    }
   }
 
   async confirmBuy(dto: ConfirmBuyDto) {
@@ -146,6 +169,7 @@ export class LottoService {
       });
       return { result: res };
     } catch (e) {
+      console.error('🔥 Error (getBillSale):', e);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลบิลได้');
     }
   }
@@ -159,6 +183,10 @@ export class LottoService {
       ]);
       return { message: 'success' };
     } catch (e) {
+      if ((e as { code?: string })?.code === 'P2025') {
+        throw new NotFoundException('ไม่พบบิลนี้ในระบบ');
+      }
+      console.error('🔥 Error (removeBill):', e);
       throw new InternalServerErrorException('ไม่สามารถลบบิลได้');
     }
   }

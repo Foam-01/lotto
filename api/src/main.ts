@@ -5,9 +5,14 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common'; // 🌟 เพิ่มบรรทัดนี้
 import compression from 'compression';
 import helmet from 'helmet';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // 🛑 ตาข่ายนิรภัยสุดท้าย: ดักทุก error ที่ยังไม่ถูก catch ให้ response หน้าตาเดียวกันเสมอ
+  // และไม่มีวันหลุด stack trace / ข้อความ error ดิบออกไปให้ client เห็น
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // 🔐 ตั้งค่า HTTP Security Headers (X-Frame-Options, CSP พื้นฐาน ฯลฯ)
   app.use(helmet());
