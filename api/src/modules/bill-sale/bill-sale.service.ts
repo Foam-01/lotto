@@ -121,8 +121,6 @@ export class BillSaleService {
           grandTotal: grandTotal,
         },
       };
-
-      return { billSaleDetails: billSaleDetails, lottoIsBonus: lottoIsBonus };
     } catch (e) {
       console.error('🔥 Prisma Error (Profit):', e);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลกำไรได้');

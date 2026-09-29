@@ -8,6 +8,16 @@ export class CompanyService {
 
   async createCompany(dto: CompanyDto) {
     try {
+      // 🌟 ตารางนี้ออกแบบให้มีข้อมูลร้านแค่แถวเดียวเสมอ (getCompanyInfo ใช้ findFirst)
+      // ถ้ามีแถวอยู่แล้ว (เช่นกดบันทึกซ้ำตอนเน็ตหลุด) ให้อัปเดตแถวเดิมแทนที่จะสร้างซ้ำ
+      const existing = await this.prisma.company.findFirst();
+      if (existing) {
+        return await this.prisma.company.update({
+          where: { id: existing.id },
+          data: dto,
+        });
+      }
+
       return await this.prisma.company.create({
         data: dto,
       });
@@ -21,7 +31,7 @@ export class CompanyService {
 
   async getCompanyInfo() {
     try {
-      return await this.prisma.company.findFirst();
+      return await this.prisma.company.findFirst({ orderBy: { id: 'asc' } });
     } catch (e) {
       console.error('🔥 Prisma Error (Get Company Info):', e);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลร้านได้');
