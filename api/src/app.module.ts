@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
 // 🌟 Import Modules ที่เราจัดระเบียบแล้ว
 import { PrismaModule } from './prisma/prisma.module';
@@ -23,7 +21,5 @@ import { BannerModule } from './modules/banner/banner.module'; // 🌟 อย่
     LottoModule,
     BannerModule, // 🌟 เสียบปลั๊ก Banner
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
