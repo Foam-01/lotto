@@ -95,7 +95,7 @@ function User() {
         icon: "error",
         title: "ข้อผิดพลาด",
         text: "รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
       return;
     }
@@ -116,7 +116,7 @@ function User() {
         icon: "error",
         title: "เปลี่ยนรหัสผ่านไม่สำเร็จ",
         text: errorMsg,
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     } finally {
       setIsProfileLoading(false);
@@ -198,8 +198,8 @@ function User() {
       text: "คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้ออกจากระบบ ข้อมูลจะไม่สามารถกู้คืนได้นะเจ้านาย!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#94a3b8",
+      confirmButtonColor: "var(--red-600)",
+      cancelButtonColor: "var(--slate-400)",
       confirmButtonText: "ใช่, ลบเลย!",
       cancelButtonText: "ยกเลิก",
     }).then(async (result) => {
@@ -224,10 +224,10 @@ function User() {
       <Home>
         <div
           className="container-fluid px-3 px-md-4 pb-4 pt-3"
-          style={{ backgroundColor: "#fafaf9", minHeight: "100vh" }}
+          style={{ backgroundColor: "var(--stone-50)", minHeight: "100vh" }}
         >
           <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-            <h1 className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
+            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
               👤 ระบบผู้ใช้งาน
             </h1>
           </div>
@@ -235,9 +235,9 @@ function User() {
           <style>
             {`
               .cat-theme-tabs .nav-link { color: #6b7280; transition: all 0.3s ease; }
-              .cat-theme-tabs .nav-link:hover { color: #ea580c; background-color: #fff7ed; }
+              .cat-theme-tabs .nav-link:hover { color: var(--brand-600); background-color: var(--brand-50); }
               .cat-theme-tabs .nav-link.active {
-                background-color: #ea580c !important; 
+                background-color: var(--brand-600) !important; 
                 color: white !important;
                 box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.3); 
               }
@@ -295,7 +295,7 @@ function User() {
                         left: 0,
                         right: 0,
                         height: "8px",
-                        backgroundColor: "#ea580c",
+                        backgroundColor: "var(--brand-600)",
                       }}
                     ></div>
                     <div className="card-body pt-3">
@@ -305,8 +305,8 @@ function User() {
                           width: "100px",
                           height: "100px",
                           borderRadius: "50%",
-                          backgroundColor: "#fff7ed",
-                          borderColor: "#fed7aa",
+                          backgroundColor: "var(--brand-50)",
+                          borderColor: "var(--brand-200)",
                         }}
                       >
                         <span style={{ fontSize: "3.5rem" }}>🐈</span>
@@ -318,9 +318,9 @@ function User() {
                         <div
                           className="d-inline-block rounded-pill px-4 py-2 border mt-3"
                           style={{
-                            backgroundColor: "#fff7ed",
-                            color: "#9a3412",
-                            borderColor: "#ffedd5",
+                            backgroundColor: "var(--brand-50)",
+                            color: "var(--brand-800)",
+                            borderColor: "var(--brand-100)",
                             fontWeight: "bold",
                             fontSize: "14px",
                           }}
@@ -334,7 +334,7 @@ function User() {
                           style={{
                             backgroundColor: "#f0fdf4",
                             color: "#166534",
-                            borderColor: "#bbf7d0",
+                            borderColor: "var(--green-200)",
                             fontWeight: "bold",
                             fontSize: "14px",
                           }}
@@ -430,7 +430,7 @@ function User() {
                             disabled={isProfileLoading}
                             className="btn rounded-pill px-4 shadow-sm fw-bold transition-all"
                             style={{
-                              backgroundColor: "#ea580c",
+                              backgroundColor: "var(--brand-600)",
                               color: "white",
                               padding: "10px 25px",
                             }}
@@ -463,13 +463,13 @@ function User() {
                     <h5 className="fw-bold mb-0 text-dark">
                       <i
                         className="bi bi-people-fill me-2"
-                        style={{ color: "#ea580c" }}
+                        style={{ color: "var(--brand-600)" }}
                       ></i>{" "}
                       รายชื่อพนักงานในระบบ
                     </h5>
                     <button
                       className="btn btn-sm text-white fw-bold px-3 py-2 rounded-pill shadow-sm"
-                      style={{ backgroundColor: "#ea580c" }}
+                      style={{ backgroundColor: "var(--brand-600)" }}
                       data-bs-toggle="modal"
                       data-bs-target="#userModal"
                       onClick={handleOpenAddModal}
@@ -481,7 +481,7 @@ function User() {
                   <div className="card-body p-0">
                     <div className="table-responsive">
                       <table className="table table-hover align-middle mb-0 text-center">
-                        <thead style={{ backgroundColor: "#ffedd5" }}>
+                        <thead style={{ backgroundColor: "var(--brand-100)" }}>
                           <tr>
                             <th scope="col" className="px-3 py-3 border-0 text-secondary">
                               ID
@@ -554,15 +554,15 @@ function User() {
                                     style={
                                       user.level === "admin"
                                         ? {
-                                            backgroundColor: "#ea580c", // พื้นหลังสีส้มเข้ม (เข้าธีมเว็บ)
-                                            color: "#ffffff", // ตัวหนังสือสีขาว
+                                            backgroundColor: "var(--brand-600)", // พื้นหลังสีส้มเข้ม (เข้าธีมเว็บ)
+                                            color: "var(--color-white)", // ตัวหนังสือสีขาว
                                             boxShadow:
                                               "0 2px 4px rgba(234, 88, 12, 0.4)", // เงามีมิติสีส้ม
                                             letterSpacing: "0.5px", // ถ่างตัวหนังสือนิดนึงให้ดูแพง
                                             fontWeight: "600",
                                           }
                                         : {
-                                            backgroundColor: "#f3f4f6", // พื้นหลังสีเทาอ่อนสุดคลีน
+                                            backgroundColor: "var(--gray-100)", // พื้นหลังสีเทาอ่อนสุดคลีน
                                             color: "#4b5563", // ตัวหนังสือสีเทาเข้ม
                                             border: "1px solid #d1d5db", // ขอบสีเทาบางๆ
                                             letterSpacing: "0.5px",
@@ -644,7 +644,7 @@ function User() {
             style={{ maxHeight: "60vh", overflowY: "auto" }}
           >
             {/* --- ข้อมูลจำเป็น (บังคับกรอก) --- */}
-            <h6 className="fw-bold mb-3" style={{ color: "#ea580c" }}>
+            <h6 className="fw-bold mb-3" style={{ color: "var(--brand-600)" }}>
               <i className="bi bi-person-badge me-2"></i>ข้อมูลสำหรับเข้าสู่ระบบ
               (บังคับ)
             </h6>
@@ -822,7 +822,7 @@ function User() {
             <button
               type="submit"
               className="btn rounded-pill px-4 fw-bold shadow-sm"
-              style={{ backgroundColor: "#ea580c", color: "white" }}
+              style={{ backgroundColor: "var(--brand-600)", color: "white" }}
             >
               <i className="bi bi-save-fill me-2"></i> บันทึกข้อมูล
             </button>

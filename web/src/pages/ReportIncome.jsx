@@ -34,7 +34,7 @@ function ReportIncome() {
         icon: "error",
         title: "เกิดข้อผิดพลาด 😿",
         text: "ไม่สามารถโหลดข้อมูลรายได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     } finally {
       setIsLoading(false);
@@ -54,7 +54,7 @@ function ReportIncome() {
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
           {/* 🌟 Header แบบคลีนสุดๆ (เอาไอคอนด้านหน้าออก) */}
           <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-            <h1 className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
+            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
               🐈 รายงานรายได้
             </h1>
           </div>
@@ -64,7 +64,7 @@ function ReportIncome() {
             <div className="col-12 col-xl-8">
               <div className="card border-0 shadow-sm rounded-4 h-100 p-2">
                 <div className="card-body">
-                  <h6 className="fw-bold mb-3" style={{ color: "#ea580c" }}>
+                  <h6 className="fw-bold mb-3" style={{ color: "var(--brand-600)" }}>
                     <i className="bi bi-calendar-range-fill me-2"></i>
                     เลือกช่วงเวลาที่ต้องการดูรายได้
                   </h6>
@@ -116,7 +116,7 @@ function ReportIncome() {
                         onClick={fetchData}
                         className="btn rounded-pill w-100 shadow-sm fw-bold transition-all"
                         style={{
-                          backgroundColor: "#ea580c",
+                          backgroundColor: "var(--brand-600)",
                           color: "white",
                           padding: "10px",
                         }}
@@ -141,8 +141,8 @@ function ReportIncome() {
               <div
                 className="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden"
                 style={{
-                  backgroundColor: "#ecfdf5",
-                  borderBottom: "4px solid #10b981",
+                  backgroundColor: "var(--emerald-50)",
+                  borderBottom: "4px solid var(--emerald-500)",
                 }}
               >
                 <i
@@ -151,7 +151,7 @@ function ReportIncome() {
                     fontSize: "7rem",
                     right: "-15px",
                     bottom: "-25px",
-                    color: "#34d399",
+                    color: "var(--emerald-400)",
                   }}
                 ></i>
                 <div className="card-body position-relative z-1 d-flex flex-column justify-content-center">
@@ -159,11 +159,11 @@ function ReportIncome() {
                     <div>
                       <p
                         className="text-muted mb-1 fw-bold fs-6"
-                        style={{ color: "#059669" }}
+                        style={{ color: "var(--emerald-600)" }}
                       >
                         ยอดรายได้รวมช่วงนี้
                       </p>
-                      <h2 className="fw-bold mb-0" style={{ color: "#047857" }}>
+                      <h2 className="fw-bold mb-0" style={{ color: "var(--emerald-700)" }}>
                         {totalIncome.toLocaleString("th-TH")}{" "}
                         <span className="fs-5 fw-normal">฿</span>
                       </h2>
@@ -171,7 +171,7 @@ function ReportIncome() {
                   </div>
                   <div
                     className="small fw-medium mt-2"
-                    style={{ color: "#059669" }}
+                    style={{ color: "var(--emerald-600)" }}
                   >
                     <i className="bi bi-receipt me-1"></i> ขายได้ทั้งหมด{" "}
                     {totalBills} รายการ
@@ -191,43 +191,43 @@ function ReportIncome() {
                 >
                   <thead
                     style={{
-                      backgroundColor: "#ffedd5",
-                      borderBottom: "2px solid #fdba74",
+                      backgroundColor: "var(--brand-100)",
+                      borderBottom: "2px solid var(--brand-300)",
                     }}
                   >
                     <tr>
                       <th
                         scope="col"
                         className="px-4 py-3 border-0 text-center text-uppercase"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         เลขสลาก
                       </th>
                       <th
                         scope="col"
                         className="px-3 py-3 border-0 text-center text-uppercase"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         ยอดเงินโอน
                       </th>
                       <th
                         scope="col"
                         className="px-3 py-3 border-0 text-center text-uppercase"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         วันที่/เวลาโอน
                       </th>
                       <th
                         scope="col"
                         className="px-3 py-3 border-0 text-uppercase"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         ข้อมูลลูกค้า
                       </th>
                       <th
                         scope="col"
                         className="px-4 py-3 border-0 text-uppercase"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         ที่อยู่จัดส่ง
                       </th>
@@ -253,15 +253,15 @@ function ReportIncome() {
                       billSaleDetails.map((item, index) => (
                         <tr
                           key={index}
-                          style={{ borderBottom: "1px solid #f3f4f6" }}
+                          style={{ borderBottom: "1px solid var(--gray-100)" }}
                         >
                           {/* เลขสลาก */}
                           <td className="px-4 py-4 text-center">
                             <span
                               className="badge rounded-pill fs-6 shadow-sm bg-white"
                               style={{
-                                color: "#ea580c",
-                                border: "1px dashed #fdba74",
+                                color: "var(--brand-600)",
+                                border: "1px dashed var(--brand-300)",
                                 letterSpacing: "1px",
                               }}
                             >
@@ -273,7 +273,7 @@ function ReportIncome() {
                           <td className="px-3 py-4 text-center">
                             <span
                               className="fw-bold fs-5"
-                              style={{ color: "#10b981" }}
+                              style={{ color: "var(--emerald-500)" }}
                             >
                               + {item.price?.toLocaleString("th-TH")} ฿
                             </span>
@@ -333,7 +333,7 @@ function ReportIncome() {
                             <div style={{ fontSize: "4rem" }}>😿</div>
                             <span
                               className="fs-5 mt-3 fw-bold"
-                              style={{ color: "#c2410c" }}
+                              style={{ color: "var(--brand-700)" }}
                             >
                               ช่วงเวลานี้ยังไม่มีรายได้เข้ามาเลยเจ้านาย!
                             </span>

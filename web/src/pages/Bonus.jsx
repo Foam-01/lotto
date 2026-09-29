@@ -24,7 +24,7 @@ function Bonus() {
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     }
   };
@@ -55,7 +55,7 @@ function Bonus() {
           icon: "error",
           title: "แจ้งเตือน",
           text: res.data.message,
-          confirmButtonColor: "#ea580c",
+          confirmButtonColor: "var(--brand-600)",
         });
       }
     } catch (e) {
@@ -63,7 +63,7 @@ function Bonus() {
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     }
   };
@@ -80,7 +80,7 @@ function Bonus() {
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     }
   };
@@ -110,11 +110,11 @@ function Bonus() {
   }) => (
     <div
       className={`p-4 h-100 ${isBorderRight ? "border-end" : ""}`}
-      style={{ borderColor: "#ffedd5" }}
+      style={{ borderColor: "var(--brand-100)" }}
     >
       <h5
         className="fw-bold mb-2"
-        style={{ color: highlight ? "#ea580c" : "#9a3412" }}
+        style={{ color: highlight ? "var(--brand-600)" : "var(--brand-800)" }}
       >
         {highlight && <i className="bi bi-star-fill me-2 text-warning"></i>}
         {title}
@@ -122,10 +122,10 @@ function Bonus() {
       <div
         className="badge rounded-pill mb-3 px-3 py-2"
         style={{
-          backgroundColor: "#fff7f2",
-          color: "#ea580c",
+          backgroundColor: "var(--brand-tint)",
+          color: "var(--brand-600)",
           fontSize: "0.85rem",
-          border: "1px dashed #fdba74", // เพิ่มขอบเส้นประให้ดูเหมือนคูปองน่ารักๆ
+          border: "1px dashed var(--brand-300)", // เพิ่มขอบเส้นประให้ดูเหมือนคูปองน่ารักๆ
         }}
       >
         💰 รางวัลละ {price} บาท
@@ -138,9 +138,9 @@ function Bonus() {
               className="fw-bold"
               style={{
                 fontSize: highlight ? "2.5rem" : "1.25rem",
-                color: highlight ? "#dc2626" : "#431407",
+                color: highlight ? "var(--red-600)" : "#431407",
                 letterSpacing: "2px",
-                textShadow: highlight ? "2px 2px 0px #fed7aa" : "none", // เงาสีส้มอ่อน
+                textShadow: highlight ? "2px 2px 0px var(--brand-200)" : "none", // เงาสีส้มอ่อน
               }}
             >
               {n.number}
@@ -160,14 +160,14 @@ function Bonus() {
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
           {/* 🌟 ส่วน Header 🌟 */}
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
+            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
               🐈 ผลรางวัลสลากกินแบ่งฯ
             </h1>
             <button
               onClick={handleGetBonus}
               className="btn text-white rounded-pill px-4 py-2 shadow-sm"
               style={{
-                backgroundColor: "#ea580c",
+                backgroundColor: "var(--brand-600)",
                 border: "none",
                 fontWeight: "500",
               }}
@@ -180,18 +180,18 @@ function Bonus() {
           {/* 🌟 ตารางแสดงผลงวดต่างๆ 🌟 */}
           <div
             className="card border-0 shadow-sm rounded-4 overflow-hidden mb-4"
-            style={{ backgroundColor: "#fff" }}
+            style={{ backgroundColor: "var(--color-white)" }}
           >
             <div className="card-body p-0">
               <div className="table-responsive">
               <table className="table table-hover align-middle mb-0">
-                <thead style={{ backgroundColor: "#ffedd5" }}>
+                <thead style={{ backgroundColor: "var(--brand-100)" }}>
                   <tr>
                     <th
                       scope="col"
                       className="px-4 py-3 border-0 text-uppercase"
                       style={{
-                        color: "#ea580c",
+                        color: "var(--brand-600)",
                         fontWeight: "bold",
                         letterSpacing: "0.5px",
                       }}
@@ -204,7 +204,7 @@ function Bonus() {
                       className="px-4 py-3 border-0 text-end text-uppercase"
                       width="180px"
                       style={{
-                        color: "#ea580c",
+                        color: "var(--brand-600)",
                         fontWeight: "bold",
                         letterSpacing: "0.5px",
                       }}
@@ -227,9 +227,9 @@ function Bonus() {
                               style={{
                                 width: "48px",
                                 height: "48px",
-                                backgroundColor: "#fff7f2",
-                                color: "#ea580c",
-                                border: "2px solid #ffedd5",
+                                backgroundColor: "var(--brand-tint)",
+                                color: "var(--brand-600)",
+                                border: "2px solid var(--brand-100)",
                               }}
                             >
                               <i className="bi bi-award-fill fs-4"></i>
@@ -252,19 +252,19 @@ function Bonus() {
                             data-bs-target="#myModal"
                             className="btn rounded-pill px-4 py-2 fw-medium shadow-sm transition-all text-nowrap"
                             style={{
-                              backgroundColor: "#fff7f2",
-                              color: "#ea580c",
-                              border: "1px solid #fdba74",
+                              backgroundColor: "var(--brand-tint)",
+                              color: "var(--brand-600)",
+                              border: "1px solid var(--brand-300)",
                               transition: "all 0.2s ease-in-out",
                             }}
                             onMouseOver={(e) => {
-                              e.target.style.backgroundColor = "#ea580c";
-                              e.target.style.color = "#fff";
+                              e.target.style.backgroundColor = "var(--brand-600)";
+                              e.target.style.color = "var(--color-white)";
                               e.target.style.transform = "translateY(-2px)";
                             }}
                             onMouseOut={(e) => {
-                              e.target.style.backgroundColor = "#fff7f2";
-                              e.target.style.color = "#ea580c";
+                              e.target.style.backgroundColor = "var(--brand-tint)";
+                              e.target.style.color = "var(--brand-600)";
                               e.target.style.transform = "translateY(0)";
                             }}
                           >
@@ -281,7 +281,7 @@ function Bonus() {
                           <div style={{ fontSize: "4rem" }}>😿</div>
                           <span
                             className="fs-5 mt-2 fw-bold"
-                            style={{ color: "#c2410c" }}
+                            style={{ color: "var(--brand-700)" }}
                           >
                             แง้ววว... ยังไม่มีข้อมูลผลรางวัลในระบบ
                           </span>
@@ -311,7 +311,7 @@ function Bonus() {
             {/* แถวที่ 1 */}
             <div
               className="row g-0 border-bottom"
-              style={{ borderColor: "#ffedd5" }}
+              style={{ borderColor: "var(--brand-100)" }}
             >
               <div className="col-md-3">
                 <PrizeBox
@@ -350,7 +350,7 @@ function Bonus() {
             {/* แถวที่ 2 */}
             <div
               className="row g-0 border-bottom"
-              style={{ borderColor: "#ffedd5" }}
+              style={{ borderColor: "var(--brand-100)" }}
             >
               <div className="col-md-3">
                 <PrizeBox
@@ -372,7 +372,7 @@ function Bonus() {
             {/* แถวที่ 3 */}
             <div
               className="row g-0 border-bottom"
-              style={{ borderColor: "#ffedd5" }}
+              style={{ borderColor: "var(--brand-100)" }}
             >
               <div className="col-12">
                 <PrizeBox title="รางวัลที่ 3" price="80,000" numbers={prize3} />
@@ -382,7 +382,7 @@ function Bonus() {
             {/* แถวที่ 4 */}
             <div
               className="row g-0 border-bottom"
-              style={{ borderColor: "#ffedd5" }}
+              style={{ borderColor: "var(--brand-100)" }}
             >
               <div className="col-12">
                 <PrizeBox title="รางวัลที่ 4" price="40,000" numbers={prize4} />

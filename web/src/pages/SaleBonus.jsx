@@ -33,7 +33,7 @@ function SaleBonus() {
         icon: "error",
         title: "เกิดข้อผิดพลาด 😿",
         text: "ไม่สามารถโหลดข้อมูลผู้ถูกรางวัลได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     } finally {
       setIsLoading(false);
@@ -48,11 +48,11 @@ function SaleBonus() {
       text: "เตรียมโอนเงินรางวัลให้เศรษฐีใหม่ป้ายแดง!",
       icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#10b981", // สีเขียวรับทรัพย์
-      cancelButtonColor: "#9ca3af",
+      confirmButtonColor: "var(--emerald-500)", // สีเขียวรับทรัพย์
+      cancelButtonColor: "var(--gray-400)",
       confirmButtonText: "ยืนยันการโอน 🎉",
       cancelButtonText: "ยกเลิก",
-      background: "#ecfdf5",
+      background: "var(--emerald-50)",
       reverseButtons: true, // ให้ปุ่มยืนยันอยู่ขวา
     });
 
@@ -94,7 +94,7 @@ function SaleBonus() {
           icon: "error",
           title: "เกิดข้อผิดพลาด",
           text: "ไม่สามารถโอนเงินได้ กรุณาลองใหม่อีกครั้ง",
-          confirmButtonColor: "#ea580c",
+          confirmButtonColor: "var(--brand-600)",
         });
       } finally {
         setIsSubmitting(false);
@@ -110,11 +110,11 @@ function SaleBonus() {
       text: "เตรียมมอบเงินรางวัลให้ลูกค้าด้วยตัวเอง!",
       icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#e11d48", // สีแดงชมพู
-      cancelButtonColor: "#9ca3af",
+      confirmButtonColor: "var(--rose-600)", // สีแดงชมพู
+      cancelButtonColor: "var(--gray-400)",
       confirmButtonText: "ยืนยันการมอบ 🎊",
       cancelButtonText: "ยกเลิก",
-      background: "#fff1f2",
+      background: "var(--rose-50)",
       reverseButtons: true,
     });
 
@@ -155,7 +155,7 @@ function SaleBonus() {
           icon: "error",
           title: "เกิดข้อผิดพลาด",
           text: "ไม่สามารถบันทึกได้ กรุณาลองใหม่อีกครั้ง",
-          confirmButtonColor: "#ea580c",
+          confirmButtonColor: "var(--brand-600)",
         });
       } finally {
         setIsSubmitting(false);
@@ -201,7 +201,7 @@ function SaleBonus() {
       <Home>
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
+            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
               🎉 รายงานเศรษฐีใหม่
             </h1>
           </div>
@@ -213,8 +213,8 @@ function SaleBonus() {
               <div
                 className="card border-0 shadow-sm rounded-4 h-100"
                 style={{
-                  backgroundColor: "#fff7f2",
-                  borderBottom: "4px solid #ea580c",
+                  backgroundColor: "var(--brand-tint)",
+                  borderBottom: "4px solid var(--brand-600)",
                 }}
               >
                 <div className="card-body">
@@ -223,7 +223,7 @@ function SaleBonus() {
                       <p className="text-muted mb-1 fw-bold fs-6">
                         เศรษฐีใหม่ (บิล)
                       </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "#ea580c" }}>
+                      <h3 className="fw-bold mb-0" style={{ color: "var(--brand-600)" }}>
                         {totalWinners}{" "}
                         <span className="fs-6 fw-normal text-muted">
                           รายการ
@@ -235,8 +235,8 @@ function SaleBonus() {
                       style={{
                         width: "50px",
                         height: "50px",
-                        backgroundColor: "#ea580c",
-                        color: "#fff",
+                        backgroundColor: "var(--brand-600)",
+                        color: "var(--color-white)",
                       }}
                     >
                       <i className="bi bi-people-fill fs-4"></i>
@@ -251,8 +251,8 @@ function SaleBonus() {
               <div
                 className="card border-0 shadow-sm rounded-4 h-100"
                 style={{
-                  backgroundColor: "#fef3c7",
-                  borderBottom: "4px solid #f59e0b",
+                  backgroundColor: "var(--amber-100)",
+                  borderBottom: "4px solid var(--amber-500)",
                 }}
               >
                 <div className="card-body">
@@ -271,8 +271,8 @@ function SaleBonus() {
                       style={{
                         width: "50px",
                         height: "50px",
-                        backgroundColor: "#f59e0b",
-                        color: "#fff",
+                        backgroundColor: "var(--amber-500)",
+                        color: "var(--color-white)",
                       }}
                     >
                       <i className="bi bi-cash-coin fs-4"></i>
@@ -287,8 +287,8 @@ function SaleBonus() {
               <div
                 className="card border-0 shadow-sm rounded-4 h-100"
                 style={{
-                  backgroundColor: "#ecfdf5",
-                  borderBottom: "4px solid #10b981",
+                  backgroundColor: "var(--emerald-50)",
+                  borderBottom: "4px solid var(--emerald-500)",
                 }}
               >
                 <div className="card-body">
@@ -297,7 +297,7 @@ function SaleBonus() {
                       <p className="text-muted mb-1 fw-bold fs-6">
                         จ่ายเงินแล้ว
                       </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "#059669" }}>
+                      <h3 className="fw-bold mb-0" style={{ color: "var(--emerald-600)" }}>
                         {paidAmount.toLocaleString("th-TH")}{" "}
                         <span className="fs-6 fw-normal text-muted">฿</span>
                       </h3>
@@ -307,8 +307,8 @@ function SaleBonus() {
                       style={{
                         width: "50px",
                         height: "50px",
-                        backgroundColor: "#10b981",
-                        color: "#fff",
+                        backgroundColor: "var(--emerald-500)",
+                        color: "var(--color-white)",
                       }}
                     >
                       <i className="bi bi-check-circle-fill fs-4"></i>
@@ -323,8 +323,8 @@ function SaleBonus() {
               <div
                 className="card border-0 shadow-sm rounded-4 h-100"
                 style={{
-                  backgroundColor: "#fff1f2",
-                  borderBottom: "4px solid #e11d48",
+                  backgroundColor: "var(--rose-50)",
+                  borderBottom: "4px solid var(--rose-600)",
                 }}
               >
                 <div className="card-body">
@@ -333,7 +333,7 @@ function SaleBonus() {
                       <p className="text-muted mb-1 fw-bold fs-6">
                         รอจ่าย ({pendingCount})
                       </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "#e11d48" }}>
+                      <h3 className="fw-bold mb-0" style={{ color: "var(--rose-600)" }}>
                         {pendingAmount.toLocaleString("th-TH")}{" "}
                         <span className="fs-6 fw-normal text-muted">฿</span>
                       </h3>
@@ -343,8 +343,8 @@ function SaleBonus() {
                       style={{
                         width: "50px",
                         height: "50px",
-                        backgroundColor: "#e11d48",
-                        color: "#fff",
+                        backgroundColor: "var(--rose-600)",
+                        color: "var(--color-white)",
                       }}
                     >
                       <i className="bi bi-hourglass-split fs-4"></i>
@@ -365,46 +365,46 @@ function SaleBonus() {
                 >
                   <thead
                     style={{
-                      backgroundColor: "#ffedd5",
-                      borderBottom: "2px solid #fdba74",
+                      backgroundColor: "var(--brand-100)",
+                      borderBottom: "2px solid var(--brand-300)",
                     }}
                   >
                     <tr>
                       <th
                         className="px-4 py-3 border-0 text-center text-uppercase"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         <i className="bi bi-ticket-perforated-fill me-1"></i>{" "}
                         เลขที่ถูกรางวัล
                       </th>
                       <th
                         className="px-3 py-3 border-0 text-center text-uppercase"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         <i className="bi bi-cash-stack me-1"></i> ยอดเงินรางวัล
                       </th>
                       <th
                         className="px-3 py-3 border-0 text-center"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         งวดประจำวันที่
                       </th>
                       <th
                         className="px-3 py-3 border-0"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         ข้อมูลเศรษฐีใหม่
                       </th>
                       <th
                         className="px-3 py-3 border-0 text-center"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         วันที่โอน/ส่งมอบ
                       </th>
                       <th
                         className="px-4 py-3 border-0 text-end"
                         style={{
-                          color: "#c2410c",
+                          color: "var(--brand-700)",
                           fontWeight: "700",
                           minWidth: "220px",
                         }}
@@ -442,15 +442,15 @@ function SaleBonus() {
                         return (
                           <tr
                             key={item.id}
-                            style={{ borderBottom: "1px solid #f3f4f6" }}
+                            style={{ borderBottom: "1px solid var(--gray-100)" }}
                           >
                             {/* เลขที่ถูกรางวัล */}
                             <td className="px-4 py-4 text-center">
                               <span
                                 className="badge rounded-pill fs-5 shadow-sm bg-white"
                                 style={{
-                                  color: "#ea580c",
-                                  border: "1px dashed #fdba74",
+                                  color: "var(--brand-600)",
+                                  border: "1px dashed var(--brand-300)",
                                   letterSpacing: "1px",
                                 }}
                               >
@@ -463,8 +463,8 @@ function SaleBonus() {
                               <span
                                 className="fw-bold fs-4"
                                 style={{
-                                  color: "#10b981",
-                                  textShadow: "1px 1px 0px #d1fae5",
+                                  color: "var(--emerald-500)",
+                                  textShadow: "1px 1px 0px var(--emerald-100)",
                                 }}
                               >
                                 💰{" "}
@@ -546,10 +546,10 @@ function SaleBonus() {
                                 <span
                                   className="badge rounded-pill px-4 py-2 shadow-sm"
                                   style={{
-                                    backgroundColor: "#d1fae5",
-                                    color: "#059669",
+                                    backgroundColor: "var(--emerald-100)",
+                                    color: "var(--emerald-600)",
                                     fontSize: "0.95rem",
-                                    border: "1px solid #34d399",
+                                    border: "1px solid var(--emerald-400)",
                                   }}
                                 >
                                   <i className="bi bi-check-circle-fill me-1"></i>{" "}
@@ -562,8 +562,8 @@ function SaleBonus() {
                                     data-bs-target="#modalTransfer"
                                     className="btn btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm transition-all text-nowrap"
                                     style={{
-                                      backgroundColor: "#ea580c",
-                                      color: "#fff",
+                                      backgroundColor: "var(--brand-600)",
+                                      color: "var(--color-white)",
                                       border: "none",
                                     }}
                                     onMouseOver={(e) => {
@@ -602,21 +602,21 @@ function SaleBonus() {
                                     data-bs-target="#modalDeliver"
                                     className="btn btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm transition-all text-nowrap"
                                     style={{
-                                      backgroundColor: "#fff7f2",
-                                      color: "#ea580c",
-                                      border: "1px solid #ea580c",
+                                      backgroundColor: "var(--brand-tint)",
+                                      color: "var(--brand-600)",
+                                      border: "1px solid var(--brand-600)",
                                     }}
                                     onMouseOver={(e) => {
                                       e.target.style.backgroundColor =
-                                        "#ea580c";
-                                      e.target.style.color = "#fff";
+                                        "var(--brand-600)";
+                                      e.target.style.color = "var(--color-white)";
                                       e.target.style.transform =
                                         "translateY(-2px)";
                                     }}
                                     onMouseOut={(e) => {
                                       e.target.style.backgroundColor =
-                                        "#fff7f2";
-                                      e.target.style.color = "#ea580c";
+                                        "var(--brand-tint)";
+                                      e.target.style.color = "var(--brand-600)";
                                       e.target.style.transform =
                                         "translateY(0)";
                                     }}
@@ -656,7 +656,7 @@ function SaleBonus() {
                             </div>
                             <span
                               className="fs-4 mt-3 fw-bold"
-                              style={{ color: "#c2410c" }}
+                              style={{ color: "var(--brand-700)" }}
                             >
                               งวดนี้แผงเรายังไม่มีเศรษฐีใหม่เลยเจ้านาย!
                             </span>
@@ -684,8 +684,8 @@ function SaleBonus() {
         <div
           className="p-3 mb-4 rounded-4 text-center shadow-sm"
           style={{
-            backgroundColor: "#fef3c7",
-            border: "2px dashed #f59e0b",
+            backgroundColor: "var(--amber-100)",
+            border: "2px dashed var(--amber-500)",
             color: "#d97706",
           }}
         >
@@ -741,8 +741,8 @@ function SaleBonus() {
         <div
           className="mb-4 text-center p-4 rounded-4 shadow-sm position-relative"
           style={{
-            backgroundColor: "#ecfdf5",
-            border: "2px solid #10b981",
+            backgroundColor: "var(--emerald-50)",
+            border: "2px solid var(--emerald-500)",
             overflow: "hidden",
           }}
         >
@@ -752,13 +752,13 @@ function SaleBonus() {
               fontSize: "8rem",
               right: "-20px",
               bottom: "-30px",
-              color: "#34d399",
+              color: "var(--emerald-400)",
             }}
           ></i>
           <label
             htmlFor="transferPriceAmount"
             className="form-label fw-bold mb-2 position-relative"
-            style={{ color: "#059669", fontSize: "1.2rem" }}
+            style={{ color: "var(--emerald-600)", fontSize: "1.2rem" }}
           >
             💰 ยอดเงินรางวัลที่ต้องโอน
           </label>
@@ -769,8 +769,8 @@ function SaleBonus() {
             className="form-control text-center fw-bold bg-transparent border-0 position-relative w-100"
             style={{
               fontSize: "clamp(1.75rem, 8vw, 3.5rem)",
-              color: "#047857",
-              textShadow: "2px 2px 0px #d1fae5",
+              color: "var(--emerald-700)",
+              textShadow: "2px 2px 0px var(--emerald-100)",
               padding: "0",
             }}
             value={price ? Number(price).toLocaleString("th-TH") : ""}
@@ -783,7 +783,7 @@ function SaleBonus() {
           />
           <div
             className="fw-bold mt-1 position-relative"
-            style={{ color: "#059669", fontSize: "1.1rem" }}
+            style={{ color: "var(--emerald-600)", fontSize: "1.1rem" }}
           >
             บาทถ้วน
           </div>
@@ -794,7 +794,7 @@ function SaleBonus() {
             disabled={isSubmitting}
             className="btn rounded-pill px-5 py-3 shadow fw-bold fs-5 transition-all w-100 d-flex justify-content-center align-items-center"
             style={{
-              backgroundColor: isSubmitting ? "#9ca3af" : "#10b981",
+              backgroundColor: isSubmitting ? "var(--gray-400)" : "var(--emerald-500)",
               color: "white",
               cursor: isSubmitting ? "not-allowed" : "pointer",
             }}
@@ -834,9 +834,9 @@ function SaleBonus() {
         <div
           className="p-3 mb-4 rounded-4 text-center shadow-sm"
           style={{
-            backgroundColor: "#fff7f2",
-            border: "2px dashed #ea580c",
-            color: "#c2410c",
+            backgroundColor: "var(--brand-tint)",
+            border: "2px dashed var(--brand-600)",
+            color: "var(--brand-700)",
           }}
         >
           <h5 className="fw-bold mb-1">📸 แชะภาพเป็นที่ระลึกด้วยนะ!</h5>
@@ -869,8 +869,8 @@ function SaleBonus() {
         <div
           className="mb-4 text-center p-4 rounded-4 shadow-sm position-relative"
           style={{
-            backgroundColor: "#fff1f2",
-            border: "2px solid #e11d48",
+            backgroundColor: "var(--rose-50)",
+            border: "2px solid var(--rose-600)",
             overflow: "hidden",
           }}
         >
@@ -922,7 +922,7 @@ function SaleBonus() {
             disabled={isSubmitting}
             className="btn rounded-pill px-5 py-3 shadow fw-bold fs-5 transition-all w-100 d-flex justify-content-center align-items-center"
             style={{
-              backgroundColor: isSubmitting ? "#9ca3af" : "#e11d48",
+              backgroundColor: isSubmitting ? "var(--gray-400)" : "var(--rose-600)",
               color: "white",
               cursor: isSubmitting ? "not-allowed" : "pointer",
             }}

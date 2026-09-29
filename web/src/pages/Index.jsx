@@ -134,7 +134,7 @@ function Index() {
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถค้นหาสลากได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
       setLottos([]);
     } finally {
@@ -189,7 +189,7 @@ function Index() {
       text: "คุณต้องการซื้อสลากใช่หรือไม่?",
       icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#ea580c",
+      confirmButtonColor: "var(--brand-600)",
       cancelButtonColor: "#d33",
       confirmButtonText: "ยืนยัน",
       cancelButtonText: "ยกเลิก",
@@ -662,7 +662,7 @@ function EmptyState({ searched, query, onClear }) {
       <div style={{ fontSize: "70px" }}>{searched ? "😿" : "😿"}</div>
       {searched ? (
         <>
-          <h4 style={{ color: "#dc2626", marginTop: "15px" }}>
+          <h4 style={{ color: "var(--red-600)", marginTop: "15px" }}>
             ไม่พบเลข "{query}"
           </h4>
           <p style={{ color: "#999", marginBottom: "16px" }}>
@@ -674,7 +674,7 @@ function EmptyState({ searched, query, onClear }) {
         </>
       ) : (
         <>
-          <h4 style={{ color: "#ea580c", marginTop: "15px" }}>
+          <h4 style={{ color: "var(--brand-600)", marginTop: "15px" }}>
             แผงแมวส้มว่างเปล่า
           </h4>
           <p style={{ color: "#b45309" }}>
