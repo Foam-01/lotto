@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import ReportService from "../services/report.service";
 import BillSaleService from "../services/bill-sale.service";
 import LottoService from "../services/lotto.service";
+import { PageHeader } from "../components/shared/PageHeader";
 
 function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
@@ -148,32 +149,24 @@ function Dashboard() {
         className="container-fluid px-3 px-md-4 pb-4 pt-3"
         style={styles.page}
       >
-        <div className="sunburst-bg"></div>
-        <div className="bg-pattern"></div>
-
-        {/* 🌟 Header Section */}
-        <div className="d-flex justify-content-between align-items-center mb-4 mt-2 position-relative z-2">
-          <h1
-            className="h3 mb-0 fw-bold d-flex align-items-center"
-            style={{ color: "var(--brand-600)" }}
-          >
-            <div
-              className="d-flex justify-content-center align-items-center rounded-3 me-3 shadow-sm"
-              style={{
-                width: "45px",
-                height: "45px",
-                backgroundColor: "var(--brand-600)",
-                color: "white",
-              }}
-            >
-              <i className="bi bi-speedometer2 fs-5"></i>
-            </div>
-            ภาพรวมแผงแมวส้ม 📊
-          </h1>
-          <div className="text-muted small fw-bold bg-white px-3 py-2 rounded-pill shadow-sm">
-            <i className="bi bi-calendar-event me-2 text-orange"></i>
-            ข้อมูลเดือนนี้: {dayjs().format("MMMM YYYY")}
-          </div>
+        <div className="position-relative z-2">
+          <PageHeader
+            eyebrow="ภาพรวม"
+            title="ภาพรวมแผงแมวส้ม"
+            description="สรุปยอดขาย กำไร และสถานะสต๊อกสลากประจำเดือนนี้"
+            actions={
+              <div
+                className="text-muted small fw-semibold px-3 py-2"
+                style={{
+                  backgroundColor: "var(--color-white)",
+                  border: "1px solid var(--slate-200)",
+                  borderRadius: "var(--radius-pill)",
+                }}
+              >
+                ข้อมูลเดือนนี้: {dayjs().format("MMMM YYYY")}
+              </div>
+            }
+          />
         </div>
 
         {isLoading ? (
@@ -211,27 +204,23 @@ function Dashboard() {
             <div className="row g-4 mb-4">
               <div className="col-12 col-md-6 col-xl-4">
                 <div
-                  className="card border-0 shadow-sm rounded-4 h-100 overflow-hidden"
-                  style={styles.cardIncome}
+                  className="card border h-100"
+                  style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
                 >
-                  <div className="card-body p-4 position-relative">
-                    <i
-                      className="bi bi-wallet2 position-absolute opacity-25"
-                      style={styles.cardBgIcon}
-                    ></i>
-                    <p className="fw-bold mb-1 fs-6" style={{ color: "var(--color-white)" }}>
+                  <div className="card-body p-4">
+                    <p className="fw-semibold mb-1" style={{ color: "var(--slate-500)", fontSize: "13px" }}>
                       รายได้รวมเดือนนี้
                     </p>
-                    <h2 className="fw-bold mb-0" style={{ color: "var(--color-white)" }}>
+                    <h2 className="fw-bold mb-0" style={{ color: "var(--green-700)" }}>
                       ฿{stats.totalIncome.toLocaleString()}
                     </h2>
                     <div className="mt-3">
                       <Link
                         to="/reportIncome"
-                        className="btn btn-sm btn-light rounded-pill px-3 fw-bold text-success shadow-sm"
+                        className="fw-semibold"
+                        style={{ color: "var(--blue-700)", fontSize: "13px", textDecoration: "none" }}
                       >
-                        ดูรายงานรายได้{" "}
-                        <i className="bi bi-arrow-right-short"></i>
+                        ดูรายงานรายได้ &rarr;
                       </Link>
                     </div>
                   </div>
@@ -240,29 +229,23 @@ function Dashboard() {
 
               <div className="col-12 col-md-6 col-xl-4">
                 <div
-                  className="card border-0 shadow-sm rounded-4 h-100 overflow-hidden"
-                  style={styles.cardProfit}
+                  className="card border h-100"
+                  style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
                 >
-                  <div className="card-body p-4 position-relative">
-                    <i
-                      className="bi bi-graph-up-arrow position-absolute opacity-25"
-                      style={styles.cardBgIcon}
-                    ></i>
-                    <p
-                      className="fw-bold mb-1 fs-6"
-                      style={{ color: "#064e3b" }}
-                    >
+                  <div className="card-body p-4">
+                    <p className="fw-semibold mb-1" style={{ color: "var(--slate-500)", fontSize: "13px" }}>
                       กำไรสุทธิเดือนนี้
                     </p>
-                    <h2 className="fw-bold mb-0" style={{ color: "#064e3b" }}>
+                    <h2 className="fw-bold mb-0" style={{ color: "var(--green-700)" }}>
                       ฿{stats.totalProfit.toLocaleString()}
                     </h2>
                     <div className="mt-3">
                       <Link
                         to="/reportProfit"
-                        className="btn btn-sm bg-white rounded-pill px-3 fw-bold text-success shadow-sm border-0"
+                        className="fw-semibold"
+                        style={{ color: "var(--blue-700)", fontSize: "13px", textDecoration: "none" }}
                       >
-                        ดูรายงานกำไร <i className="bi bi-arrow-right-short"></i>
+                        ดูรายงานกำไร &rarr;
                       </Link>
                     </div>
                   </div>
@@ -270,23 +253,29 @@ function Dashboard() {
               </div>
 
               <div className="col-12 col-xl-4">
-                <div className="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white">
+                <div
+                  className="card border h-100"
+                  style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+                >
                   <div className="card-body p-4 d-flex flex-column justify-content-center">
                     <div className="d-flex align-items-center justify-content-between mb-3">
-                      <h6 className="fw-bold mb-0" style={{ color: "#9333ea" }}>
-                        <i className="bi bi-stars me-2"></i>เงินรางวัลแผงถูกเอง
+                      <h6 className="fw-semibold mb-0" style={{ color: "var(--slate-500)", fontSize: "13px" }}>
+                        เงินรางวัลแผงถูกเอง
                       </h6>
                       <span
-                        className="badge rounded-pill"
                         style={{
-                          backgroundColor: "var(--fuchsia-50)",
-                          color: "#c026d3",
+                          backgroundColor: "var(--blue-50)",
+                          color: "var(--blue-700)",
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          padding: "3px 12px",
+                          borderRadius: "var(--radius-pill)",
                         }}
                       >
                         รอบล่าสุด
                       </span>
                     </div>
-                    <h2 className="fw-bold mb-0" style={{ color: "var(--fuchsia-700)" }}>
+                    <h2 className="fw-bold mb-0" style={{ color: "var(--slate-900)" }}>
                       ฿{stats.shopBonusPrize.toLocaleString()}
                     </h2>
                   </div>
@@ -299,34 +288,18 @@ function Dashboard() {
               <div className="col-12 col-md-6">
                 <Link to="/billSale" style={{ textDecoration: "none" }}>
                   <div
-                    className="card border-0 shadow-sm rounded-4 h-100 transition-hover"
-                    style={{
-                      backgroundColor: "var(--color-white)",
-                      borderLeft: "6px solid var(--red-500)",
-                    }}
+                    className="card border h-100"
+                    style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
                   >
                     <div className="card-body p-4 d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center gap-3">
-                        <div
-                          className="rounded-circle d-flex justify-content-center align-items-center"
-                          style={{
-                            width: "55px",
-                            height: "55px",
-                            backgroundColor: "var(--red-100)",
-                            color: "var(--red-500)",
-                          }}
-                        >
-                          <i className="bi bi-clock-history fs-3"></i>
-                        </div>
-                        <div>
-                          <h5 className="fw-bold text-dark mb-1">รอชำระเงิน</h5>
-                          <p className="text-muted mb-0 small">
-                            ลูกค้าทำรายการจองไว้แต่ยังไม่โอนเงิน
-                          </p>
-                        </div>
+                      <div>
+                        <h5 className="fw-bold mb-1" style={{ color: "var(--slate-900)", fontSize: "16px" }}>รอชำระเงิน</h5>
+                        <p className="text-muted mb-0 small">
+                          ลูกค้าทำรายการจองไว้แต่ยังไม่โอนเงิน
+                        </p>
                       </div>
                       <div className="text-end">
-                        <h2 className="fw-bold mb-0 text-danger">
+                        <h2 className="fw-bold mb-0" style={{ color: "var(--red-600)" }}>
                           {stats.pendingPayment}
                         </h2>
                         <span className="text-muted small">รายการ</span>
@@ -339,36 +312,20 @@ function Dashboard() {
               <div className="col-12 col-md-6">
                 <Link to="/lottoForSend" style={{ textDecoration: "none" }}>
                   <div
-                    className="card border-0 shadow-sm rounded-4 h-100 transition-hover"
-                    style={{
-                      backgroundColor: "var(--color-white)",
-                      borderLeft: "6px solid var(--blue-500)",
-                    }}
+                    className="card border h-100"
+                    style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
                   >
                     <div className="card-body p-4 d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center gap-3">
-                        <div
-                          className="rounded-circle d-flex justify-content-center align-items-center"
-                          style={{
-                            width: "55px",
-                            height: "55px",
-                            backgroundColor: "var(--blue-50)",
-                            color: "var(--blue-500)",
-                          }}
-                        >
-                          <i className="bi bi-box-seam fs-3"></i>
-                        </div>
-                        <div>
-                          <h5 className="fw-bold text-dark mb-1">
-                            รอจัดส่งพัสดุ
-                          </h5>
-                          <p className="text-muted mb-0 small">
-                            สลากตัวจริงที่ลูกค้าต้องการให้ส่งไปรษณีย์
-                          </p>
-                        </div>
+                      <div>
+                        <h5 className="fw-bold mb-1" style={{ color: "var(--slate-900)", fontSize: "16px" }}>
+                          รอจัดส่งพัสดุ
+                        </h5>
+                        <p className="text-muted mb-0 small">
+                          สลากตัวจริงที่ลูกค้าต้องการให้ส่งไปรษณีย์
+                        </p>
                       </div>
                       <div className="text-end">
-                        <h2 className="fw-bold mb-0 text-primary">
+                        <h2 className="fw-bold mb-0" style={{ color: "var(--blue-700)" }}>
                           {stats.pendingDelivery}
                         </h2>
                         <span className="text-muted small">รายการ</span>
@@ -380,15 +337,17 @@ function Dashboard() {
             </div>
 
             {/* 🌟 3. Stock Overview (สถานะสลากบนแผง) */}
-            <div className="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
-              <div className="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
-                <h5 className="fw-bold mb-0 text-dark">
-                  <i className="bi bi-ticket-detailed me-2 text-orange"></i>
+            <div
+              className="card border bg-white overflow-hidden"
+              style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+            >
+              <div className="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center" style={{ borderColor: "var(--slate-100)" }}>
+                <h5 className="fw-bold mb-0" style={{ color: "var(--slate-900)", fontSize: "16px" }}>
                   สถานะสลากบนแผง
                 </h5>
                 <Link
                   to="/lotto"
-                  className="btn btn-sm rounded-pill px-3 fw-bold"
+                  className="btn btn-sm px-3 fw-semibold"
                   style={styles.btnOutlineOrange}
                 >
                   จัดการสต๊อก
@@ -433,25 +392,25 @@ function Dashboard() {
                     <span className="text-muted">
                       อัตราการขาย (Sell-through Rate)
                     </span>
-                    <span className="text-orange">{sellThroughRate}%</span>
+                    <span style={{ color: "var(--blue-700)" }}>{sellThroughRate}%</span>
                   </div>
                   <div
                     className="progress"
                     style={{
-                      height: "12px",
-                      borderRadius: "var(--radius-md)",
-                      backgroundColor: "var(--brand-100)",
+                      height: "10px",
+                      borderRadius: "var(--radius-pill)",
+                      backgroundColor: "var(--slate-100)",
                     }}
                   >
                     <div
-                      className="progress-bar progress-bar-striped progress-bar-animated"
+                      className="progress-bar"
                       role="progressbar"
                       aria-valuenow={sellThroughRate}
                       aria-valuemin={0}
                       aria-valuemax={100}
                       style={{
                         width: `${sellThroughRate}%`,
-                        backgroundColor: "var(--brand-600)",
+                        backgroundColor: "var(--blue-500, #3b82f6)",
                       }}
                     ></div>
                   </div>
@@ -470,23 +429,13 @@ const styles = {
   page: {
     minHeight: "100vh",
     fontFamily: "'Kanit', sans-serif",
-  },
-  cardIncome: {
-    background: "linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%)",
-  },
-  cardProfit: {
-    background: "linear-gradient(135deg, var(--emerald-500) 0%, var(--emerald-700) 100%)",
-  },
-  cardBgIcon: {
-    fontSize: "8rem",
-    right: "-15px",
-    bottom: "-25px",
-    color: "var(--color-white)",
+    backgroundColor: "var(--slate-50)",
   },
   btnOutlineOrange: {
-    color: "var(--brand-600)",
-    border: "1px solid var(--brand-600)",
-    backgroundColor: "transparent",
+    color: "var(--slate-600)",
+    border: "1px solid var(--slate-200)",
+    backgroundColor: "var(--color-white)",
+    borderRadius: "var(--radius-sm)",
   },
 };
 

@@ -4,6 +4,13 @@ import AuthService from "../services/auth.service";
 import UserService from "../services/user.service";
 import Swal from "sweetalert2";
 import MyModal from "../components/MyModal";
+import { PageHeader } from "../components/shared/PageHeader";
+import {
+  FilterBar,
+  FilterBarSearch,
+  FilterBarButton,
+  FilterBarClear,
+} from "../components/shared/FilterBar";
 
 const Toast = Swal.mixin({
   toast: true,
@@ -37,6 +44,7 @@ function User() {
   const [usersList, setUsersList] = useState([]);
   const [isUsersLoading, setIsUsersLoading] = useState(false);
   const [usersLoadError, setUsersLoadError] = useState(false);
+  const [userSearch, setUserSearch] = useState("");
 
   // 🌟 อัปเกรด State: เพิ่ม name, email, phone, address เข้ามาด้วย
   const [userForm, setUserForm] = useState({
@@ -91,7 +99,7 @@ function User() {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (!oldPassword || !newPassword || !confirmPassword) {
-      Toast.fire({ icon: "warning", title: "กรุณากรอกข้อมูลให้ครบถ้วน 😿" });
+      Toast.fire({ icon: "warning", title: "กรุณากรอกข้อมูลให้ครบถ้วน" });
       return;
     }
     if (passwordMismatch) {
@@ -109,7 +117,7 @@ function User() {
       const payload = { oldPassword, newPassword };
       await UserService.changePassword(userId, payload);
 
-      Toast.fire({ icon: "success", title: "อัปเดตรหัสผ่านเรียบร้อย! 🎉" });
+      Toast.fire({ icon: "success", title: "อัปเดตรหัสผ่านเรียบร้อย!" });
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -177,10 +185,10 @@ function User() {
 
       if (isEditing) {
         await UserService.edit(editId, payload);
-        Toast.fire({ icon: "success", title: "อัปเดตข้อมูลพนักงานสำเร็จ 📝" });
+        Toast.fire({ icon: "success", title: "อัปเดตข้อมูลพนักงานสำเร็จ" });
       } else {
         await UserService.create(payload);
-        Toast.fire({ icon: "success", title: "เพิ่มพนักงานใหม่เรียบร้อย ➕" });
+        Toast.fire({ icon: "success", title: "เพิ่มพนักงานใหม่เรียบร้อย" });
       }
 
       document.getElementById("closeModalBtn").click();
@@ -203,18 +211,18 @@ function User() {
   const handleDeleteUser = async (id, name) => {
     Swal.fire({
       title: `ลบพนักงาน ${name}?`,
-      text: "คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้ออกจากระบบ ข้อมูลจะไม่สามารถกู้คืนได้นะเจ้านาย!",
+      text: "คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้ออกจากระบบ ข้อมูลจะไม่สามารถกู้คืนได้",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "var(--red-600)",
       cancelButtonColor: "var(--slate-400)",
-      confirmButtonText: "ใช่, ลบเลย!",
+      confirmButtonText: "ยืนยันการลบ",
       cancelButtonText: "ยกเลิก",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await UserService.remove(id);
-          Toast.fire({ icon: "success", title: "ลบพนักงานออกจากระบบแล้ว 🗑️" });
+          Toast.fire({ icon: "success", title: "ลบพนักงานออกจากระบบแล้ว" });
           fetchUsersList();
         } catch (e) {
           Swal.fire({
@@ -227,33 +235,45 @@ function User() {
     });
   };
 
+  // 🌟 ค้นหาพนักงานฝั่ง client จากรายชื่อที่โหลดมาแล้ว (ไม่ยิง API เพิ่ม)
+  const filteredUsers = usersList.filter((user) => {
+    const q = userSearch.trim().toLowerCase();
+    if (!q) return true;
+    const haystack = [user.name, user.user, user.username, user.email, user.phone]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+
   return (
     <>
       <Home>
         <div
           className="container-fluid px-3 px-md-4 pb-4 pt-3"
-          style={{ backgroundColor: "var(--stone-50)", minHeight: "100vh" }}
+          style={{ backgroundColor: "var(--slate-50)", minHeight: "100vh" }}
         >
-          <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
-              👤 ระบบผู้ใช้งาน
-            </h1>
-          </div>
+          <PageHeader
+            eyebrow="ตั้งค่าระบบ"
+            title="ระบบผู้ใช้งาน"
+            description="จัดการโปรไฟล์ของคุณ และดูแลบัญชีพนักงานในระบบ"
+          />
 
           <style>
             {`
-              .cat-theme-tabs .nav-link { color: #6b7280; transition: all 0.3s ease; }
-              .cat-theme-tabs .nav-link:hover { color: var(--brand-600); background-color: var(--brand-50); }
+              .cat-theme-tabs .nav-link { color: var(--slate-500); transition: all 0.2s ease; }
+              .cat-theme-tabs .nav-link:hover { color: var(--blue-700); background-color: var(--blue-50); }
               .cat-theme-tabs .nav-link.active {
-                background-color: var(--brand-600) !important; 
-                color: white !important;
-                box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.3); 
+                background-color: var(--blue-50) !important;
+                color: var(--blue-700) !important;
+                box-shadow: none;
               }
             `}
           </style>
 
           <ul
-            className="nav nav-pills mb-4 bg-white p-2 shadow-sm rounded-4 border cat-theme-tabs"
+            className="nav nav-pills mb-4 bg-white p-2 border rounded-4 cat-theme-tabs"
+            style={{ borderColor: "var(--slate-200)" }}
             id="userTabs"
             role="tablist"
           >
@@ -295,59 +315,48 @@ function User() {
             >
               <div className="row g-4">
                 <div className="col-12 col-lg-4">
-                  <div className="card border-0 shadow-sm rounded-4 text-center p-4 bg-white position-relative overflow-hidden h-100">
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: "8px",
-                        backgroundColor: "var(--brand-600)",
-                      }}
-                    ></div>
+                  <div
+                    className="card border text-center p-4 bg-white h-100"
+                    style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+                  >
                     <div className="card-body pt-3">
                       <div
-                        className="mx-auto d-flex align-items-center justify-content-center border shadow-sm"
+                        className="mx-auto d-flex align-items-center justify-content-center border"
                         style={{
                           width: "100px",
                           height: "100px",
                           borderRadius: "50%",
-                          backgroundColor: "var(--brand-50)",
-                          borderColor: "var(--brand-200)",
+                          backgroundColor: "var(--slate-50)",
+                          borderColor: "var(--slate-200)",
                         }}
                       >
                         <span style={{ fontSize: "3.5rem" }}>🐈</span>
                       </div>
                       <h4 className="fw-bold text-dark mt-3 mb-1">
-                        {userName || "เจ้านายแผงแมวส้ม"}
+                        {userName || "ผู้ใช้งานแผงแมวส้ม"}
                       </h4>
                       {userLevel === "admin" ? (
                         <div
-                          className="d-inline-block rounded-pill px-4 py-2 border mt-3"
+                          className="d-inline-block rounded-pill px-4 py-2 mt-3"
                           style={{
-                            backgroundColor: "var(--brand-50)",
-                            color: "var(--brand-800)",
-                            borderColor: "var(--brand-100)",
-                            fontWeight: "bold",
-                            fontSize: "14px",
+                            backgroundColor: "var(--blue-50)",
+                            color: "var(--blue-700)",
+                            fontWeight: "700",
+                            fontSize: "13px",
                           }}
                         >
-                          <i className="bi bi-shield-lock-fill me-2"></i>{" "}
                           สิทธิ์ระบบ: Admin
                         </div>
                       ) : (
                         <div
-                          className="d-inline-block rounded-pill px-4 py-2 border mt-3"
+                          className="d-inline-block rounded-pill px-4 py-2 mt-3"
                           style={{
-                            backgroundColor: "#f0fdf4",
-                            color: "#166534",
-                            borderColor: "var(--green-200)",
-                            fontWeight: "bold",
-                            fontSize: "14px",
+                            backgroundColor: "var(--green-100)",
+                            color: "var(--green-700)",
+                            fontWeight: "700",
+                            fontSize: "13px",
                           }}
                         >
-                          <i className="bi bi-person-check-fill me-2"></i>{" "}
                           สิทธิ์ระบบ: พนักงาน
                         </div>
                       )}
@@ -356,10 +365,12 @@ function User() {
                 </div>
 
                 <div className="col-12 col-lg-8">
-                  <div className="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                  <div
+                    className="card border p-4 bg-white h-100"
+                    style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+                  >
                     <div className="card-header bg-white border-0 p-0 pb-3 mb-3 border-bottom">
-                      <h5 className="fw-bold mb-0 text-dark">
-                        <i className="bi bi-key-fill me-2 text-warning"></i>{" "}
+                      <h5 className="fw-bold mb-0 text-dark" style={{ fontSize: "16px" }}>
                         เปลี่ยนรหัสผ่านเพื่อความปลอดภัย
                       </h5>
                     </div>
@@ -436,11 +447,14 @@ function User() {
                           <button
                             type="submit"
                             disabled={isProfileLoading}
-                            className="btn rounded-pill px-4 shadow-sm fw-bold transition-all"
+                            className="btn px-4 fw-semibold"
                             style={{
-                              backgroundColor: "var(--brand-600)",
-                              color: "white",
+                              backgroundColor: "var(--blue-50)",
+                              color: "var(--blue-700)",
+                              border: "1px solid var(--blue-100, var(--blue-50))",
+                              borderRadius: "var(--radius-sm)",
                               padding: "10px 25px",
+                              fontSize: "14px",
                             }}
                           >
                             {isProfileLoading ? (
@@ -449,10 +463,7 @@ function User() {
                                 กำลังบันทึก...
                               </>
                             ) : (
-                              <>
-                                <i className="bi bi-check-circle-fill me-2"></i>{" "}
-                                อัปเดตรหัสผ่านใหม่
-                              </>
+                              "อัปเดตรหัสผ่านใหม่"
                             )}
                           </button>
                         </div>
@@ -466,26 +477,34 @@ function User() {
             {/* 🔴 Tab 2: จัดการพนักงาน */}
             {userLevel === "admin" && (
               <div className="tab-pane fade" id="manage-pane" role="tabpanel">
-                <div className="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-                  <div className="card-header bg-white border-0 pt-4 pb-3 d-flex justify-content-between align-items-center">
-                    <h5 className="fw-bold mb-0 text-dark">
-                      <i
-                        className="bi bi-people-fill me-2"
-                        style={{ color: "var(--brand-600)" }}
-                      ></i>{" "}
-                      รายชื่อพนักงานในระบบ
-                    </h5>
-                    <button
-                      className="btn btn-sm text-white fw-bold px-3 py-2 rounded-pill shadow-sm"
-                      style={{ backgroundColor: "var(--brand-600)" }}
+                <FilterBar
+                  actions={
+                    <FilterBarButton
+                      variant="primary"
+                      icon="bi-plus-lg"
                       data-bs-toggle="modal"
                       data-bs-target="#userModal"
                       onClick={handleOpenAddModal}
                     >
-                      <i className="bi bi-plus-lg me-1"></i> เพิ่มพนักงาน
-                    </button>
-                  </div>
+                      เพิ่มพนักงาน
+                    </FilterBarButton>
+                  }
+                >
+                  <FilterBarSearch
+                    value={userSearch}
+                    onChange={setUserSearch}
+                    placeholder="ค้นหาชื่อ, username, เบอร์โทร..."
+                  />
+                  <FilterBarClear
+                    show={!!userSearch}
+                    onClick={() => setUserSearch("")}
+                  />
+                </FilterBar>
 
+                <div
+                  className="card border overflow-hidden bg-white"
+                  style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+                >
                   <div className="card-body p-0">
                     {usersLoadError && !isUsersLoading && (
                       <div
@@ -511,21 +530,21 @@ function User() {
                     )}
                     <div className="table-responsive">
                       <table className="table table-hover align-middle mb-0 text-center">
-                        <thead style={{ backgroundColor: "var(--brand-100)" }}>
+                        <thead style={{ backgroundColor: "var(--slate-50)" }}>
                           <tr>
-                            <th scope="col" className="px-3 py-3 border-0 text-secondary">
+                            <th scope="col" className="px-3 py-3 border-0" style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}>
                               ID
                             </th>
-                            <th scope="col" className="px-3 py-3 border-0 text-secondary text-start">
+                            <th scope="col" className="px-3 py-3 border-0 text-start" style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}>
                               ชื่อพนักงาน / Username
                             </th>
-                            <th scope="col" className="px-3 py-3 border-0 text-secondary">
+                            <th scope="col" className="px-3 py-3 border-0" style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}>
                               ติดต่อ
                             </th>
-                            <th scope="col" className="px-3 py-3 border-0 text-secondary">
+                            <th scope="col" className="px-3 py-3 border-0" style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}>
                               สิทธิ์ (Level)
                             </th>
-                            <th scope="col" className="px-3 py-3 border-0 text-secondary">
+                            <th scope="col" className="px-3 py-3 border-0" style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}>
                               จัดการ
                             </th>
                           </tr>
@@ -537,15 +556,14 @@ function User() {
                                 กำลังโหลดข้อมูล...
                               </td>
                             </tr>
-                          ) : usersList.length > 0 ? (
-                            usersList.map((user, index) => (
+                          ) : filteredUsers.length > 0 ? (
+                            filteredUsers.map((user, index) => (
                               <tr key={user.id || index}>
-                                <td className="text-muted fw-bold">
+                                <td className="fw-bold" style={{ color: "var(--blue-700)" }}>
                                   #{user.id}
                                 </td>
                                 <td className="text-start">
-                                  {/* 🌟 แสดงชื่อ (ถ้ามี) ตามด้วย Username */}
-                                  <div className="fw-bold text-dark">
+                                  <div className="fw-bold" style={{ color: "var(--slate-800)", fontSize: "14px" }}>
                                     {user.name
                                       ? user.name
                                       : user.user || user.username}
@@ -557,11 +575,9 @@ function User() {
                                   )}
                                 </td>
                                 <td>
-                                  {/* 🌟 แสดงเบอร์โทร หรือ อีเมล แบบย่อ */}
                                   <div className="small text-muted">
                                     {user.phone ? (
                                       <>
-                                        <i className="bi bi-telephone me-1"></i>
                                         {user.phone}
                                         <br />
                                       </>
@@ -569,10 +585,7 @@ function User() {
                                       ""
                                     )}
                                     {user.email ? (
-                                      <>
-                                        <i className="bi bi-envelope me-1"></i>
-                                        {user.email}
-                                      </>
+                                      user.email
                                     ) : (
                                       !user.phone && "-"
                                     )}
@@ -580,55 +593,50 @@ function User() {
                                 </td>
                                 <td>
                                   <span
-                                    className="badge rounded-pill px-3 py-2"
                                     style={
                                       user.level === "admin"
                                         ? {
-                                            backgroundColor: "var(--brand-600)", // พื้นหลังสีส้มเข้ม (เข้าธีมเว็บ)
-                                            color: "var(--color-white)", // ตัวหนังสือสีขาว
-                                            boxShadow:
-                                              "0 2px 4px rgba(234, 88, 12, 0.4)", // เงามีมิติสีส้ม
-                                            letterSpacing: "0.5px", // ถ่างตัวหนังสือนิดนึงให้ดูแพง
-                                            fontWeight: "600",
+                                            backgroundColor: "var(--blue-50)",
+                                            color: "var(--blue-700)",
+                                            padding: "3px 14px",
+                                            borderRadius: "var(--radius-pill)",
+                                            fontSize: "12px",
+                                            fontWeight: 700,
+                                            display: "inline-block",
                                           }
                                         : {
-                                            backgroundColor: "var(--gray-100)", // พื้นหลังสีเทาอ่อนสุดคลีน
-                                            color: "#4b5563", // ตัวหนังสือสีเทาเข้ม
-                                            border: "1px solid #d1d5db", // ขอบสีเทาบางๆ
-                                            letterSpacing: "0.5px",
-                                            fontWeight: "500",
+                                            backgroundColor: "var(--slate-100)",
+                                            color: "var(--slate-500)",
+                                            padding: "3px 14px",
+                                            borderRadius: "var(--radius-pill)",
+                                            fontSize: "12px",
+                                            fontWeight: 700,
+                                            display: "inline-block",
                                           }
                                     }
                                   >
-                                    {user.level === "admin" ? (
-                                      <>
-                                        <i
-                                          className="bi bi-shield-lock-fill me-1"
-                                          style={{ color: "#fde68a" }}
-                                        ></i>{" "}
-                                        Admin
-                                      </>
-                                    ) : (
-                                      <>
-                                        <i className="bi bi-person-fill me-1 text-secondary"></i>{" "}
-                                        User
-                                      </>
-                                    )}
+                                    {user.level === "admin" ? "Admin" : "User"}
                                   </span>
                                 </td>
                                 <td>
                                   <button
-                                    className="btn btn-sm btn-outline-primary rounded-pill px-3 py-2 me-2"
+                                    className="btn btn-sm px-3 py-2 me-2"
                                     data-bs-toggle="modal"
                                     data-bs-target="#userModal"
                                     onClick={() => handleOpenEditModal(user)}
                                     aria-label="แก้ไข"
                                     title="แก้ไข"
+                                    style={{
+                                      background: "var(--color-white)",
+                                      color: "var(--slate-600)",
+                                      border: "1px solid var(--slate-200)",
+                                      borderRadius: "var(--radius-sm)",
+                                    }}
                                   >
                                     <i className="bi bi-pencil-square"></i>
                                   </button>
                                   <button
-                                    className="btn btn-sm btn-outline-danger rounded-pill px-3 py-2"
+                                    className="btn btn-sm px-3 py-2"
                                     onClick={() =>
                                       handleDeleteUser(
                                         user.id,
@@ -637,6 +645,12 @@ function User() {
                                     }
                                     aria-label="ลบ"
                                     title="ลบ"
+                                    style={{
+                                      background: "var(--red-50)",
+                                      color: "var(--red-600)",
+                                      border: "1px solid var(--red-100)",
+                                      borderRadius: "var(--radius-sm)",
+                                    }}
                                   >
                                     <i className="bi bi-trash-fill"></i>
                                   </button>
@@ -646,7 +660,9 @@ function User() {
                           ) : (
                             <tr>
                               <td colSpan="5" className="py-5 text-muted">
-                                ยังไม่มีข้อมูลพนักงาน
+                                {userSearch
+                                  ? `ไม่พบพนักงานที่ตรงกับ "${userSearch}"`
+                                  : "ยังไม่มีข้อมูลพนักงาน"}
                               </td>
                             </tr>
                           )}
@@ -666,7 +682,7 @@ function User() {
       {/* ========================================== */}
       <MyModal
         id="userModal"
-        title={isEditing ? "✏️ แก้ไขข้อมูลพนักงาน" : "➕ เพิ่มพนักงานใหม่"}
+        title={isEditing ? "แก้ไขข้อมูลพนักงาน" : "เพิ่มพนักงานใหม่"}
       >
         <form onSubmit={handleSaveUser}>
           <div
@@ -676,12 +692,11 @@ function User() {
             {/* --- ข้อมูลจำเป็น (บังคับกรอก) --- */}
             <h6 className="fw-bold mb-3" style={{ color: "var(--brand-600)" }}>
               <i className="bi bi-person-badge me-2"></i>ข้อมูลสำหรับเข้าสู่ระบบ
-              (บังคับ)
             </h6>
 
             <div className="mb-3">
               <label className="form-label fw-bold small text-secondary">
-                ชื่อเข้าใช้งาน (Username) <span className="text-danger">*</span>
+                ชื่อผู้ใช้งาน <span className="text-danger">*</span>
               </label>
               <div className="input-group">
                 <span className="input-group-text bg-light text-muted">
@@ -702,7 +717,7 @@ function User() {
 
             <div className="mb-3">
               <label className="form-label fw-bold small text-secondary">
-                รหัสผ่าน (Password){" "}
+                รหัสผ่าน{" "}
                 {isEditing ? (
                   <span className="text-muted fw-normal">
                     (เว้นว่างถ้าไม่เปลี่ยน)
@@ -756,12 +771,12 @@ function User() {
 
             {/* --- ข้อมูลทั่วไป (ทางเลือก) --- */}
             <h6 className="fw-bold mb-3 text-secondary">
-              <i className="bi bi-card-text me-2"></i>ข้อมูลพนักงาน (ไม่บังคับ)
+              <i className="bi bi-card-text me-2"></i>ข้อมูลพนักงาน
             </h6>
 
             <div className="mb-3">
               <label className="form-label fw-bold small text-secondary">
-                ชื่อ-นามสกุล (Name)
+                ชื่อ-นามสกุล
               </label>
               <div className="input-group">
                 <span className="input-group-text bg-light text-muted">
@@ -782,7 +797,7 @@ function User() {
             <div className="row g-2 mb-3">
               <div className="col-12 col-sm-6">
                 <label className="form-label fw-bold small text-secondary">
-                  เบอร์โทรศัพท์ (Phone)
+                  เบอร์โทรศัพท์
                 </label>
                 <div className="input-group">
                   <span className="input-group-text bg-light text-muted">
@@ -801,7 +816,7 @@ function User() {
               </div>
               <div className="col-12 col-sm-6">
                 <label className="form-label fw-bold small text-secondary">
-                  อีเมล (Email)
+                  อีเมล
                 </label>
                 <div className="input-group">
                   <span className="input-group-text bg-light text-muted">
@@ -822,7 +837,7 @@ function User() {
 
             <div className="mb-2">
               <label className="form-label fw-bold small text-secondary">
-                ที่อยู่ (Address)
+                ที่อยู่
               </label>
               <div className="input-group">
                 <span className="input-group-text bg-light text-muted">
@@ -851,13 +866,15 @@ function User() {
             </button>
             <button
               type="submit"
-              className="btn rounded-pill px-4 fw-bold shadow-sm"
+              className="btn px-4 fw-semibold"
               disabled={isSavingUser}
-              style={{ backgroundColor: "var(--brand-600)", color: "white" }}
+              style={{
+                backgroundColor: "var(--blue-50)",
+                color: "var(--blue-700)",
+                border: "1px solid var(--blue-100, var(--blue-50))",
+                borderRadius: "var(--radius-sm)",
+              }}
             >
-              <i
-                className={`bi ${isSavingUser ? "bi-hourglass-split" : "bi-save-fill"} me-2`}
-              ></i>{" "}
               {isSavingUser ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
             </button>
           </div>

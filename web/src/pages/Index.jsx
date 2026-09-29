@@ -794,7 +794,7 @@ function EmptyState({ searched, query, onClear }) {
           <h4 style={{ color: "var(--brand-600)", marginTop: "15px" }}>
             แผงแมวส้มว่างเปล่า
           </h4>
-          <p style={{ color: "#b45309" }}>
+          <p style={{ color: "#1d4ed8" }}>
             กำลังวิ่งไปคาบสลากมาเพิ่ม รอก่อนน้า...
           </p>
         </>

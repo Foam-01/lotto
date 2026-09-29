@@ -252,7 +252,18 @@ describe('LottoService', () => {
       const result = await service.getBillSale();
 
       expect(prisma.billSale.findMany).toHaveBeenCalledWith({
-        include: { billSaleDetail: { include: { lotto: true } } },
+        select: {
+          id: true,
+          createdDate: true,
+          customerName: true,
+          customerPhone: true,
+          customerAddress: true,
+          payDate: true,
+          payTime: true,
+          billSaleDetail: {
+            select: { price: true, lotto: { select: { numbers: true } } },
+          },
+        },
         orderBy: { id: 'desc' },
       });
       expect(result).toEqual({ result: [{ id: 1 }] });
@@ -343,7 +354,16 @@ describe('LottoService', () => {
           OR: [{ customerAddress: '' }, { customerAddress: null }],
         },
         orderBy: { id: 'desc' },
-        include: { billSaleDetail: { include: { lotto: true } } },
+        select: {
+          id: true,
+          customerName: true,
+          customerPhone: true,
+          payDate: true,
+          payTime: true,
+          billSaleDetail: {
+            select: { price: true, lotto: { select: { numbers: true } } },
+          },
+        },
       });
       expect(result).toEqual({ results: [{ id: 1 }] });
     });
@@ -356,9 +376,15 @@ describe('LottoService', () => {
       expect(prisma.billSale.findMany).toHaveBeenCalledWith({
         where: { payDate: { not: null }, customerAddress: { not: '' } },
         orderBy: { id: 'desc' },
-        include: {
-          billSaleDetail: { include: { lotto: true } },
-          billSaleForSends: true,
+        select: {
+          id: true,
+          customerName: true,
+          customerPhone: true,
+          customerAddress: true,
+          billSaleDetail: {
+            select: { price: true, lotto: { select: { numbers: true } } },
+          },
+          billSaleForSends: { select: { sendDate: true, price: true } },
         },
       });
       expect(result).toEqual({ results: [{ id: 2 }] });
@@ -456,7 +482,12 @@ describe('LottoService', () => {
 
       expect(prisma.lottoIsBonus.findMany).toHaveBeenCalledWith({
         orderBy: { id: 'desc' },
-        include: { BonusResultDetail: true },
+        select: {
+          id: true,
+          BonusResultDetail: {
+            select: { number: true, price: true, bonusDate: true },
+          },
+        },
       });
       expect(result).toEqual({ results: [{ id: 1 }] });
     });

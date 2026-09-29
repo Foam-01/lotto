@@ -2,16 +2,54 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import axios from 'axios';
 
+// รายริฟฟี (lotto.api.rayriffy.com) ปิดให้บริการแล้ว (repo archived) จึงย้ายมาใช้ API
+// ทางการของสำนักงานสลากกินแบ่งรัฐบาลแทน โครงสร้างข้อมูลเป็นคนละแบบ ห้ามนำ mapping เดิมมาใช้ซ้ำ
+const GLO_LATEST_LOTTERY_URL =
+  'https://www.glo.or.th/api/lottery/getLatestLottery';
+
+const THAI_MONTHS = [
+  'มกราคม',
+  'กุมภาพันธ์',
+  'มีนาคม',
+  'เมษายน',
+  'พฤษภาคม',
+  'มิถุนายน',
+  'กรกฎาคม',
+  'สิงหาคม',
+  'กันยายน',
+  'ตุลาคม',
+  'พฤศจิกายน',
+  'ธันวาคม',
+];
+
+// แปลง "2026-09-16" (ค.ศ. จาก GLO) -> "16 กันยายน 2569" (พ.ศ. แบบเดียวกับข้อมูลเดิมในระบบ)
+// คำนวณจากตัวเลขตรงๆ แทนการใช้ Date object เพื่อเลี่ยงปัญหา timezone เลื่อนวัน
+function toThaiBuddhistDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  return `${day} ${THAI_MONTHS[month - 1]} ${year + 543}`;
+}
+
+type GloPrizeGroup = { price: string; number: { round: number; value: string }[] };
+
 @Injectable()
 export class BonusService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getBonus() {
     try {
-      // API สำหรับดูผลสลากกินแบ่งรัฐบาลงวดล่าสุด   เรย์ริฟฟี
-      const res = await axios.get('https://lotto.api.rayriffy.com/latest');
-      const data = res.data.response;
-      const bonusDate = data.date; // "16 เมษายน 2569"
+      const res = await axios.post(
+        GLO_LATEST_LOTTERY_URL,
+        {},
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+
+      const payload = res.data?.response;
+      const data = payload?.data;
+      if (!payload?.date || !data) {
+        throw new Error('รูปแบบข้อมูลจาก GLO ไม่ตรงตามที่คาดไว้');
+      }
+
+      const bonusDate = toThaiBuddhistDate(payload.date);
 
       const row = await this.prisma.bonusResultDetail.findMany({
         where: { bonusDate: bonusDate },
@@ -28,19 +66,23 @@ export class BonusService {
       const insertData: { number: string; price: number; bonusDate: string }[] =
         [];
 
-      data.prizes.forEach((prizeGroup) => {
-        const reward = Number(prizeGroup.reward);
-        prizeGroup.number.forEach((num) => {
-          insertData.push({ number: num, price: reward, bonusDate: bonusDate });
+      const pushGroup = (group?: GloPrizeGroup) => {
+        if (!group) return;
+        const reward = Number(group.price);
+        group.number.forEach((n) => {
+          insertData.push({ number: n.value, price: reward, bonusDate });
         });
-      });
+      };
 
-      data.runningNumbers.forEach((runGroup) => {
-        const reward = Number(runGroup.reward);
-        runGroup.number.forEach((num) => {
-          insertData.push({ number: num, price: reward, bonusDate: bonusDate });
-        });
-      });
+      pushGroup(data.first);
+      pushGroup(data.second);
+      pushGroup(data.third);
+      pushGroup(data.fourth);
+      pushGroup(data.fifth);
+      pushGroup(data.near1);
+      pushGroup(data.last2);
+      pushGroup(data.last3f);
+      pushGroup(data.last3b);
 
       await this.prisma.bonusResultDetail.createMany({ data: insertData });
 
@@ -49,15 +91,15 @@ export class BonusService {
         date: bonusDate,
         message: `บันทึกข้อมูลสลากและเงินรางวัลจำนวน ${insertData.length} รายการเรียบร้อยแล้ว`,
         lotto_result: {
-          prize1: data.prizes[0].number[0],
-          prize1Near: data.prizes[1].number,
-          prize2: data.prizes[2].number,
-          prize3: data.prizes[3].number,
-          prize4: data.prizes[4].number,
-          prize5: data.prizes[5].number,
-          front3: data.runningNumbers[0].number,
-          back3: data.runningNumbers[1].number,
-          back2: data.runningNumbers[2].number[0],
+          prize1: data.first.number[0]?.value,
+          prize1Near: data.near1.number.map((n) => n.value),
+          prize2: data.second.number.map((n) => n.value),
+          prize3: data.third.number.map((n) => n.value),
+          prize4: data.fourth.number.map((n) => n.value),
+          prize5: data.fifth.number.map((n) => n.value),
+          front3: data.last3f.number.map((n) => n.value),
+          back3: data.last3b.number.map((n) => n.value),
+          back2: data.last2.number[0]?.value,
         },
       };
     } catch (e: any) {
@@ -112,17 +154,24 @@ export class BonusService {
 
   async checkBonus() {
     try {
-      const billSaleDetails = await this.prisma.billSaleDetail.findMany({
-        include: { lotto: true },
-        where: {
-          billSale: { payDate: { not: null } },
-          lotto: { isCheckBonus: false },
-        },
-      });
-
-      const lastResult = await this.prisma.bonusResultDetail.findFirst({
-        orderBy: { bonusDate: 'desc' },
-      });
+      // billSaleDetails กับ lastResult ไม่ขึ้นต่อกัน ยิงพร้อมกันได้ ลด round-trip ไป DB หนึ่งรอบ
+      // (bonusResultDetails ต้องรอ bonusDate จาก lastResult ก่อน จึงยัง sequential อยู่)
+      const [billSaleDetails, lastResult] = await Promise.all([
+        this.prisma.billSaleDetail.findMany({
+          where: {
+            billSale: { payDate: { not: null } },
+            lotto: { isCheckBonus: false },
+          },
+          // select เฉพาะฟิลด์ที่ใช้จริงในการจับคู่ผลรางวัลด้านล่าง แทน include ทั้งก้อน
+          select: {
+            id: true,
+            lotto: { select: { id: true, numbers: true } },
+          },
+        }),
+        this.prisma.bonusResultDetail.findFirst({
+          orderBy: { bonusDate: 'desc' },
+        }),
+      ]);
 
       const bonusResultDetails = await this.prisma.bonusResultDetail.findMany({
         where: { bonusDate: lastResult?.bonusDate },
@@ -181,10 +230,27 @@ export class BonusService {
         });
       }
 
+      // select เฉพาะฟิลด์ที่หน้า SaleBonus ใช้จริง แทน include ทั้งก้อน
       const resultBonus = await this.prisma.billSaleDetailIsBonus.findMany({
-        include: {
-          BillSaleDetail: { include: { billSale: true } },
-          BonusResultDetail: true,
+        select: {
+          id: true,
+          BillSaleDetail: {
+            select: {
+              billSaleId: true,
+              billSale: {
+                select: {
+                  customerName: true,
+                  customerPhone: true,
+                  transferMoneyDate: true,
+                  transferMoneyTime: true,
+                  deliverDate: true,
+                },
+              },
+            },
+          },
+          BonusResultDetail: {
+            select: { number: true, price: true, bonusDate: true },
+          },
         },
       });
 

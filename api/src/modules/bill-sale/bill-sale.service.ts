@@ -69,9 +69,20 @@ export class BillSaleService {
             },
           },
         },
-        include: {
-          lotto: true,
-          billSale: true,
+        // 🌟 select เฉพาะฟิลด์ที่หน้า ReportIncome ใช้จริง แทน include ทั้งก้อน
+        // (ลด payload ที่ต้อง serialize/ส่งกลับ ไม่ได้ลด network round-trip ไป DB)
+        select: {
+          price: true,
+          lotto: { select: { bookNumber: true } },
+          billSale: {
+            select: {
+              payDate: true,
+              payTime: true,
+              customerName: true,
+              customerPhone: true,
+              customerAddress: true,
+            },
+          },
         },
       });
       return { results: res };
@@ -86,26 +97,49 @@ export class BillSaleService {
       const fromDate = new Date(dto.fromDate).toISOString();
       const toDate = new Date(dto.toDate).toISOString();
 
-      const billSaleDetails = await this.prisma.billSaleDetail.findMany({
-        where: {
-          billSale: {
-            payDate: {
-              gte: fromDate,
-              lte: toDate,
+      // 🌟 สองคิวรีนี้ไม่ขึ้นต่อกัน เดิม await ทีละอันทำให้เสีย network round-trip ไป DB สองรอบ
+      // ยิงพร้อมกันด้วย Promise.all ลดเวลารอลงได้เกือบครึ่งนึง
+      // select เฉพาะฟิลด์ที่หน้า ReportProfit ใช้จริง (ตาราง + summary) แทน include ทั้งก้อน
+      const [billSaleDetails, lottoIsBonus] = await Promise.all([
+        this.prisma.billSaleDetail.findMany({
+          where: {
+            billSale: {
+              payDate: {
+                gte: fromDate,
+                lte: toDate,
+              },
             },
           },
-        },
-        include: {
-          lotto: true,
-          billSale: true,
-        }
-      });
-
-      const lottoIsBonus = await this.prisma.lottoIsBonus.findMany({
-        include: {
-          BonusResultDetail: true, // ดึงข้อมูลรายละเอียดรางวัลมาด้วย
-        },
-      });
+          select: {
+            id: true,
+            price: true,
+            lotto: {
+              select: {
+                numbers: true,
+                cost: true,
+                roundNumber: true,
+                bookNumber: true,
+              },
+            },
+            billSale: {
+              select: {
+                customerName: true,
+                customerPhone: true,
+                customerAddress: true,
+                payDate: true,
+                payTime: true,
+                payRemark: true,
+              },
+            },
+          },
+        }),
+        this.prisma.lottoIsBonus.findMany({
+          select: {
+            id: true,
+            BonusResultDetail: { select: { number: true, price: true } },
+          },
+        }),
+      ]);
 
       // 🌟 1. คำนวณยอดขายรวมจากบิลลูกค้า และต้นทุนรวมของสลากที่ขายได้
       let totalSale = 0;

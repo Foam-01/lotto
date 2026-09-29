@@ -4,6 +4,12 @@ import Swal from "sweetalert2";
 import BillSaleService from "../services/bill-sale.service";
 import MyModal from "../components/MyModal";
 import { formatDate,  } from "../utils/format";
+import { PageHeader } from "../components/shared/PageHeader";
+import {
+  FilterBar,
+  FilterBarSearch,
+  FilterBarClear,
+} from "../components/shared/FilterBar";
 
 function LottoForSend() {
   // 🌟 ฟังก์ชันจัดการวันที่และเวลาเริ่มต้นให้ถูกฟอร์แมตของ HTML input
@@ -33,6 +39,7 @@ function LottoForSend() {
   const [price, setPrice] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -150,48 +157,44 @@ function LottoForSend() {
     }
   };
 
+  // 🌟 ค้นหาฝั่ง client จากรายการที่โหลดมาแล้ว (ไม่ยิง API เพิ่ม)
+  const filteredBillSales = (billSales || []).filter((item) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    const haystack = [item.customerName, item.customerPhone, item.customerAddress]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+
   return (
     <>
       <Home>
         <div style={styles.page}>
-          <div className="sunburst-bg"></div>
-          <div className="bg-pattern"></div>
-
-          <style>{`
-            @media (max-width: 480px) {
-              .lottoforsend-header-emoji {
-                font-size: 38px !important;
-              }
-            }
-          `}</style>
-
           <div className="container" style={styles.container}>
-            <div style={styles.header}>
-              <div>
-                <h2 style={{ ...styles.titleMain, flexWrap: "wrap" }}>
-                  <span
-                    className="me-3 lottoforsend-header-emoji"
-                    style={styles.headerEmoji}
-                  >
-                    🚚
-                  </span>
-                  รายการที่ต้องจัดส่ง
-                </h2>
-                <p style={styles.subtitleMain}>
-                  จัดการคิวส่งสลากตัวจริงให้ลูกค้าทางไปรษณีย์
-                </p>
-              </div>
-            </div>
+            <PageHeader
+              eyebrow="งานขาย"
+              title="รายการที่ต้องจัดส่ง"
+              description="จัดการคิวส่งสลากตัวจริงให้ลูกค้าทางไปรษณีย์"
+              count={`${filteredBillSales.length} รายการ`}
+            />
+
+            <FilterBar>
+              <FilterBarSearch
+                value={searchTerm}
+                onChange={setSearchTerm}
+                placeholder="ค้นหาชื่อลูกค้า, เบอร์โทร, ที่อยู่..."
+              />
+              <FilterBarClear
+                show={!!searchTerm}
+                onClick={() => setSearchTerm("")}
+              />
+            </FilterBar>
 
             <div style={styles.tableCard}>
               <div style={styles.tableHeaderContainer}>
-                <h4 style={styles.cardTitle}>
-                  <i className="bi bi-box-seam me-2 text-orange"></i>
-                  รอจัดส่ง
-                  <span style={styles.badgeCount}>
-                    {billSales?.length || 0} รายการ
-                  </span>
-                </h4>
+                <h4 style={styles.cardTitle}>รอจัดส่ง</h4>
               </div>
 
               <div style={{ overflowX: "auto" }}>
@@ -226,18 +229,11 @@ function LottoForSend() {
                           กำลังโหลดข้อมูล...
                         </td>
                       </tr>
-                    ) : billSales?.length > 0 ? (
-                      billSales.map((item) => (
+                    ) : filteredBillSales.length > 0 ? (
+                      filteredBillSales.map((item) => (
                         <tr key={item.id} style={styles.tableRow}>
-                          <td style={styles.td}>
-                            <span className="fw-bold text-orange">
-                              #{item.id}
-                            </span>
-                          </td>
-                          <td style={styles.tdName}>
-                            <i className="bi bi-person-circle text-muted me-2"></i>
-                            {item.customerName}
-                          </td>
+                          <td style={styles.tdName}>#{item.id}</td>
+                          <td style={styles.td}>{item.customerName}</td>
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             {item.customerPhone || "-"}
                           </td>
@@ -251,30 +247,23 @@ function LottoForSend() {
                             </div>
                           </td>
 
-                          {/* 🌟 ส่วนของ วันที่จัดส่ง (อัปเกรดความหล่อ) 🌟 */}
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             {item.billSaleForSends?.length > 0 &&
                             item.billSaleForSends[0].sendDate ? (
-                              <div style={styles.dateBadge}>
-                                <i className="bi bi-calendar-check text-success me-1"></i>
+                              <span style={styles.statusPaid}>
                                 {formatDate(item.billSaleForSends[0].sendDate)}
-                              </div>
+                              </span>
                             ) : (
-                              <span
-                                className="badge bg-light text-secondary border px-3 py-2"
-                                style={{ borderRadius: "var(--radius-md)" }}
-                              >
-                                <i className="bi bi-hourglass-split me-1"></i>{" "}
+                              <span style={styles.statusPending}>
                                 รอดำเนินการ
                               </span>
                             )}
                           </td>
 
-                          {/* 🌟 ส่วนของ ค่าจัดส่ง (อัปเกรดความหล่อ) 🌟 */}
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             {item.billSaleForSends?.length > 0 &&
                             item.billSaleForSends[0].price !== null ? (
-                              <span className="fw-bold text-primary">
+                              <span style={{ fontWeight: 700, color: "var(--slate-700)" }}>
                                 ฿
                                 {item.billSaleForSends[0].price.toLocaleString()}
                               </span>
@@ -291,7 +280,7 @@ function LottoForSend() {
                                 data-bs-target="#modalDetail"
                                 style={styles.btnInfo}
                               >
-                                <i className="bi bi-search"></i> ดูเลข
+                                ดูเลข
                               </button>
 
                               {item.billSaleForSends.length > 0 ? (
@@ -300,7 +289,6 @@ function LottoForSend() {
                                   title="รายการนี้จัดส่งเรียบร้อยแล้ว"
                                   style={styles.btnDisabled}
                                 >
-                                  <i className="bi bi-check-circle-fill me-1"></i>{" "}
                                   จัดส่งแล้ว
                                 </button>
                               ) : (
@@ -310,7 +298,7 @@ function LottoForSend() {
                                   data-bs-target="#modalSend"
                                   style={styles.btnSuccess}
                                 >
-                                  <i className="bi bi-truck me-1"></i> จัดส่ง
+                                  จัดส่ง
                                 </button>
                               )}
                             </div>
@@ -326,7 +314,9 @@ function LottoForSend() {
                           >
                             📭
                           </div>
-                          ไม่มีสลากค้างจัดส่ง
+                          {searchTerm
+                            ? `ไม่พบรายการที่ตรงกับ "${searchTerm}"`
+                            : "ไม่มีสลากค้างจัดส่ง"}
                         </td>
                       </tr>
                     )}
@@ -340,7 +330,7 @@ function LottoForSend() {
 
       {/* 🌟 Modal ฟอร์มจัดส่งสลาก 🌟 */}
       <MyModal
-        title="📦 บันทึกการจัดส่งพัสดุ"
+        title="บันทึกการจัดส่งพัสดุ"
         id="modalSend"
         btnCloseId="btnClose"
       >
@@ -493,9 +483,9 @@ function LottoForSend() {
           <div
             className="p-4 mb-4"
             style={{
-              background: "linear-gradient(135deg, var(--brand-50) 0%, var(--brand-100) 100%)",
+              backgroundColor: "var(--slate-50)",
               borderRadius: "var(--radius-lg)",
-              border: "1px solid var(--brand-200)",
+              border: "1px solid var(--slate-200)",
             }}
           >
             <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-warning border-opacity-25">
@@ -615,13 +605,12 @@ function LottoForSend() {
 // 🟠 CSS ความสวยงามธีม แผงแมวส้ม
 const styles = {
   page: {
-    backgroundColor: "var(--amber-50)",
+    backgroundColor: "var(--slate-50)",
     minHeight: "100vh",
     paddingTop: "40px",
     paddingBottom: "80px",
     fontFamily: "'Kanit', sans-serif",
     position: "relative",
-    overflow: "hidden",
   },
   container: {
     maxWidth: "1200px",
@@ -629,74 +618,43 @@ const styles = {
     position: "relative",
     zIndex: 2,
   },
-  header: { marginBottom: "40px" },
-  titleMain: {
-    fontSize: "32px",
-    fontWeight: "900",
-    color: "var(--brand-600)",
-    margin: 0,
-    display: "flex",
-    alignItems: "center",
-  },
-  headerEmoji: {
-    fontSize: "65px",
-    filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.15))",
-  },
-  subtitleMain: {
-    color: "var(--slate-400)",
-    marginTop: "10px",
-    fontSize: "16px",
-    fontWeight: "500",
-  },
   tableCard: {
     backgroundColor: "var(--color-white)",
-    borderRadius: "var(--radius-xl)",
-    padding: "35px 40px",
+    borderRadius: "var(--radius-lg)",
+    padding: "28px 32px",
     boxShadow: "var(--shadow-card)",
-    borderTop: "8px solid var(--brand-600)",
-    animation: "slideUp 0.3s ease-out forwards",
+    border: "1px solid var(--slate-200)",
   },
   tableHeaderContainer: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "25px",
-    borderBottom: "2px solid var(--brand-200)",
-    paddingBottom: "20px",
+    marginBottom: "16px",
+    borderBottom: "1px solid var(--slate-100)",
+    paddingBottom: "14px",
   },
   cardTitle: {
-    fontSize: "22px",
-    fontWeight: "800",
+    fontSize: "16px",
+    fontWeight: "700",
     color: "var(--slate-900)",
     margin: 0,
     display: "flex",
     alignItems: "center",
   },
-  badgeCount: {
-    backgroundColor: "var(--brand-50)",
-    color: "var(--brand-600)",
-    fontSize: "14px",
-    fontWeight: "700",
-    padding: "6px 16px",
-    borderRadius: "50rem",
-    marginLeft: "15px",
-    border: "1px solid var(--brand-200)",
-  },
-  table: { width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" },
+  table: { width: "100%", borderCollapse: "collapse" },
   th: {
-    backgroundColor: "var(--brand-50)",
-    padding: "16px",
+    backgroundColor: "var(--slate-50)",
+    padding: "12px 14px",
     textAlign: "left",
-    fontWeight: "700",
-    color: "var(--brand-700)",
-    fontSize: "15px",
+    fontWeight: "600",
+    color: "var(--slate-500)",
+    fontSize: "13px",
     whiteSpace: "nowrap",
-    borderTop: "none",
-    borderBottom: "none",
+    borderBottom: "1px solid var(--slate-200)",
   },
-  tableRow: { transition: "all 0.2s ease", backgroundColor: "var(--color-white)" },
+  tableRow: { transition: "background-color 0.2s ease" },
   td: {
-    padding: "18px 16px",
+    padding: "14px",
     color: "var(--slate-600)",
     fontSize: "14px",
     fontWeight: "500",
@@ -704,59 +662,75 @@ const styles = {
     borderBottom: "1px solid var(--slate-100)",
   },
   tdName: {
-    padding: "18px 16px",
-    color: "var(--slate-900)",
-    fontSize: "15px",
+    padding: "14px",
+    color: "var(--blue-700)",
+    fontSize: "14px",
     fontWeight: "700",
     verticalAlign: "middle",
     borderBottom: "1px solid var(--slate-100)",
   },
-  btnInfo: {
-    background: "var(--slate-50)",
-    color: "var(--brand-600)",
-    border: "1px solid var(--brand-200)",
-    padding: "10px 16px",
-    minHeight: "40px",
-    borderRadius: "var(--radius-md)",
+  statusPaid: {
+    backgroundColor: "var(--green-100)",
+    color: "var(--green-700)",
+    padding: "3px 12px",
+    borderRadius: "var(--radius-pill)",
+    fontSize: "12px",
     fontWeight: "700",
+    display: "inline-block",
+  },
+  statusPending: {
+    backgroundColor: "var(--slate-100)",
+    color: "var(--slate-500)",
+    padding: "3px 12px",
+    borderRadius: "var(--radius-pill)",
+    fontSize: "12px",
+    fontWeight: "700",
+    display: "inline-block",
+  },
+  btnInfo: {
+    background: "var(--color-white)",
+    color: "var(--slate-600)",
+    border: "1px solid var(--slate-200)",
+    padding: "6px 12px",
+    minHeight: "34px",
+    borderRadius: "var(--radius-sm)",
+    fontWeight: "600",
     cursor: "pointer",
     fontSize: "13px",
     transition: "all 0.2s",
     whiteSpace: "nowrap",
   },
   btnSuccess: {
-    background: "var(--emerald-500)",
-    color: "white",
-    border: "none",
-    padding: "10px 16px",
-    minHeight: "40px",
-    borderRadius: "var(--radius-md)",
-    fontWeight: "700",
+    background: "var(--emerald-50, #ecfdf5)",
+    color: "var(--emerald-700)",
+    border: "1px solid var(--emerald-200, #a7f3d0)",
+    padding: "6px 12px",
+    minHeight: "34px",
+    borderRadius: "var(--radius-sm)",
+    fontWeight: "600",
     cursor: "pointer",
     fontSize: "13px",
     transition: "all 0.2s",
     whiteSpace: "nowrap",
-    boxShadow: "0 4px 6px rgba(16, 185, 129, 0.2)",
   },
   btnDisabled: {
-    background: "var(--slate-200)",
+    background: "var(--slate-100)",
     color: "var(--slate-400)",
-    border: "none",
-    padding: "10px 16px",
-    minHeight: "40px",
-    borderRadius: "var(--radius-md)",
-    fontWeight: "700",
+    border: "1px solid var(--slate-200)",
+    padding: "6px 12px",
+    minHeight: "34px",
+    borderRadius: "var(--radius-sm)",
+    fontWeight: "600",
     cursor: "not-allowed",
     fontSize: "13px",
     whiteSpace: "nowrap",
-    boxShadow: "none",
   },
   emptyState: {
     textAlign: "center",
     color: "var(--slate-400)",
-    padding: "80px 20px",
+    padding: "60px 20px",
     fontWeight: "600",
-    fontSize: "18px",
+    fontSize: "16px",
   },
 };
 

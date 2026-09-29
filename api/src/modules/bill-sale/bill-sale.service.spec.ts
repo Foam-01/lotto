@@ -102,7 +102,19 @@ describe('BillSaleService', () => {
             },
           },
         },
-        include: { lotto: true, billSale: true },
+        select: {
+          price: true,
+          lotto: { select: { bookNumber: true } },
+          billSale: {
+            select: {
+              payDate: true,
+              payTime: true,
+              customerName: true,
+              customerPhone: true,
+              customerAddress: true,
+            },
+          },
+        },
       });
       expect(result).toEqual({ results: [{ id: 1 }] });
     });

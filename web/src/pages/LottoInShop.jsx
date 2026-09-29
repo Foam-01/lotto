@@ -4,12 +4,19 @@ import Swal from "sweetalert2";
 import BillSaleService from "../services/bill-sale.service";
 import MyModal from "../components/MyModal";
 import { formatDate, formatTime } from "../utils/format";
+import { PageHeader } from "../components/shared/PageHeader";
+import {
+  FilterBar,
+  FilterBarSearch,
+  FilterBarClear,
+} from "../components/shared/FilterBar";
 
 function LottoInShop() {
   const [billSales, setBillSales] = useState([]);
   const [billSale, setBillSale] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -40,82 +47,44 @@ function LottoInShop() {
     setBillSale(item);
   };
 
+  // 🌟 ค้นหาฝั่ง client จากรายการที่โหลดมาแล้ว (ไม่ยิง API เพิ่ม)
+  const filteredBillSales = (billSales || []).filter((item) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    const haystack = [item.customerName, item.customerPhone]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+
   return (
     <>
       <Home>
         <div style={styles.page}>
-          {/* 🌟 พื้นหลังแฉกและลายจุด 🌟 */}
-          <div className="sunburst-bg"></div>
-          <div className="bg-pattern"></div>
-
-          {/* 🌟 ไอคอนลอยตกแต่ง 🌟 */}
-          {[
-            { emoji: "🏠", top: "15%", left: "5%", size: "60px", delay: "0s" },
-            { emoji: "🐾", top: "45%", right: "6%", size: "80px", delay: "1s" },
-            { emoji: "📦", top: "75%", left: "8%", size: "55px", delay: "2s" },
-            {
-              emoji: "🐈",
-              top: "25%",
-              right: "15%",
-              size: "50px",
-              delay: "1.5s",
-            },
-          ].map((icon, index) => (
-            <div
-              key={index}
-              className="floating-icon"
-              aria-hidden="true"
-              style={{
-                top: icon.top,
-                left: icon.left,
-                right: icon.right,
-                fontSize: icon.size,
-                animationDelay: icon.delay,
-                position: "absolute",
-                zIndex: 0,
-                opacity: 0.15,
-              }}
-            >
-              {icon.emoji}
-            </div>
-          ))}
-
-          <style>{`
-            @media (max-width: 480px) {
-              .lottoinshop-header-emoji {
-                font-size: 38px !important;
-              }
-            }
-          `}</style>
-
           <div className="container" style={styles.container}>
-            {/* 🌟 ส่วนหัว 🌟 */}
-            <div style={styles.header}>
-              <div>
-                <h2 style={{ ...styles.titleMain, flexWrap: "wrap" }}>
-                  <span
-                    className="me-3 lottoinshop-header-emoji"
-                    style={styles.headerEmoji}
-                  >
-                    🏪
-                  </span>
-                  รายการที่ฝากร้าน
-                </h2>
-                <p style={styles.subtitleMain}>
-                  ตรวจสอบรายการสลากที่ลูกค้าชำระเงินแล้วและต้องการฝากไว้ที่แผง
-                </p>
-              </div>
-            </div>
+            <PageHeader
+              eyebrow="งานขาย"
+              title="รายการที่ฝากร้าน"
+              description="ตรวจสอบรายการสลากที่ลูกค้าชำระเงินแล้วและต้องการฝากไว้ที่แผง"
+              count={`${filteredBillSales.length} รายการ`}
+            />
 
-            {/* 🌟 การ์ดตาราง 🌟 */}
+            <FilterBar>
+              <FilterBarSearch
+                value={searchTerm}
+                onChange={setSearchTerm}
+                placeholder="ค้นหาชื่อลูกค้า, เบอร์โทร..."
+              />
+              <FilterBarClear
+                show={!!searchTerm}
+                onClick={() => setSearchTerm("")}
+              />
+            </FilterBar>
+
             <div style={styles.tableCard}>
               <div style={styles.tableHeaderContainer}>
-                <h4 style={styles.cardTitle}>
-                  บิลฝากร้านทั้งหมด
-                  <span style={styles.badgeCount}>
-                    {billSales?.length || 0} รายการ
-                  </span>
-                </h4>
+                <h4 style={styles.cardTitle}>บิลฝากร้านทั้งหมด</h4>
               </div>
 
               {loadError && !isLoading && (
@@ -181,32 +150,19 @@ function LottoInShop() {
                           กำลังโหลดข้อมูล...
                         </td>
                       </tr>
-                    ) : billSales?.length > 0 ? (
-                      billSales.map((item) => (
+                    ) : filteredBillSales.length > 0 ? (
+                      filteredBillSales.map((item) => (
                         <tr key={item.id} style={styles.tableRow}>
-                          <td style={styles.td}>
-                            <span className="fw-bold text-orange">
-                              #{item.id}
-                            </span>
-                          </td>
-                          <td style={styles.tdName}>
-                            <i className="bi bi-person-circle text-muted me-2"></i>
-                            {item.customerName}
-                          </td>
+                          <td style={styles.tdName}>#{item.id}</td>
+                          <td style={styles.td}>{item.customerName}</td>
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             {item.customerPhone || "-"}
                           </td>
                           <td style={{ ...styles.td, textAlign: "center" }}>
-                            <div style={styles.dateBadge}>
-                              <i className="bi bi-calendar-check text-success me-1"></i>
-                              {formatDate(item.payDate)}
-                            </div>
+                            {formatDate(item.payDate)}
                           </td>
                           <td style={{ ...styles.td, textAlign: "center" }}>
-                            <div style={styles.timeBadge}>
-                              <i className="bi bi-clock text-primary me-1"></i>
-                              {formatTime(item.payTime)}
-                            </div>
+                            {formatTime(item.payTime)}
                           </td>
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             <button
@@ -215,7 +171,7 @@ function LottoInShop() {
                               style={styles.btnInfo}
                               onClick={(e) => handleInfo(item)}
                             >
-                              <i className="bi bi-search me-1"></i> ดูเลขสลาก
+                              ดูเลขสลาก
                             </button>
                           </td>
                         </tr>
@@ -228,7 +184,9 @@ function LottoInShop() {
                           >
                             📭
                           </div>
-                          ยังไม่มีรายการสลากฝากร้านในตอนนี้...
+                          {searchTerm
+                            ? `ไม่พบรายการที่ตรงกับ "${searchTerm}"`
+                            : "ยังไม่มีรายการสลากฝากร้านในตอนนี้..."}
                         </td>
                       </tr>
                     )}
@@ -251,9 +209,9 @@ function LottoInShop() {
           <div
             className="p-4 mb-4"
             style={{
-              backgroundColor: "#fffcf0", // สีครีมละมุน
+              backgroundColor: "var(--slate-50)",
               borderRadius: "var(--radius-lg)",
-              border: "2px dashed var(--brand-200)", // เส้นประสีส้มอ่อน
+              border: "1px solid var(--slate-200)",
               position: "relative",
             }}
           >
@@ -398,7 +356,7 @@ function LottoInShop() {
                 backgroundColor: "var(--brand-600)", // สีส้มเข้ม brand
                 color: "white",
                 borderRadius: "var(--radius-md)",
-                boxShadow: "0 4px 6px rgba(234, 88, 12, 0.2)",
+                boxShadow: "0 4px 6px rgba(37, 99, 235, 0.2)",
               }}
             >
               <span className="fw-bold fs-6">ยอดชำระรวมทั้งสิ้น</span>
@@ -419,13 +377,12 @@ function LottoInShop() {
 // 🟠 CSS ความสวยงามธีม แผงแมวส้ม
 const styles = {
   page: {
-    backgroundColor: "var(--amber-50)",
+    backgroundColor: "var(--slate-50)",
     minHeight: "100vh",
     paddingTop: "40px",
     paddingBottom: "80px",
     fontFamily: "'Kanit', sans-serif",
     position: "relative",
-    overflow: "hidden",
   },
   container: {
     maxWidth: "1200px",
@@ -433,74 +390,43 @@ const styles = {
     position: "relative",
     zIndex: 2,
   },
-  header: { marginBottom: "40px" },
-  titleMain: {
-    fontSize: "32px",
-    fontWeight: "900",
-    color: "var(--brand-600)",
-    margin: 0,
-    display: "flex",
-    alignItems: "center",
-  },
-  headerEmoji: {
-    fontSize: "65px",
-    filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.15))",
-  },
-  subtitleMain: {
-    color: "var(--slate-400)",
-    marginTop: "10px",
-    fontSize: "16px",
-    fontWeight: "500",
-  },
   tableCard: {
     backgroundColor: "var(--color-white)",
-    borderRadius: "var(--radius-xl)",
-    padding: "35px 40px",
+    borderRadius: "var(--radius-lg)",
+    padding: "28px 32px",
     boxShadow: "var(--shadow-card)",
-    borderTop: "8px solid var(--brand-600)",
-    animation: "slideUp 0.3s ease-out forwards",
+    border: "1px solid var(--slate-200)",
   },
   tableHeaderContainer: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "25px",
-    borderBottom: "2px solid var(--brand-200)",
-    paddingBottom: "20px",
+    marginBottom: "16px",
+    borderBottom: "1px solid var(--slate-100)",
+    paddingBottom: "14px",
   },
   cardTitle: {
-    fontSize: "22px",
-    fontWeight: "800",
+    fontSize: "16px",
+    fontWeight: "700",
     color: "var(--slate-900)",
     margin: 0,
     display: "flex",
     alignItems: "center",
   },
-  badgeCount: {
-    backgroundColor: "var(--brand-50)",
-    color: "var(--brand-600)",
-    fontSize: "14px",
-    fontWeight: "700",
-    padding: "6px 16px",
-    borderRadius: "50rem",
-    marginLeft: "15px",
-    border: "1px solid var(--brand-200)",
-  },
-  table: { width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" },
+  table: { width: "100%", borderCollapse: "collapse" },
   th: {
-    backgroundColor: "var(--brand-50)",
-    padding: "16px",
+    backgroundColor: "var(--slate-50)",
+    padding: "12px 14px",
     textAlign: "left",
-    fontWeight: "700",
-    color: "var(--brand-700)",
-    fontSize: "15px",
+    fontWeight: "600",
+    color: "var(--slate-500)",
+    fontSize: "13px",
     whiteSpace: "nowrap",
-    borderTop: "none",
-    borderBottom: "none",
+    borderBottom: "1px solid var(--slate-200)",
   },
-  tableRow: { transition: "all 0.2s ease", backgroundColor: "var(--color-white)" },
+  tableRow: { transition: "background-color 0.2s ease" },
   td: {
-    padding: "18px 16px",
+    padding: "14px",
     color: "var(--slate-600)",
     fontSize: "14px",
     fontWeight: "500",
@@ -508,39 +434,21 @@ const styles = {
     borderBottom: "1px solid var(--slate-100)",
   },
   tdName: {
-    padding: "18px 16px",
-    color: "var(--slate-900)",
-    fontSize: "15px",
+    padding: "14px",
+    color: "var(--blue-700)",
+    fontSize: "14px",
     fontWeight: "700",
     verticalAlign: "middle",
     borderBottom: "1px solid var(--slate-100)",
   },
-  dateBadge: {
-    display: "inline-block",
-    backgroundColor: "var(--green-100)",
-    padding: "6px 12px",
-    borderRadius: "var(--radius-md)",
-    fontSize: "13px",
-    color: "var(--green-700)",
-    fontWeight: "700",
-  },
-  timeBadge: {
-    display: "inline-block",
-    backgroundColor: "var(--blue-50)",
-    padding: "6px 12px",
-    borderRadius: "var(--radius-md)",
-    fontSize: "13px",
-    color: "var(--blue-700)",
-    fontWeight: "700",
-  },
   btnInfo: {
-    background: "var(--slate-50)",
-    color: "var(--brand-600)",
-    border: "1px solid var(--brand-200)",
-    padding: "10px 16px",
-    minHeight: "40px",
-    borderRadius: "50rem",
-    fontWeight: "700",
+    background: "var(--color-white)",
+    color: "var(--slate-600)",
+    border: "1px solid var(--slate-200)",
+    padding: "6px 12px",
+    minHeight: "34px",
+    borderRadius: "var(--radius-sm)",
+    fontWeight: "600",
     cursor: "pointer",
     fontSize: "13px",
     transition: "all 0.2s",
@@ -549,9 +457,9 @@ const styles = {
   emptyState: {
     textAlign: "center",
     color: "var(--slate-400)",
-    padding: "80px 20px",
+    padding: "60px 20px",
     fontWeight: "600",
-    fontSize: "18px",
+    fontSize: "16px",
   },
 };
 

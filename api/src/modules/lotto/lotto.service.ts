@@ -163,8 +163,20 @@ export class LottoService {
 
   async getBillSale() {
     try {
+      // 🌟 select เฉพาะฟิลด์ที่หน้า BillSale ใช้จริง แทน include ทั้งก้อน
       const res = await this.prisma.billSale.findMany({
-        include: { billSaleDetail: { include: { lotto: true } } },
+        select: {
+          id: true,
+          createdDate: true,
+          customerName: true,
+          customerPhone: true,
+          customerAddress: true,
+          payDate: true,
+          payTime: true,
+          billSaleDetail: {
+            select: { price: true, lotto: { select: { numbers: true } } },
+          },
+        },
         orderBy: { id: 'desc' },
       });
       return { result: res };
@@ -236,7 +248,17 @@ export class LottoService {
           OR: [{ customerAddress: '' }, { customerAddress: null }],
         },
         orderBy: { id: 'desc' },
-        include: { billSaleDetail: { include: { lotto: true } } },
+        // 🌟 select เฉพาะฟิลด์ที่หน้า LottoInShop ใช้จริง แทน include ทั้งก้อน
+        select: {
+          id: true,
+          customerName: true,
+          customerPhone: true,
+          payDate: true,
+          payTime: true,
+          billSaleDetail: {
+            select: { price: true, lotto: { select: { numbers: true } } },
+          },
+        },
       });
       return { results };
     } catch (e) {
@@ -250,9 +272,16 @@ export class LottoService {
       const results = await this.prisma.billSale.findMany({
         where: { payDate: { not: null }, customerAddress: { not: '' } },
         orderBy: { id: 'desc' },
-        include: {
-          billSaleDetail: { include: { lotto: true } },
-          billSaleForSends: true,
+        // 🌟 select เฉพาะฟิลด์ที่หน้า LottoForSend ใช้จริง แทน include ทั้งก้อน
+        select: {
+          id: true,
+          customerName: true,
+          customerPhone: true,
+          customerAddress: true,
+          billSaleDetail: {
+            select: { price: true, lotto: { select: { numbers: true } } },
+          },
+          billSaleForSends: { select: { sendDate: true, price: true } },
         },
       });
       return { results };
@@ -329,8 +358,12 @@ export class LottoService {
         orderBy: {
           id: 'desc',
         },
-        include: {
-          BonusResultDetail: true,
+        // 🌟 select เฉพาะฟิลด์ที่หน้า LottoIsBonus ใช้จริง แทน include ทั้งก้อน
+        select: {
+          id: true,
+          BonusResultDetail: {
+            select: { number: true, price: true, bonusDate: true },
+          },
         },
       });
       return { results: res };

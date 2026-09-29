@@ -27,25 +27,28 @@ function createPrismaMock() {
   } as any;
 }
 
-// ผลรางวัลจำลองตามรูปแบบจริงของ data.prizes (6 กลุ่ม) และ data.runningNumbers (3 กลุ่ม)
-function fakeLatestDraw(date = '16 เมษายน 2569') {
+// ผลรางวัลจำลองตามรูปแบบจริงของ GLO (www.glo.or.th/api/lottery/getLatestLottery)
+function fakeLatestDraw(isoDate = '2026-04-16') {
+  const group = (price: string, values: string[]) => ({
+    price,
+    number: values.map((value, i) => ({ round: i + 1, value })),
+  });
+
   return {
     data: {
       response: {
-        date,
-        prizes: [
-          { id: 'prizeFirst', reward: '6000000', number: ['123456'] },
-          { id: 'prizeFirstNear', reward: '100000', number: ['123455', '123457'] },
-          { id: 'prizeSecond', reward: '200000', number: ['111111', '222222'] },
-          { id: 'prizeThird', reward: '80000', number: ['333333', '444444'] },
-          { id: 'prizeForth', reward: '40000', number: ['555555', '666666'] },
-          { id: 'prizeFifth', reward: '20000', number: ['777777', '888888'] },
-        ],
-        runningNumbers: [
-          { id: 'runningNumberFrontThree', reward: '4000', number: ['123', '456'] },
-          { id: 'runningNumberBackThree', reward: '4000', number: ['789', '012'] },
-          { id: 'runningNumberBackTwo', reward: '2000', number: ['34'] },
-        ],
+        date: isoDate,
+        data: {
+          first: group('6000000', ['123456']),
+          second: group('200000', ['111111', '222222']),
+          third: group('80000', ['333333', '444444']),
+          fourth: group('40000', ['555555', '666666']),
+          fifth: group('20000', ['777777', '888888']),
+          near1: group('100000', ['123455', '123457']),
+          last2: group('2000', ['34']),
+          last3f: group('4000', ['123', '456']),
+          last3b: group('4000', ['789', '012']),
+        },
       },
     },
   };
@@ -63,7 +66,7 @@ describe('BonusService', () => {
 
   describe('getBonus', () => {
     it('does not re-insert when the round is already stored (dedup / no-op case)', async () => {
-      mockedAxios.get.mockResolvedValue(fakeLatestDraw());
+      mockedAxios.post.mockResolvedValue(fakeLatestDraw());
       prisma.bonusResultDetail.findMany.mockResolvedValue([{ id: 1 }]);
 
       const result = await service.getBonus();
@@ -74,14 +77,14 @@ describe('BonusService', () => {
     });
 
     it('flattens prizes + running numbers into rows and stores them (happy path)', async () => {
-      mockedAxios.get.mockResolvedValue(fakeLatestDraw());
+      mockedAxios.post.mockResolvedValue(fakeLatestDraw());
       prisma.bonusResultDetail.findMany.mockResolvedValue([]);
 
       const result = await service.getBonus();
 
       expect(prisma.bonusResultDetail.createMany).toHaveBeenCalledTimes(1);
       const inserted = prisma.bonusResultDetail.createMany.mock.calls[0][0].data;
-      expect(inserted).toHaveLength(16); // 1+2+2+2+2+2 (prizes) + 2+2+1 (running)
+      expect(inserted).toHaveLength(16); // 1+2+2+2+2+2 (prizes+near1) + 1+2+2 (last2/last3f/last3b)
       expect(inserted).toContainEqual({
         number: '123456',
         price: 6000000,
@@ -101,7 +104,7 @@ describe('BonusService', () => {
     });
 
     it('wraps a network/API failure as InternalServerErrorException (timeout/error case)', async () => {
-      mockedAxios.get.mockRejectedValue(new Error('timeout of 5000ms exceeded'));
+      mockedAxios.post.mockRejectedValue(new Error('timeout of 5000ms exceeded'));
 
       await expect(service.getBonus()).rejects.toThrow(
         InternalServerErrorException,
@@ -109,7 +112,7 @@ describe('BonusService', () => {
     });
 
     it('wraps an unexpected/malformed upstream payload as InternalServerErrorException (error case)', async () => {
-      mockedAxios.get.mockResolvedValue({ data: { response: { date: 'x' } } }); // no prizes/runningNumbers
+      mockedAxios.post.mockResolvedValue({ data: { response: { date: 'x' } } }); // no data field
       prisma.bonusResultDetail.findMany.mockResolvedValue([]);
 
       await expect(service.getBonus()).rejects.toThrow(

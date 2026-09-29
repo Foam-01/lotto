@@ -2,6 +2,8 @@ import Home from "./Home";
 import { useEffect, useState, useRef } from "react";
 import Swal from "sweetalert2";
 import LottoService from "../services/lotto.service";
+import { PageHeader } from "../components/shared/PageHeader";
+import { FilterBar, FilterBarSearch } from "../components/shared/FilterBar";
 
 const Toast = Swal.mixin({
   toast: true,
@@ -30,7 +32,7 @@ function Lotto() {
   const myRef = useRef();
 
   useEffect(() => {
-    myRef.current.focus();
+    myRef.current?.focus();
     fetchData();
   }, []);
 
@@ -101,8 +103,8 @@ function Lotto() {
           showConfirmButton: false,
         });
 
-        myRef.current.focus();
-        myRef.current.select();
+        myRef.current?.focus();
+        myRef.current?.select();
         setNumber("");
         setRoundNumber("");
         setBookNumber("");
@@ -184,46 +186,6 @@ function Lotto() {
   return (
     <Home>
       <div style={styles.page}>
-        <div className="sunburst-bg"></div>
-        <div className="bg-pattern"></div>
-
-        {/* 🌟 Animated Floating Icons 🌟 */}
-        {[
-          { emoji: "💰", top: "15%", left: "5%", size: "80px", delay: "0s" },
-          { emoji: "🐾", top: "45%", right: "6%", size: "100px", delay: "1s" },
-          { emoji: "✨", top: "75%", left: "8%", size: "60px", delay: "2s" },
-          {
-            emoji: "🍀",
-            top: "85%",
-            right: "12%",
-            size: "70px",
-            delay: "0.5s",
-          },
-          { emoji: "🐈", top: "30%", left: "20%", size: "50px", delay: "1.5s" },
-          {
-            emoji: "🐾",
-            top: "60%",
-            right: "25%",
-            size: "40px",
-            delay: "2.5s",
-          },
-        ].map((icon, index) => (
-          <div
-            key={index}
-            className="floating-icon"
-            aria-hidden="true"
-            style={{
-              top: icon.top,
-              left: icon.left,
-              right: icon.right,
-              fontSize: icon.size,
-              animationDelay: icon.delay,
-            }}
-          >
-            {icon.emoji}
-          </div>
-        ))}
-
         {/* 🌟 Narrow-screen responsive overrides (accessibility/responsive pass) */}
         <style>{`
           @media (max-width: 576px) {
@@ -232,9 +194,6 @@ function Lotto() {
             }
           }
           @media (max-width: 480px) {
-            .lotto-header-emoji {
-              font-size: 40px !important;
-            }
             .lotto-big-input {
               font-size: 26px !important;
               letter-spacing: 6px !important;
@@ -244,32 +203,20 @@ function Lotto() {
         `}</style>
 
         <div className="container" style={styles.container}>
-          {/* --- Header Section --- */}
-          <div style={styles.header}>
-            <div>
-              <h2 style={{ ...styles.titleMain, flexWrap: "wrap" }}>
-                <span
-                  className="me-3 lotto-header-emoji"
-                  style={styles.headerEmoji}
-                >
-                  🐈
-                </span>
-                จัดการสต๊อกสลาก
-              </h2>
-              <p style={styles.subtitleMain}>
-                เพิ่ม ลบ แก้ไข และจัดการสต๊อกสลากกินแบ่งบนแผงแมวส้มของคุณ
-              </p>
-            </div>
-          </div>
+          {/* --- Header Section (มาตรฐาน PageHeader) --- */}
+          <PageHeader
+            icon="bi-ticket-detailed-fill"
+            eyebrow="จัดการสลาก"
+            title="จัดการสต๊อกสลาก"
+            description="เพิ่ม ลบ แก้ไข และจัดการสต๊อกสลากกินแบ่งบนแผงแมวส้มของคุณ"
+          />
 
           {/* --- Form Section --- */}
           <div style={styles.premiumCard}>
             <div style={styles.cardHeader}>
               <h3 style={styles.cardTitle}>
-                <span className="icon-paw me-2">🐾</span>{" "}
                 {id === 0 ? "เพิ่มสลากใบใหม่" : "แก้ไขข้อมูลสลาก"}
               </h3>
-              <span style={styles.badge}>LOTTO STOCK</span>
             </div>
 
             <div style={{ marginTop: "25px" }}>
@@ -395,53 +342,24 @@ function Lotto() {
             </div>
           </div>
 
+          {/* --- แถบค้นหา (มาตรฐาน FilterBar) --- */}
+          <FilterBar>
+            <FilterBarSearch
+              value={searchTerm}
+              onChange={(v) => setSearchTerm(v.replace(/\D/g, ""))}
+              placeholder="ค้นหาด้วยเลขสลาก..."
+              ariaLabel="ค้นหาด้วยเลขสลาก"
+            />
+          </FilterBar>
+
           {/* --- Table Section --- */}
           <div style={styles.tableCard}>
             {/* 🌟 ยอดรวมทั้งหมด */}
-            <div style={styles.tableHeaderContainer}>
+            <div style={{ ...styles.tableHeaderContainer, justifyContent: "flex-start" }}>
               <h3 style={styles.cardTitle}>
-                📋 สลากทั้งหมดบนแผง
-                <span
-                  style={{
-                    backgroundColor: "var(--brand-50)",
-                    color: "var(--brand-600)",
-                    fontSize: "15px",
-                    fontWeight: "bold",
-                    padding: "4px 12px",
-                    borderRadius: "var(--radius-xl)",
-                    marginLeft: "12px",
-                    border: "1px solid var(--brand-200)",
-                  }}
-                >
-                  {lottos.length} ใบ
-                </span>
+                สลากทั้งหมดบนแผง
+                <span style={styles.countPill}>{lottos.length} ใบ</span>
               </h3>
-
-              {/* 🌟 ช่องค้นหาเลขสลาก */}
-              <div style={styles.searchBox}>
-                <i className="bi bi-search" style={styles.searchIcon}></i>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  aria-label="ค้นหาด้วยเลขสลาก"
-                  placeholder="ค้นหาด้วยเลขสลาก..."
-                  value={searchTerm}
-                  onChange={(e) =>
-                    setSearchTerm(e.target.value.replace(/\D/g, ""))
-                  }
-                  style={styles.searchInput}
-                />
-                {searchTerm && (
-                  <button
-                    style={styles.searchClearBtn}
-                    onClick={() => setSearchTerm("")}
-                    title="ล้างการค้นหา"
-                    aria-label="ล้างคำค้นหา"
-                  >
-                    <i className="bi bi-x-circle-fill"></i>
-                  </button>
-                )}
-              </div>
             </div>
 
             {/* 🌟 Split Table Section 🌟 */}
@@ -449,20 +367,13 @@ function Lotto() {
               {/* 🟢 ฝั่งซ้าย: ตาราง "พร้อมขาย" */}
               <div style={styles.halfTableCard}>
                 <div style={{ marginBottom: "15px" }}>
-                  <h4
-                    style={{
-                      ...styles.cardTitle,
-                      color: "var(--green-600)",
-                      fontSize: "18px",
-                    }}
-                  >
-                    <i className="bi bi-stars me-2"></i> พร้อมขาย
+                  <h4 style={{ ...styles.cardTitle, fontSize: "16px" }}>
+                    พร้อมขาย
                     <span
                       style={{
-                        ...styles.badge,
+                        ...styles.statusPill,
                         backgroundColor: "var(--green-100)",
-                        color: "var(--green-600)",
-                        borderColor: "var(--green-200)",
+                        color: "var(--green-700)",
                         marginLeft: "10px",
                       }}
                     >
@@ -557,20 +468,13 @@ function Lotto() {
               {/* 🔴 ฝั่งขวา: ตาราง "ขายแล้ว" */}
               <div style={styles.halfTableCard}>
                 <div style={{ marginBottom: "15px" }}>
-                  <h4
-                    style={{
-                      ...styles.cardTitle,
-                      color: "var(--red-500)",
-                      fontSize: "18px",
-                    }}
-                  >
-                    <i className="bi bi-check-circle-fill me-2"></i> ขายแล้ว
+                  <h4 style={{ ...styles.cardTitle, fontSize: "16px" }}>
+                    ขายแล้ว
                     <span
                       style={{
-                        ...styles.badge,
-                        backgroundColor: "var(--red-100)",
-                        color: "var(--red-500)",
-                        borderColor: "var(--red-200)",
+                        ...styles.statusPill,
+                        backgroundColor: "var(--slate-100)",
+                        color: "var(--slate-600)",
                         marginLeft: "10px",
                       }}
                     >
@@ -664,13 +568,12 @@ function Lotto() {
 // 🟠 CSS ความสวยงามธีม แผงแมวส้ม
 const styles = {
   page: {
-    backgroundColor: "var(--amber-50)",
+    backgroundColor: "var(--slate-50)",
     minHeight: "100vh",
     paddingTop: "40px",
     paddingBottom: "80px",
     fontFamily: "'Kanit', sans-serif",
     position: "relative",
-    overflow: "hidden",
   },
   container: {
     maxWidth: "1200px", // 🌟 ขยายเพื่อให้แสดง 2 ตารางได้ไม่อึดอัด
@@ -678,40 +581,20 @@ const styles = {
     position: "relative",
     zIndex: 2,
   },
-  header: { marginBottom: "40px" },
-  titleMain: {
-    fontSize: "32px",
-    fontWeight: "900",
-    color: "var(--brand-600)",
-    margin: 0,
-    display: "flex",
-    alignItems: "center",
-  },
-  headerEmoji: {
-    fontSize: "70px",
-    filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.1))",
-  },
-  subtitleMain: {
-    color: "var(--slate-400)",
-    marginTop: "10px",
-    fontSize: "16px",
-    fontWeight: "500",
-  },
   premiumCard: {
     backgroundColor: "var(--color-white)",
-    borderRadius: "var(--radius-xl)",
-    padding: "35px 40px",
+    borderRadius: "var(--radius-lg)",
+    padding: "28px 32px",
     boxShadow: "var(--shadow-card)",
-    borderTop: "10px solid var(--brand-600)",
-    marginBottom: "35px",
-    animation: "slideUp 0.3s ease-out forwards",
+    border: "1px solid var(--slate-200)",
+    marginBottom: "24px",
   },
   cardHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    borderBottom: "2px solid var(--brand-200)",
-    paddingBottom: "20px",
+    borderBottom: "1px solid var(--slate-100)",
+    paddingBottom: "16px",
   },
   cardTitle: {
     fontSize: "22px",
@@ -722,14 +605,30 @@ const styles = {
     alignItems: "center",
   },
   badge: {
-    backgroundColor: "var(--brand-50)",
-    color: "var(--brand-800)",
-    padding: "8px 18px",
+    backgroundColor: "var(--blue-50)",
+    color: "var(--blue-700)",
+    padding: "6px 16px",
     borderRadius: "var(--radius-pill)",
     fontSize: "13px",
-    fontWeight: "bold",
-    letterSpacing: "1px",
-    border: "1px solid var(--brand-100)",
+    fontWeight: "700",
+    border: "1px solid var(--blue-100, var(--blue-50))",
+  },
+  countPill: {
+    backgroundColor: "var(--blue-50)",
+    color: "var(--blue-700)",
+    fontSize: "13px",
+    fontWeight: "700",
+    padding: "3px 12px",
+    borderRadius: "var(--radius-pill)",
+    marginLeft: "10px",
+    display: "inline-block",
+  },
+  statusPill: {
+    fontSize: "12px",
+    fontWeight: "700",
+    padding: "3px 10px",
+    borderRadius: "var(--radius-pill)",
+    display: "inline-block",
   },
   label: {
     display: "block",
@@ -778,9 +677,9 @@ const styles = {
     boxSizing: "border-box",
   },
   footerAction: {
-    marginTop: "35px",
-    paddingTop: "25px",
-    borderTop: "2px dashed var(--slate-200)",
+    marginTop: "28px",
+    paddingTop: "20px",
+    borderTop: "1px solid var(--slate-100)",
   },
   btnSave: {
     width: "100%",
@@ -817,9 +716,10 @@ const styles = {
   },
   tableCard: {
     backgroundColor: "var(--color-white)",
-    borderRadius: "var(--radius-xl)",
-    padding: "35px 40px",
+    borderRadius: "var(--radius-lg)",
+    padding: "28px 32px",
     boxShadow: "var(--shadow-card)",
+    border: "1px solid var(--slate-200)",
   },
   tableHeaderContainer: {
     display: "flex",
@@ -827,89 +727,53 @@ const styles = {
     gap: "15px",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "20px",
-    paddingBottom: "15px",
-    borderBottom: "2px solid var(--brand-200)", // 🌟 เส้นคั่นหัวข้อหลัก
-  },
-  searchBox: {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    minWidth: "220px",
-  },
-  searchIcon: {
-    position: "absolute",
-    left: "14px",
-    color: "var(--slate-400)",
-    fontSize: "14px",
-  },
-  searchInput: {
-    width: "100%",
-    padding: "10px 40px 10px 36px",
-    borderRadius: "var(--radius-pill)",
-    border: "1.5px solid var(--brand-200)",
-    backgroundColor: "var(--brand-50)",
-    fontSize: "14px",
-    outline: "none",
-    fontFamily: "'Kanit', sans-serif",
-  },
-  searchClearBtn: {
-    position: "absolute",
-    right: "4px",
-    background: "none",
-    border: "none",
-    color: "var(--slate-400)",
-    cursor: "pointer",
-    fontSize: "15px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: "36px",
-    minHeight: "36px",
+    marginBottom: "16px",
+    paddingBottom: "14px",
+    borderBottom: "1px solid var(--slate-100)",
   },
   splitTableLayout: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-    gap: "30px", // 🌟 ช่องไฟระหว่างตารางซ้ายขวา
+    gap: "24px", // 🌟 ช่องไฟระหว่างตารางซ้ายขวา
   },
   halfTableCard: {
     backgroundColor: "var(--color-white)",
-    borderRadius: "var(--radius-lg)",
-    border: "2px dashed var(--brand-200)", // 🌟 กรอบไข่ปลาสีส้ม
-    padding: "20px",
+    borderRadius: "var(--radius-md)",
+    border: "1px solid var(--slate-200)",
+    padding: "18px",
   },
   table: { width: "100%", borderCollapse: "collapse" },
   th: {
-    backgroundColor: "var(--brand-50)", // 🌟 คืนชีพสีครีมส้ม
-    padding: "16px",
+    backgroundColor: "var(--slate-50)",
+    padding: "12px 14px",
     textAlign: "left",
-    fontWeight: "800",
-    color: "var(--brand-800)", // 🌟 คืนชีพตัวหนังสือสีส้มเข้ม
-    borderBottom: "2px solid var(--brand-200)",
-    fontSize: "15px",
+    fontWeight: "600",
+    color: "var(--slate-500)",
+    borderBottom: "1px solid var(--slate-200)",
+    fontSize: "13px",
   },
   tableRow: {
     borderBottom: "1px solid var(--slate-100)",
     transition: "background-color 0.2s",
   },
   td: {
-    padding: "16px 14px",
+    padding: "14px",
     color: "var(--slate-600)",
-    fontSize: "15px",
+    fontSize: "14px",
     fontWeight: "500",
   },
   tdLottoNo: {
-    padding: "16px 14px",
-    fontWeight: "900",
-    fontSize: "18px",
-    letterSpacing: "2px",
-    color: "var(--brand-600)",
+    padding: "14px",
+    fontWeight: "700",
+    fontSize: "15px",
+    letterSpacing: "1px",
+    color: "var(--blue-700)",
   },
   tdHighlight: {
-    padding: "16px 14px",
-    fontWeight: "800",
-    color: "var(--red-600)",
-    fontSize: "16px",
+    padding: "14px",
+    fontWeight: "700",
+    color: "var(--slate-700)",
+    fontSize: "14px",
   },
   btnEdit: {
     background: "var(--slate-50)",

@@ -2,7 +2,8 @@ import Home from "./Home";
 import { useEffect, useState } from "react";
 import BannerService from "../services/banner.service";
 import Swal from "sweetalert2";
-import MyModal from "../components/MyModal";
+import MyDrawer from "../components/MyDrawer";
+import { PageHeader, PageHeaderPill } from "../components/shared/PageHeader";
 
 const Toast = Swal.mixin({
   toast: true,
@@ -151,95 +152,39 @@ function Banner() {
         <style>{`
           /* ── Page base ── */
           .bn-page {
-            background: var(--warm-50);
+            background: var(--slate-50);
             min-height: 100vh;
-            padding: 0 0 40px;
+            padding: 20px 20px 40px;
           }
 
-          /* ── Hero header strip ── */
-          .bn-hero {
-            background: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-600) 55%, var(--brand-500) 100%);
-            padding: 28px 28px 56px;
-            position: relative;
-            overflow: hidden;
-          }
-          .bn-hero::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-          }
-          .bn-hero::after {
-            content: "";
-            position: absolute;
-            right: -60px;
-            top: -60px;
-            width: 260px;
-            height: 260px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-          }
-          .bn-hero-title {
-            font-size: 1.65rem;
-            font-weight: 800;
-            color: var(--color-white);
-            letter-spacing: -0.5px;
-            margin: 0 0 4px;
-            position: relative;
-            z-index: 1;
-          }
-          .bn-hero-sub {
-            color: rgba(255,255,255,0.75);
-            font-size: 0.875rem;
-            margin: 0;
-            position: relative;
-            z-index: 1;
-          }
-          .bn-hero-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            margin-right: 14px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
-          }
           .bn-add-btn {
-            background: var(--color-white);
-            color: var(--brand-600);
-            border: none;
-            border-radius: var(--radius-pill);
-            padding: 10px 22px;
-            font-weight: 700;
-            font-size: 0.9rem;
+            background: var(--blue-50);
+            color: var(--blue-700);
+            border: 1px solid var(--blue-100, var(--blue-50));
+            border-radius: var(--radius-sm);
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.88rem;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: all 0.15s;
             position: relative;
             z-index: 1;
             white-space: nowrap;
           }
           .bn-add-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(0,0,0,0.22);
-            color: var(--brand-700);
+            background: var(--blue-100, var(--blue-50));
           }
-          .bn-add-btn i { font-size: 1.1rem; }
+          .bn-add-btn i { font-size: 1rem; }
 
           /* ── Floating card ── */
           .bn-card {
-            margin: -28px 20px 0;
+            margin: 0;
             background: var(--color-white);
-            border-radius: var(--radius-xl);
-            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-card);
             overflow: hidden;
             position: relative;
           }
@@ -258,59 +203,48 @@ function Banner() {
 
           .bn-table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 8px;
+            border-collapse: collapse;
           }
           .bn-table thead th {
-            padding: 10px 14px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
+            padding: 12px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
             color: var(--slate-500);
-            background: transparent;
             border: none;
+            border-bottom: 1px solid var(--slate-200);
             position: sticky;
             top: 0;
             z-index: 5;
-            background: var(--color-white);
+            background: var(--slate-50);
             white-space: nowrap;
           }
           .bn-table tbody tr {
             background: var(--color-white);
-            transition: box-shadow 0.25s, transform 0.2s;
+            transition: background-color 0.15s;
           }
           .bn-table tbody tr:hover {
-            box-shadow: 0 6px 24px rgba(234,88,12,0.1);
-            transform: translateY(-2px);
+            background: var(--slate-50);
           }
           .bn-table tbody td {
             padding: 14px 14px;
-            border-top: 8px solid var(--warm-50);
+            border-top: 1px solid var(--slate-100);
             border-bottom: none;
             vertical-align: middle;
-          }
-          .bn-table tbody td:first-child {
-            border-radius: 14px 0 0 14px;
-          }
-          .bn-table tbody td:last-child {
-            border-radius: 0 14px 14px 0;
           }
 
           /* ── Sequence badge ── */
           .bn-seq {
             width: 36px;
             height: 36px;
-            border-radius: var(--radius-md);
-            background: linear-gradient(135deg, var(--brand-50), var(--brand-200));
-            color: var(--brand-700);
-            font-weight: 800;
+            border-radius: var(--radius-sm);
+            background: var(--blue-50);
+            color: var(--blue-700);
+            font-weight: 700;
             font-size: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: auto;
-            border: 1.5px solid var(--brand-200);
           }
 
           /* ── Banner preview image ── */
@@ -330,37 +264,35 @@ function Banner() {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            background: #f0fdf4;
-            color: var(--green-600);
-            border: 1.5px solid var(--green-200);
+            background: var(--green-100);
+            color: var(--green-700);
+            border: none;
             border-radius: var(--radius-pill);
-            padding: 8px 16px;
-            font-size: 0.8rem;
+            padding: 6px 14px;
+            font-size: 0.78rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.15s;
           }
           .bn-status-on:hover {
-            background: var(--green-100);
-            box-shadow: 0 2px 8px rgba(22,163,74,0.15);
+            filter: brightness(0.97);
           }
           .bn-status-off {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            background: var(--slate-50);
+            background: var(--slate-100);
             color: var(--slate-500);
-            border: 1.5px solid var(--slate-200);
+            border: none;
             border-radius: var(--radius-pill);
-            padding: 8px 16px;
-            font-size: 0.8rem;
+            padding: 6px 14px;
+            font-size: 0.78rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.15s;
           }
           .bn-status-off:hover {
-            background: var(--slate-100);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            filter: brightness(0.97);
           }
           .bn-dot {
             width: 7px;
@@ -370,12 +302,12 @@ function Banner() {
 
           /* ── Action buttons ── */
           .bn-btn-edit {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            border: 1.5px solid #bfdbfe;
-            background: var(--blue-50);
-            color: var(--blue-500);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--slate-200);
+            background: var(--color-white);
+            color: var(--slate-600);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -384,18 +316,15 @@ function Banner() {
             transition: all 0.15s;
           }
           .bn-btn-edit:hover {
-            background: var(--blue-500);
-            color: var(--color-white);
-            border-color: var(--blue-500);
-            box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+            background: var(--slate-50);
           }
           .bn-btn-del {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            border: 1.5px solid var(--red-200);
-            background: #fff5f5;
-            color: var(--red-500);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--red-100);
+            background: var(--red-50);
+            color: var(--red-600);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -404,10 +333,7 @@ function Banner() {
             transition: all 0.15s;
           }
           .bn-btn-del:hover {
-            background: var(--red-500);
-            color: var(--color-white);
-            border-color: var(--red-500);
-            box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+            filter: brightness(0.97);
           }
 
           /* ── Empty state ── */
@@ -424,10 +350,10 @@ function Banner() {
 
           /* ── Modal enhancements ── */
           .bn-modal-preview {
-            border-radius: 14px;
-            border: 2px dashed var(--brand-200);
-            background: var(--brand-50);
-            height: 170px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--slate-200);
+            background: var(--slate-50);
+            height: 110px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -435,8 +361,6 @@ function Banner() {
             transition: border-color 0.2s;
           }
           .bn-modal-preview:has(img) {
-            border-style: solid;
-            border-color: var(--brand-300);
             background: var(--color-white);
           }
           .bn-field-label {
@@ -448,8 +372,8 @@ function Banner() {
             margin-bottom: 6px;
           }
           .bn-input {
-            background: var(--warm-50);
-            border: 1.5px solid #e8e2da;
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
             border-radius: var(--radius-md);
             padding: 10px 14px;
             font-size: 0.9rem;
@@ -459,22 +383,22 @@ function Banner() {
             color: var(--slate-900);
           }
           .bn-input:focus {
-            border-color: var(--brand-600);
-            box-shadow: 0 0 0 3px rgba(234,88,12,0.12);
+            border-color: var(--blue-500, #3b82f6);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
             background: var(--color-white);
           }
           .bn-input-group {
             display: flex;
             align-items: center;
-            background: var(--warm-50);
-            border: 1.5px solid #e8e2da;
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
             border-radius: var(--radius-md);
             overflow: hidden;
             transition: border-color 0.15s, box-shadow 0.15s;
           }
           .bn-input-group:focus-within {
-            border-color: var(--brand-600);
-            box-shadow: 0 0 0 3px rgba(234,88,12,0.12);
+            border-color: var(--blue-500, #3b82f6);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
             background: var(--color-white);
           }
           .bn-input-icon {
@@ -495,27 +419,25 @@ function Banner() {
           }
           .bn-divider {
             border: none;
-            border-top: 1.5px dashed #f0e8e0;
+            border-top: 1px solid var(--slate-100);
             margin: 20px 0;
           }
           .bn-save-btn {
-            background: linear-gradient(135deg, var(--brand-600), var(--brand-700));
-            color: var(--color-white);
-            border: none;
-            border-radius: var(--radius-pill);
-            padding: 11px 28px;
+            background: var(--blue-50);
+            color: var(--blue-700);
+            border: 1px solid var(--blue-100, var(--blue-50));
+            border-radius: var(--radius-sm);
+            padding: 10px 24px;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 16px rgba(234,88,12,0.35);
-            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+            transition: all 0.15s;
             cursor: pointer;
           }
           .bn-save-btn:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(234,88,12,0.4);
+            background: var(--blue-100, var(--blue-50));
           }
           .bn-save-btn:disabled {
             opacity: 0.65;
@@ -536,34 +458,6 @@ function Banner() {
             background: var(--slate-200);
           }
 
-          /* ── Stats bar ── */
-          .bn-stats {
-            display: flex;
-            gap: 0;
-            border-bottom: 1px solid #f1ede8;
-          }
-          .bn-stat {
-            flex: 1;
-            padding: 14px 20px;
-            text-align: center;
-            border-right: 1px solid #f1ede8;
-          }
-          .bn-stat:last-child { border-right: none; }
-          .bn-stat-num {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--slate-900);
-            line-height: 1;
-          }
-          .bn-stat-label {
-            font-size: 0.72rem;
-            color: var(--slate-500);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 3px;
-          }
-
           /* ── Loading shimmer ── */
           @keyframes shimmer {
             0% { background-position: -600px 0; }
@@ -582,52 +476,42 @@ function Banner() {
         `}</style>
 
         <div className="bn-page">
-          {/* ── Hero header ── */}
-          <div className="bn-hero d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div className="d-flex align-items-center">
-              <div className="bn-hero-icon">🖼️</div>
-              <div>
-                <h1 className="bn-hero-title">จัดการป้ายแบนเนอร์</h1>
-                <p className="bn-hero-sub">
-                  อัปโหลดและจัดเรียงรูปภาพโปรโมชั่นหน้าเว็บ
-                </p>
-              </div>
-            </div>
-            <button
-              className="bn-add-btn"
-              data-bs-toggle="modal"
-              data-bs-target="#bannerModal"
-              onClick={handleOpenAddModal}
-            >
-              <i className="bi bi-plus-lg"></i>
-              เพิ่มแบนเนอร์ใหม่
-            </button>
-          </div>
+          {/* ── Header (มาตรฐาน PageHeader) ── */}
+          <PageHeader
+            eyebrow="ตั้งค่าระบบ"
+            title="จัดการป้ายแบนเนอร์"
+            description="อัปโหลดและจัดเรียงรูปภาพโปรโมชั่นหน้าเว็บ"
+            summary={
+              !isLoading &&
+              banners.length > 0 && (
+                <>
+                  <PageHeaderPill tone="blue">
+                    ทั้งหมด {banners.length}
+                  </PageHeaderPill>
+                  <PageHeaderPill tone="emerald">
+                    เปิดใช้งาน {banners.filter((b) => b.isActive).length}
+                  </PageHeaderPill>
+                  <PageHeaderPill tone="muted">
+                    ปิดซ่อน {banners.filter((b) => !b.isActive).length}
+                  </PageHeaderPill>
+                </>
+              )
+            }
+            actions={
+              <button
+                className="bn-add-btn"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#bannerModal"
+                onClick={handleOpenAddModal}
+              >
+                <i className="bi bi-plus-lg"></i>
+                เพิ่มแบนเนอร์ใหม่
+              </button>
+            }
+          />
 
           {/* ── Floating card ── */}
-          <div className="bn-card">
-            {/* Stats bar */}
-            {!isLoading && banners.length > 0 && (
-              <div className="bn-stats">
-                <div className="bn-stat">
-                  <div className="bn-stat-num">{banners.length}</div>
-                  <div className="bn-stat-label">ทั้งหมด</div>
-                </div>
-                <div className="bn-stat">
-                  <div className="bn-stat-num" style={{ color: "var(--green-600)" }}>
-                    {banners.filter((b) => b.isActive).length}
-                  </div>
-                  <div className="bn-stat-label">เปิดใช้งาน</div>
-                </div>
-                <div className="bn-stat">
-                  <div className="bn-stat-num" style={{ color: "var(--slate-400)" }}>
-                    {banners.filter((b) => !b.isActive).length}
-                  </div>
-                  <div className="bn-stat-label">ปิดซ่อน</div>
-                </div>
-              </div>
-            )}
-
+          <div className="bn-card" style={{ margin: "0" }}>
             {/* Table */}
             <div className="bn-table-wrap">
               <table className="bn-table">
@@ -775,7 +659,7 @@ function Banner() {
                           <div className="d-flex justify-content-center gap-2">
                             <button
                               className="bn-btn-edit"
-                              data-bs-toggle="modal"
+                              data-bs-toggle="offcanvas"
                               data-bs-target="#bannerModal"
                               onClick={() => handleOpenEditModal(item)}
                               title="แก้ไข"
@@ -801,8 +685,7 @@ function Banner() {
                     <tr>
                       <td colSpan="4">
                         <div className="bn-empty">
-                          <span className="bn-empty-icon">🖼️</span>
-                          <h5 style={{ color: "var(--brand-600)", fontWeight: 800 }}>
+                          <h5 style={{ color: "var(--slate-700)", fontWeight: 700 }}>
                             ยังไม่มีแบนเนอร์เลย
                           </h5>
                           <p style={{ color: "var(--slate-400)", margin: 0 }}>
@@ -820,15 +703,19 @@ function Banner() {
         </div>
       </Home>
 
-      {/* ── Modal ── */}
-      <MyModal
+      {/* ── Drawer ── */}
+      <MyDrawer
         id="bannerModal"
-        title={isEditing ? "✏️ แก้ไขแบนเนอร์" : "➕ เพิ่มแบนเนอร์ใหม่"}
+        title={isEditing ? "แก้ไขแบนเนอร์" : "เพิ่มแบนเนอร์ใหม่"}
+        width="520px"
       >
-        <form onSubmit={handleSaveBanner}>
+        <form
+          onSubmit={handleSaveBanner}
+          className="d-flex flex-column h-100"
+        >
           <div
-            className="modal-body p-4"
-            style={{ maxHeight: "72vh", overflowY: "auto" }}
+            className="p-4 flex-grow-1"
+            style={{ overflowY: "auto" }}
           >
             {/* Preview */}
             <div className="mb-4">
@@ -994,14 +881,14 @@ function Banner() {
 
           {/* Footer */}
           <div
-            className="modal-footer border-0 pb-4 px-4"
-            style={{ background: "var(--stone-50)", borderRadius: "0 0 16px 16px" }}
+            className="d-flex justify-content-end gap-2 border-0 py-3 px-4"
+            style={{ background: "var(--stone-50)" }}
           >
             <button
               type="button"
               className="bn-cancel-btn"
               id="closeModalBtn"
-              data-bs-dismiss="modal"
+              data-bs-dismiss="offcanvas"
             >
               ยกเลิก
             </button>
@@ -1020,7 +907,7 @@ function Banner() {
             </button>
           </div>
         </form>
-      </MyModal>
+      </MyDrawer>
     </>
   );
 }

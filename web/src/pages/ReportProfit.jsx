@@ -1,10 +1,11 @@
 import Home from "./Home";
 import ReportService from "../services/report.service";
 import { useEffect, useState } from "react";
-import { formatDateTime } from "../utils/format";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
-import MyModal from "../components/MyModal"; 
+import MyModal from "../components/MyModal";
+import { PageHeader } from "../components/shared/PageHeader";
+import { FilterBar, FilterBarButton } from "../components/shared/FilterBar";
 
 function ReportProfit() {
   const [billSaleDetails, setBillSaleDetails] = useState([]);
@@ -21,8 +22,8 @@ function ReportProfit() {
   // 🌟 State สำหรับจัดการ Modal
   const [selectedBillDetail, setSelectedBillDetail] = useState(null); // เก็บข้อมูลสลากที่ถูกคลิก
 
-  // 🌟 ตั้งค่าเริ่มต้นวันที่
-  const [fromDate, setFromDate] = useState(dayjs().format("YYYY-MM-DD"));
+  // 🌟 ค่าเริ่มต้นเปิดหน้ามาให้เห็นข้อมูลตั้งแต่ต้นปี (1 ม.ค.) ถึงวันนี้ ผู้ใช้ยังเลือกช่วงเองได้ตามปกติ
+  const [fromDate, setFromDate] = useState(dayjs().startOf("year").format("YYYY-MM-DD"));
   const [toDate, setToDate] = useState(dayjs().format("YYYY-MM-DD"));
 
   useEffect(() => {
@@ -80,203 +81,120 @@ function ReportProfit() {
       <Home>
         <div
           className="container-fluid px-3 px-md-4 pb-4 pt-3"
-          style={{ backgroundColor: "var(--stone-50)", minHeight: "100vh" }}
+          style={{ backgroundColor: "var(--slate-50)", minHeight: "100vh" }}
         >
-          {/* ... (Header และ กล่องค้นหาเหมือนเดิม) ... */}
-          <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
-              📊 สรุปผลกำไร
-            </h1>
-          </div>
+          <PageHeader
+            eyebrow="รายงาน"
+            title="สรุปผลกำไร"
+            description="ดูกำไรจากการขายสลาก และเงินรางวัลที่แผงถูกเอง ตามช่วงเวลาที่เลือก"
+          />
 
-          <div className="card border-0 shadow-sm rounded-4 mb-4 p-2">
-            <div className="card-body">
-              <h6 className="fw-bold mb-3" style={{ color: "var(--brand-600)" }}>
-                <i className="bi bi-calendar-range-fill me-2"></i>
-                เลือกช่วงเวลาที่ต้องการดูผลประกอบการ
-              </h6>
-              <div className="row g-3 align-items-end">
-                <div className="col-md-4">
-                  <label
-                    htmlFor="profitFromDate"
-                    className="form-label fw-bold text-secondary small mb-1"
-                  >
-                    ตั้งแต่วันที่
-                  </label>
-                  <div className="input-group shadow-sm rounded-pill overflow-hidden border">
-                    <span className="input-group-text bg-light border-0 text-warning">
-                      <i className="bi bi-calendar-event"></i>
-                    </span>
-                    <input
-                      id="profitFromDate"
-                      value={fromDate}
-                      onChange={(e) => setFromDate(e.target.value)}
-                      type="date"
-                      className="form-control border-0 px-2 bg-light fw-medium text-dark"
-                    />
-                  </div>
-                </div>
+          <FilterBar
+            actions={
+              <FilterBarButton
+                variant="primary"
+                icon="bi-search"
+                onClick={fetchData}
+              >
+                คำนวณกำไร
+              </FilterBarButton>
+            }
+          >
+            <label
+              htmlFor="profitFromDate"
+              className="fw-bold text-secondary small mb-0"
+            >
+              ตั้งแต่
+            </label>
+            <input
+              id="profitFromDate"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              type="date"
+              className="form-control form-control-sm rounded-pill border"
+              style={{ width: "auto" }}
+            />
+            <label
+              htmlFor="profitToDate"
+              className="fw-bold text-secondary small mb-0"
+            >
+              ถึง
+            </label>
+            <input
+              id="profitToDate"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              type="date"
+              className="form-control form-control-sm rounded-pill border"
+              style={{ width: "auto" }}
+            />
+          </FilterBar>
 
-                <div className="col-md-4">
-                  <label
-                    htmlFor="profitToDate"
-                    className="form-label fw-bold text-secondary small mb-1"
-                  >
-                    ถึงวันที่
-                  </label>
-                  <div className="input-group shadow-sm rounded-pill overflow-hidden border">
-                    <span className="input-group-text bg-light border-0 text-warning">
-                      <i className="bi bi-calendar-event-fill"></i>
-                    </span>
-                    <input
-                      id="profitToDate"
-                      value={toDate}
-                      onChange={(e) => setToDate(e.target.value)}
-                      type="date"
-                      className="form-control border-0 px-2 bg-light fw-medium text-dark"
-                    />
-                  </div>
-                </div>
-
-                <div className="col-md-4">
-                  <button
-                    onClick={fetchData}
-                    className="btn rounded-pill w-100 shadow-sm fw-bold transition-all"
-                    style={{
-                      backgroundColor: "var(--brand-600)",
-                      color: "white",
-                      padding: "10px",
-                    }}
-                  >
-                    <i className="bi bi-search me-2"></i> คำนวณกำไร
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ... (KPI Cards ทั้ง 3 กล่อง เหมือนเดิม) ... */}
           <div className="row g-4 mb-4">
-            <div className="col-12 col-md-4">
-              <div
-                className="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden"
-                style={{
-                  backgroundColor: "var(--blue-50)",
-                  borderBottom: "4px solid var(--blue-500)",
-                }}
-              >
-                <i
-                  className="bi bi-shop position-absolute opacity-25"
+            {[
+              {
+                label: "กำไรจากการขาย (หักทุนแล้ว)",
+                value: `+ ${summary.profitFromSale.toLocaleString("th-TH")}`,
+                sub: `ขายได้ ${billSaleDetails.length} ใบ`,
+                accent: "var(--blue-700)",
+              },
+              {
+                label: "เงินรางวัลแผงถูกเอง",
+                value: `+ ${summary.totalBonus.toLocaleString("th-TH")}`,
+                sub: `ถูกรางวัล ${lottoIsBonus.length} ใบ`,
+                accent: "#a21caf",
+              },
+              {
+                label: "กำไรสุทธิรวมทั้งหมด",
+                value: summary.grandTotal.toLocaleString("th-TH"),
+                sub: "ยอดรวมสุทธิ",
+                accent: "var(--green-700)",
+              },
+            ].map((kpi, i) => (
+              <div className="col-12 col-md-4" key={i}>
+                <div
+                  className="card border h-100"
                   style={{
-                    fontSize: "6rem",
-                    right: "-10px",
-                    bottom: "-20px",
-                    color: "#93c5fd",
+                    backgroundColor: "var(--color-white)",
+                    borderColor: "var(--slate-200)",
+                    borderRadius: "var(--radius-lg)",
+                    boxShadow: "var(--shadow-card)",
                   }}
-                ></i>
-                <div className="card-body position-relative z-1">
-                  <p
-                    className="text-muted mb-1 fw-bold fs-6"
-                    style={{ color: "var(--blue-700)" }}
-                  >
-                    กำไรจากการขาย (หักทุนแล้ว)
-                  </p>
-                  <h3 className="fw-bold mb-0" style={{ color: "#1e3a8a" }}>
-                    + {summary.profitFromSale.toLocaleString("th-TH")}{" "}
-                    <span className="fs-6 fw-normal">฿</span>
-                  </h3>
-                  <div className="small fw-medium mt-2 text-primary">
-                    ขายได้ {billSaleDetails.length} ใบ
+                >
+                  <div className="card-body">
+                    <p
+                      className="mb-1 fw-semibold"
+                      style={{ color: "var(--slate-500)", fontSize: "13px" }}
+                    >
+                      {kpi.label}
+                    </p>
+                    <h3 className="fw-bold mb-0" style={{ color: kpi.accent }}>
+                      {kpi.value}{" "}
+                      <span className="fs-6 fw-normal text-muted">฿</span>
+                    </h3>
+                    <div
+                      className="small fw-medium mt-2"
+                      style={{ color: "var(--slate-500)" }}
+                    >
+                      {kpi.sub}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="col-12 col-md-4">
-              <div
-                className="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden"
-                style={{
-                  backgroundColor: "var(--fuchsia-50)",
-                  borderBottom: "4px solid #d946ef",
-                }}
-              >
-                <i
-                  className="bi bi-award-fill position-absolute opacity-25"
-                  style={{
-                    fontSize: "6rem",
-                    right: "-10px",
-                    bottom: "-20px",
-                    color: "#f0abfc",
-                  }}
-                ></i>
-                <div className="card-body position-relative z-1">
-                  <p
-                    className="text-muted mb-1 fw-bold fs-6"
-                    style={{ color: "var(--fuchsia-700)" }}
-                  >
-                    เงินรางวัลแผงถูกเอง
-                  </p>
-                  <h3 className="fw-bold mb-0" style={{ color: "#701a75" }}>
-                    + {summary.totalBonus.toLocaleString("th-TH")}{" "}
-                    <span className="fs-6 fw-normal">฿</span>
-                  </h3>
-                  <div
-                    className="small fw-medium mt-2"
-                    style={{ color: "#c026d3" }}
-                  >
-                    ถูกรางวัล {lottoIsBonus.length} ใบ
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-12 col-md-4">
-              <div
-                className="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden"
-                style={{
-                  backgroundColor: "var(--emerald-50)",
-                  borderBottom: "4px solid var(--emerald-500)",
-                }}
-              >
-                <i
-                  className="bi bi-cash-stack position-absolute opacity-25"
-                  style={{
-                    fontSize: "6rem",
-                    right: "-10px",
-                    bottom: "-20px",
-                    color: "var(--emerald-400)",
-                  }}
-                ></i>
-                <div className="card-body position-relative z-1">
-                  <p
-                    className="text-muted mb-1 fw-bold fs-6"
-                    style={{ color: "var(--emerald-600)" }}
-                  >
-                    กำไรสุทธิรวมทั้งหมด
-                  </p>
-                  <h3 className="fw-bold fs-2 mb-0" style={{ color: "var(--emerald-700)" }}>
-                    {summary.grandTotal.toLocaleString("th-TH")}{" "}
-                    <span className="fs-5 fw-normal">฿</span>
-                  </h3>
-                  <div
-                    className="small fw-medium mt-2"
-                    style={{ color: "var(--emerald-600)" }}
-                  >
-                    <i className="bi bi-graph-up-arrow me-1"></i> ยอดรวมสุทธิ
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* 🌟 2 ตารางด้านล่าง แบ่งครึ่งซ้ายขวา */}
           <div className="row g-4">
             {/* --- ตารางฝั่งซ้าย: ประวัติการขาย --- */}
             <div className="col-12 col-xl-7">
-              <div className="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100">
+              <div
+                className="card border overflow-hidden bg-white h-100"
+                style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+              >
                 <div className="card-header bg-white border-0 pt-4 pb-2">
-                  <h5 className="fw-bold mb-0" style={{ color: "#1e40af" }}>
-                    <i className="bi bi-receipt me-2"></i>รายการขาย (ลูกค้า)
+                  <h5 className="fw-bold mb-0" style={{ color: "var(--slate-900)", fontSize: "16px" }}>
+                    รายการขาย (ลูกค้า)
                   </h5>
                 </div>
                 <div className="card-body p-0">
@@ -287,23 +205,23 @@ function ReportProfit() {
                     <table className="table table-hover align-middle mb-0 text-center">
                       <thead
                         style={{
-                          backgroundColor: "var(--blue-50)",
+                          backgroundColor: "var(--slate-50)",
                           position: "sticky",
                           top: 0,
                           zIndex: 1,
                         }}
                       >
                         <tr>
-                          <th scope="col" className="px-3 py-3 border-0 text-primary">
+                          <th scope="col" className="px-3 py-3 border-0" style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}>
                             เลขสลาก
                           </th>
-                          <th scope="col" className="px-3 py-3 border-0 text-primary">
+                          <th scope="col" className="px-3 py-3 border-0" style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}>
                             ทุน
                           </th>
-                          <th scope="col" className="px-3 py-3 border-0 text-primary">
+                          <th scope="col" className="px-3 py-3 border-0" style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}>
                             ขาย
                           </th>
-                          <th scope="col" className="px-3 py-3 border-0 text-success">
+                          <th scope="col" className="px-3 py-3 border-0" style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}>
                             กำไร
                           </th>
                         </tr>
@@ -318,15 +236,20 @@ function ReportProfit() {
                         ) : billSaleDetails.length > 0 ? (
                           billSaleDetails.map((item) => (
                             <tr key={item.id}>
-                              {/* 🌟 เปลี่ยน เลขสลาก ให้เป็นปุ่มกดเปิด Modal */}
                               <td>
                                 <button
-                                  className="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 shadow-sm"
+                                  className="btn btn-sm fw-semibold px-3"
                                   data-bs-toggle="modal"
                                   data-bs-target="#modalSaleDetail"
                                   onClick={() => handleOpenDetailModal(item)}
+                                  style={{
+                                    background: "var(--color-white)",
+                                    color: "var(--blue-700)",
+                                    border: "1px solid var(--slate-200)",
+                                    borderRadius: "var(--radius-sm)",
+                                    fontSize: "13px",
+                                  }}
                                 >
-                                  <i className="bi bi-search me-1"></i>
                                   {item.lotto?.numbers}
                                 </button>
                               </td>
@@ -334,7 +257,7 @@ function ReportProfit() {
                                 ฿{item.lotto?.cost}
                               </td>
                               <td className="text-dark">฿{item.price}</td>
-                              <td className="fw-bold text-success">
+                              <td className="fw-bold" style={{ color: "var(--green-700)" }}>
                                 + ฿
                                 {(
                                   item.price - item.lotto?.cost
@@ -358,10 +281,13 @@ function ReportProfit() {
 
             {/* --- ตารางฝั่งขวา: สลากที่แผงถูกรางวัล --- */}
             <div className="col-12 col-xl-5">
-              <div className="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100">
+              <div
+                className="card border overflow-hidden bg-white h-100"
+                style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+              >
                 <div className="card-header bg-white border-0 pt-4 pb-2">
-                  <h5 className="fw-bold mb-0" style={{ color: "#86198f" }}>
-                    <i className="bi bi-stars me-2"></i>แผงถูกรางวัล
+                  <h5 className="fw-bold mb-0" style={{ color: "var(--slate-900)", fontSize: "16px" }}>
+                    แผงถูกรางวัล
                   </h5>
                 </div>
                 <div className="card-body p-0">
@@ -372,7 +298,7 @@ function ReportProfit() {
                     <table className="table table-hover align-middle mb-0 text-center">
                       <thead
                         style={{
-                          backgroundColor: "var(--fuchsia-50)",
+                          backgroundColor: "var(--slate-50)",
                           position: "sticky",
                           top: 0,
                           zIndex: 1,
@@ -381,15 +307,15 @@ function ReportProfit() {
                         <tr>
                           <th
                             scope="col"
-                            className="px-3 py-3 border-0 text-purple"
-                            style={{ color: "var(--fuchsia-700)" }}
+                            className="px-3 py-3 border-0"
+                            style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}
                           >
                             เลขสลาก
                           </th>
                           <th
                             scope="col"
-                            className="px-3 py-3 border-0 text-purple"
-                            style={{ color: "var(--fuchsia-700)" }}
+                            className="px-3 py-3 border-0"
+                            style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}
                           >
                             เงินรางวัล
                           </th>
@@ -405,12 +331,12 @@ function ReportProfit() {
                         ) : lottoIsBonus.length > 0 ? (
                           lottoIsBonus.map((item) => (
                             <tr key={item.id}>
-                              <td className="fw-bold text-dark fs-5">
+                              <td className="fw-bold" style={{ color: "var(--blue-700)", fontSize: "15px" }}>
                                 {item.BonusResultDetail?.number}
                               </td>
                               <td
                                 className="fw-bold"
-                                style={{ color: "#d946ef", fontSize: "1.1rem" }}
+                                style={{ color: "var(--green-700)", fontSize: "15px" }}
                               >
                                 + ฿
                                 {item.BonusResultDetail?.price?.toLocaleString()}
@@ -420,7 +346,6 @@ function ReportProfit() {
                         ) : (
                           <tr>
                             <td colSpan="2" className="py-5 text-muted">
-                              <div className="fs-1 mb-2">📭</div>
                               งวดนี้ยังไม่ถูกรางวัลเลย
                             </td>
                           </tr>
@@ -438,7 +363,7 @@ function ReportProfit() {
       {/* ========================================== */}
       {/* 🌟 เรียกใช้ Component MyModal */}
       {/* ========================================== */}
-      <MyModal id="modalSaleDetail" title="📄 รายละเอียดการขาย (ใบเสร็จ)">
+      <MyModal id="modalSaleDetail" title="รายละเอียดการขาย (ใบเสร็จ)">
         {selectedBillDetail ? (
           <div className="p-2">
             {/* ส่วนข้อมูลสลาก */}

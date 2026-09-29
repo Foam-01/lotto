@@ -4,6 +4,13 @@ import BonusService from "../services/bonus.service";
 import { useEffect, useState } from "react";
 import MyModal from "../components/MyModal";
 import * as dayjs from "dayjs";
+import { PageHeader } from "../components/shared/PageHeader";
+import {
+  FilterBar,
+  FilterBarSearch,
+  FilterBarButton,
+  FilterBarClear,
+} from "../components/shared/FilterBar";
 
 function SaleBonus() {
   const [billSaleDetailsBonus, setBillSaleDetailsBonus] = useState([]);
@@ -16,6 +23,8 @@ function SaleBonus() {
   // 🛡️ State สำหรับจัดการ Loading และป้องกันการกดปุ่มซ้ำ
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all"); // all | pending | paid
 
   useEffect(() => {
     fetchDate();
@@ -220,216 +229,182 @@ function SaleBonus() {
       ),
   ).length;
 
+  // 🌟 ค้นหา/กรองฝั่ง client จากรายการที่โหลดมาแล้ว (ไม่ยิง API เพิ่ม)
+  const filteredWinners = billSaleDetailsBonus.filter((item) => {
+    const isPaid =
+      item.BillSaleDetail?.billSale?.transferMoneyDate ||
+      item.BillSaleDetail?.billSale?.deliverDate;
+    if (statusFilter === "paid" && !isPaid) return false;
+    if (statusFilter === "pending" && isPaid) return false;
+
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    const haystack = [
+      item.BonusResultDetail?.number,
+      item.BillSaleDetail?.billSale?.customerName,
+      item.BillSaleDetail?.billSale?.customerPhone,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+
   return (
     <>
       <Home>
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
-              รายงานผู้ถูกรางวัล
-            </h1>
-          </div>
+          <PageHeader
+            eyebrow="ผลรางวัล"
+            title="รายงานผู้ถูกรางวัล"
+            description="ติดตามการโอนเงิน/มอบเงินสดให้ลูกค้าที่ถูกรางวัล"
+            count={`${totalWinners} รายการ`}
+          />
 
           {/* 🌟 KPI Dashboard Cards 🌟 */}
           <div className="row g-3 mb-4">
-            {/* Card 1: จำนวนเศรษฐีใหม่ */}
-            <div className="col-12 col-md-6 col-xl-3">
-              <div
-                className="card border-0 shadow-sm rounded-4 h-100"
-                style={{
-                  backgroundColor: "var(--brand-tint)",
-                  borderBottom: "4px solid var(--brand-600)",
-                }}
-              >
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <p className="text-muted mb-1 fw-bold fs-6">
-                        ผู้ถูกรางวัล (บิล)
-                      </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "var(--brand-600)" }}>
-                        {totalWinners}{" "}
-                        <span className="fs-6 fw-normal text-muted">
-                          รายการ
-                        </span>
-                      </h3>
-                    </div>
-                    <div
-                      className="rounded-circle d-flex justify-content-center align-items-center shadow-sm"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        backgroundColor: "var(--brand-600)",
-                        color: "var(--color-white)",
-                      }}
+            {[
+              {
+                label: "ผู้ถูกรางวัล (บิล)",
+                value: totalWinners.toLocaleString("th-TH"),
+                suffix: "รายการ",
+              },
+              {
+                label: "รางวัลรวมทั้งหมด",
+                value: totalPrizeAmount.toLocaleString("th-TH"),
+                suffix: "฿",
+              },
+              {
+                label: "จ่ายเงินแล้ว",
+                value: paidAmount.toLocaleString("th-TH"),
+                suffix: "฿",
+                accent: "var(--green-700)",
+              },
+              {
+                label: `รอจ่าย (${pendingCount})`,
+                value: pendingAmount.toLocaleString("th-TH"),
+                suffix: "฿",
+                accent: "var(--red-600)",
+              },
+            ].map((kpi, i) => (
+              <div className="col-12 col-md-6 col-xl-3" key={i}>
+                <div
+                  className="card border h-100"
+                  style={{
+                    backgroundColor: "var(--color-white)",
+                    borderColor: "var(--slate-200)",
+                    borderRadius: "var(--radius-lg)",
+                    boxShadow: "var(--shadow-card)",
+                  }}
+                >
+                  <div className="card-body">
+                    <p
+                      className="mb-1 fw-semibold"
+                      style={{ color: "var(--slate-500)", fontSize: "13px" }}
                     >
-                      <i className="bi bi-people-fill fs-4"></i>
-                    </div>
+                      {kpi.label}
+                    </p>
+                    <h3
+                      className="fw-bold mb-0"
+                      style={{ color: kpi.accent || "var(--slate-900)" }}
+                    >
+                      {kpi.value}{" "}
+                      <span className="fs-6 fw-normal text-muted">
+                        {kpi.suffix}
+                      </span>
+                    </h3>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Card 2: ยอดเงินรางวัลรวม */}
-            <div className="col-12 col-md-6 col-xl-3">
-              <div
-                className="card border-0 shadow-sm rounded-4 h-100"
-                style={{
-                  backgroundColor: "var(--amber-100)",
-                  borderBottom: "4px solid var(--amber-500)",
-                }}
-              >
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <p className="text-muted mb-1 fw-bold fs-6">
-                        รางวัลรวมทั้งหมด
-                      </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "#d97706" }}>
-                        {totalPrizeAmount.toLocaleString("th-TH")}{" "}
-                        <span className="fs-6 fw-normal text-muted">฿</span>
-                      </h3>
-                    </div>
-                    <div
-                      className="rounded-circle d-flex justify-content-center align-items-center shadow-sm"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        backgroundColor: "var(--amber-500)",
-                        color: "var(--color-white)",
-                      }}
-                    >
-                      <i className="bi bi-cash-coin fs-4"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: จ่ายเงินแล้ว */}
-            <div className="col-12 col-md-6 col-xl-3">
-              <div
-                className="card border-0 shadow-sm rounded-4 h-100"
-                style={{
-                  backgroundColor: "var(--emerald-50)",
-                  borderBottom: "4px solid var(--emerald-500)",
-                }}
-              >
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <p className="text-muted mb-1 fw-bold fs-6">
-                        จ่ายเงินแล้ว
-                      </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "var(--emerald-600)" }}>
-                        {paidAmount.toLocaleString("th-TH")}{" "}
-                        <span className="fs-6 fw-normal text-muted">฿</span>
-                      </h3>
-                    </div>
-                    <div
-                      className="rounded-circle d-flex justify-content-center align-items-center shadow-sm"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        backgroundColor: "var(--emerald-500)",
-                        color: "var(--color-white)",
-                      }}
-                    >
-                      <i className="bi bi-check-circle-fill fs-4"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4: รอจ่าย */}
-            <div className="col-12 col-md-6 col-xl-3">
-              <div
-                className="card border-0 shadow-sm rounded-4 h-100"
-                style={{
-                  backgroundColor: "var(--rose-50)",
-                  borderBottom: "4px solid var(--rose-600)",
-                }}
-              >
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <p className="text-muted mb-1 fw-bold fs-6">
-                        รอจ่าย ({pendingCount})
-                      </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "var(--rose-600)" }}>
-                        {pendingAmount.toLocaleString("th-TH")}{" "}
-                        <span className="fs-6 fw-normal text-muted">฿</span>
-                      </h3>
-                    </div>
-                    <div
-                      className="rounded-circle d-flex justify-content-center align-items-center shadow-sm"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        backgroundColor: "var(--rose-600)",
-                        color: "var(--color-white)",
-                      }}
-                    >
-                      <i className="bi bi-hourglass-split fs-4"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
+          <FilterBar>
+            <FilterBarSearch
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="ค้นหาเลขรางวัล, ชื่อลูกค้า, เบอร์โทร..."
+            />
+            <FilterBarButton
+              active={statusFilter === "all"}
+              onClick={() => setStatusFilter("all")}
+            >
+              ทั้งหมด
+            </FilterBarButton>
+            <FilterBarButton
+              active={statusFilter === "pending"}
+              onClick={() => setStatusFilter("pending")}
+            >
+              รอจ่าย
+            </FilterBarButton>
+            <FilterBarButton
+              active={statusFilter === "paid"}
+              onClick={() => setStatusFilter("paid")}
+            >
+              จ่ายแล้ว
+            </FilterBarButton>
+            <FilterBarClear
+              show={!!searchTerm || statusFilter !== "all"}
+              onClick={() => {
+                setSearchTerm("");
+                setStatusFilter("all");
+              }}
+            />
+          </FilterBar>
+
           {/* 🌟 ตารางแสดงผู้ถูกรางวัล (Winner Board) 🌟 */}
-          <div className="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
+          <div
+            className="card border overflow-hidden mb-4 bg-white"
+            style={{
+              borderColor: "var(--slate-200)",
+              borderRadius: "var(--radius-lg)",
+              boxShadow: "var(--shadow-card)",
+            }}
+          >
             <div className="card-body p-0">
               <div className="table-responsive">
                 <table
                   className="table table-hover align-middle mb-0"
                   style={{ minWidth: "1000px" }}
                 >
-                  <thead
-                    style={{
-                      backgroundColor: "var(--brand-100)",
-                      borderBottom: "2px solid var(--brand-300)",
-                    }}
-                  >
+                  <thead style={{ backgroundColor: "var(--slate-50)" }}>
                     <tr>
                       <th
-                        className="px-4 py-3 border-0 text-center text-uppercase"
-                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
+                        className="px-4 py-3 border-0 text-center"
+                        style={{ color: "var(--slate-500)", fontWeight: "600", fontSize: "13px" }}
                       >
-                        <i className="bi bi-ticket-perforated-fill me-1"></i>{" "}
                         เลขที่ถูกรางวัล
                       </th>
                       <th
-                        className="px-3 py-3 border-0 text-center text-uppercase"
-                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
+                        className="px-3 py-3 border-0 text-center"
+                        style={{ color: "var(--slate-500)", fontWeight: "600", fontSize: "13px" }}
                       >
-                        <i className="bi bi-cash-stack me-1"></i> ยอดเงินรางวัล
+                        ยอดเงินรางวัล
                       </th>
                       <th
                         className="px-3 py-3 border-0 text-center"
-                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
+                        style={{ color: "var(--slate-500)", fontWeight: "600", fontSize: "13px" }}
                       >
                         งวดประจำวันที่
                       </th>
                       <th
                         className="px-3 py-3 border-0"
-                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
+                        style={{ color: "var(--slate-500)", fontWeight: "600", fontSize: "13px" }}
                       >
                         ข้อมูลลูกค้า
                       </th>
                       <th
                         className="px-3 py-3 border-0 text-center"
-                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
+                        style={{ color: "var(--slate-500)", fontWeight: "600", fontSize: "13px" }}
                       >
                         วันที่โอน/ส่งมอบ
                       </th>
                       <th
                         className="px-4 py-3 border-0 text-end"
                         style={{
-                          color: "var(--brand-700)",
-                          fontWeight: "700",
+                          color: "var(--slate-500)",
+                          fontWeight: "600",
+                          fontSize: "13px",
                           minWidth: "220px",
                         }}
                       >
@@ -454,8 +429,8 @@ function SaleBonus() {
                           </h5>
                         </td>
                       </tr>
-                    ) : billSaleDetailsBonus.length > 0 ? (
-                      billSaleDetailsBonus.map((item) => {
+                    ) : filteredWinners.length > 0 ? (
+                      filteredWinners.map((item) => {
                         // 🌟 เช็คสถานะว่าจ่ายเงินไปแล้วหรือยัง
                         const isTransfered =
                           item.BillSaleDetail?.billSale?.transferMoneyDate;
@@ -469,29 +444,25 @@ function SaleBonus() {
                             style={{ borderBottom: "1px solid var(--gray-100)" }}
                           >
                             {/* เลขที่ถูกรางวัล */}
-                            <td className="px-4 py-4 text-center">
+                            <td className="px-4 py-3 text-center">
                               <span
-                                className="badge rounded-pill fs-5 shadow-sm bg-white"
                                 style={{
-                                  color: "var(--brand-600)",
-                                  border: "1px dashed var(--brand-300)",
+                                  color: "var(--blue-700)",
+                                  fontWeight: 700,
+                                  fontSize: "16px",
                                   letterSpacing: "1px",
                                 }}
                               >
-                                🏆 {item.BonusResultDetail?.number}
+                                {item.BonusResultDetail?.number}
                               </span>
                             </td>
 
                             {/* ยอดเงินรางวัล */}
-                            <td className="px-3 py-4 text-center">
+                            <td className="px-3 py-3 text-center">
                               <span
-                                className="fw-bold fs-4"
-                                style={{
-                                  color: "var(--emerald-500)",
-                                  textShadow: "1px 1px 0px var(--emerald-100)",
-                                }}
+                                className="fw-bold"
+                                style={{ color: "var(--green-700)", fontSize: "16px" }}
                               >
-                                💰{" "}
                                 {item.BonusResultDetail?.price?.toLocaleString(
                                   "th-TH",
                                 )}{" "}
@@ -500,35 +471,29 @@ function SaleBonus() {
                             </td>
 
                             {/* งวดวันที่ */}
-                            <td className="px-3 py-4 text-center text-muted fw-medium">
+                            <td className="px-3 py-3 text-center text-muted fw-medium">
                               {item.BonusResultDetail?.bonusDate}
                             </td>
 
                             {/* ข้อมูลลูกค้า */}
-                            <td className="px-3 py-4">
+                            <td className="px-3 py-3">
                               <div
-                                className="fw-bold text-dark mb-1"
-                                style={{ fontSize: "1.05rem" }}
+                                className="fw-bold mb-1"
+                                style={{ fontSize: "14px", color: "var(--slate-800)" }}
                               >
-                                👤{" "}
                                 {item.BillSaleDetail?.billSale?.customerName ||
                                   "ไม่ระบุ"}
                               </div>
                               <div className="text-muted small">
-                                <span className="badge bg-light text-secondary border px-2 py-1 fw-normal">
-                                  <i className="bi bi-telephone-fill me-1"></i>
-                                  {item.BillSaleDetail?.billSale
-                                    ?.customerPhone || "-"}
-                                </span>
+                                {item.BillSaleDetail?.billSale
+                                  ?.customerPhone || "-"}
                               </div>
                             </td>
 
-                            {/* 🌟 วันที่โอน / มอบ (ปรับใหม่ คลีนๆ อ่านง่าย) 🌟 */}
-                            <td className="px-3 py-4 text-center">
+                            <td className="px-3 py-3 text-center">
                               {isTransfered ? (
                                 <div className="small fw-medium">
                                   <span className="text-success mb-1 d-block">
-                                    <i className="bi bi-bank me-1"></i>
                                     โอนเงินแล้ว
                                   </span>
                                   <span className="text-dark">
@@ -537,7 +502,6 @@ function SaleBonus() {
                                         .transferMoneyDate,
                                     ).format("DD/MM/YYYY")}
                                   </span>
-                                  {/* 👇 เหลือแค่นี้พอครับ 👇 */}
                                   <span className="text-muted ms-1">
                                     (
                                     {item.BillSaleDetail.billSale.transferMoneyTime?.substring(
@@ -550,7 +514,6 @@ function SaleBonus() {
                               ) : isDelivered ? (
                                 <div className="small fw-medium">
                                   <span className="text-danger mb-1 d-block">
-                                    <i className="bi bi-gift-fill me-1"></i>
                                     มอบเงินสดแล้ว
                                   </span>
                                   <span className="text-dark">
@@ -565,18 +528,19 @@ function SaleBonus() {
                             </td>
 
                             {/* สถานะการจ่ายเงิน & ปุ่มจัดการ */}
-                            <td className="px-4 py-4 text-end">
+                            <td className="px-4 py-3 text-end">
                               {isPaid ? (
                                 <span
-                                  className="badge rounded-pill px-4 py-2 shadow-sm"
                                   style={{
-                                    backgroundColor: "var(--emerald-100)",
-                                    color: "var(--emerald-600)",
-                                    fontSize: "0.95rem",
-                                    border: "1px solid var(--emerald-400)",
+                                    backgroundColor: "var(--green-100)",
+                                    color: "var(--green-700)",
+                                    padding: "3px 14px",
+                                    borderRadius: "var(--radius-pill)",
+                                    fontSize: "13px",
+                                    fontWeight: 700,
+                                    display: "inline-block",
                                   }}
                                 >
-                                  <i className="bi bi-check-circle-fill me-1"></i>{" "}
                                   ชำระเงินแล้ว
                                 </span>
                               ) : (
@@ -584,22 +548,13 @@ function SaleBonus() {
                                   <button
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalTransfer"
-                                    className="btn btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm transition-all text-nowrap"
+                                    className="btn btn-sm px-3 py-2 fw-semibold text-nowrap"
                                     style={{
-                                      backgroundColor: "var(--brand-600)",
-                                      color: "var(--color-white)",
-                                      border: "none",
-                                    }}
-                                    onMouseOver={(e) => {
-                                      e.target.style.transform =
-                                        "translateY(-2px)";
-                                      e.target.style.boxShadow =
-                                        "0 4px 8px rgba(234, 88, 12, 0.3)";
-                                    }}
-                                    onMouseOut={(e) => {
-                                      e.target.style.transform =
-                                        "translateY(0)";
-                                      e.target.style.boxShadow = "none";
+                                      backgroundColor: "var(--color-white)",
+                                      color: "var(--slate-600)",
+                                      border: "1px solid var(--slate-200)",
+                                      borderRadius: "var(--radius-sm)",
+                                      fontSize: "13px",
                                     }}
                                     onClick={() => {
                                       setBillSaleId(
@@ -618,31 +573,19 @@ function SaleBonus() {
                                       );
                                     }}
                                   >
-                                    <i className="bi bi-bank me-1"></i> โอนเงิน
+                                    โอนเงิน
                                   </button>
 
                                   <button
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalDeliver"
-                                    className="btn btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm transition-all text-nowrap"
+                                    className="btn btn-sm px-3 py-2 fw-semibold text-nowrap"
                                     style={{
-                                      backgroundColor: "var(--brand-tint)",
-                                      color: "var(--brand-600)",
-                                      border: "1px solid var(--brand-600)",
-                                    }}
-                                    onMouseOver={(e) => {
-                                      e.target.style.backgroundColor =
-                                        "var(--brand-600)";
-                                      e.target.style.color = "var(--color-white)";
-                                      e.target.style.transform =
-                                        "translateY(-2px)";
-                                    }}
-                                    onMouseOut={(e) => {
-                                      e.target.style.backgroundColor =
-                                        "var(--brand-tint)";
-                                      e.target.style.color = "var(--brand-600)";
-                                      e.target.style.transform =
-                                        "translateY(0)";
+                                      backgroundColor: "var(--color-white)",
+                                      color: "var(--slate-600)",
+                                      border: "1px solid var(--slate-200)",
+                                      borderRadius: "var(--radius-sm)",
+                                      fontSize: "13px",
                                     }}
                                     onClick={() => {
                                       setBillSaleId(
@@ -656,7 +599,6 @@ function SaleBonus() {
                                       );
                                     }}
                                   >
-                                    <i className="bi bi-gift-fill me-1"></i>{" "}
                                     มอบสด
                                   </button>
                                 </div>
@@ -682,10 +624,14 @@ function SaleBonus() {
                               className="fs-4 mt-3 fw-bold"
                               style={{ color: "var(--brand-700)" }}
                             >
-                              งวดนี้แผงเรายังไม่มีผู้ถูกรางวัล
+                              {searchTerm || statusFilter !== "all"
+                                ? "ไม่พบรายการที่ตรงกับตัวกรอง"
+                                : "งวดนี้แผงเรายังไม่มีผู้ถูกรางวัล"}
                             </span>
                             <span className="mt-2 text-secondary fs-6">
-                              รอผลรางวัลงวดถัดไป
+                              {searchTerm || statusFilter !== "all"
+                                ? "ลองเปลี่ยนคำค้นหาหรือตัวกรองดูใหม่"
+                                : "รอผลรางวัลงวดถัดไป"}
                             </span>
                           </div>
                         </td>
@@ -706,11 +652,11 @@ function SaleBonus() {
         btnCloseId="btnCloseModalTransfer"
       >
         <div
-          className="p-3 mb-4 rounded-4 text-center shadow-sm"
+          className="p-3 mb-4 rounded-4 text-center"
           style={{
-            backgroundColor: "var(--amber-100)",
-            border: "2px dashed var(--amber-500)",
-            color: "#d97706",
+            backgroundColor: "var(--amber-50, #eff6ff)",
+            border: "1px solid var(--amber-100, #dbeafe)",
+            color: "#1d4ed8",
           }}
         >
           <h5 className="fw-bold mb-1">ตรวจสอบข้อมูลก่อนโอนเงิน</h5>
@@ -855,11 +801,11 @@ function SaleBonus() {
         btnCloseId="btnCloseModalDeliver"
       >
         <div
-          className="p-3 mb-4 rounded-4 text-center shadow-sm"
+          className="p-3 mb-4 rounded-4 text-center"
           style={{
-            backgroundColor: "var(--brand-tint)",
-            border: "2px dashed var(--brand-600)",
-            color: "var(--brand-700)",
+            backgroundColor: "var(--slate-50)",
+            border: "1px solid var(--slate-200)",
+            color: "var(--slate-700)",
           }}
         >
           <h5 className="fw-bold mb-1">บันทึกการมอบเงินสด</h5>

@@ -11,159 +11,454 @@
     display: flex;
     min-height: 100vh;
     font-family: 'Kanit', sans-serif;
-    background-color: var(--amber-50);
+    background-color: var(--slate-50);
 }
 
-/* --- Sidebar --- */
+/* --- Sidebar (ธีมสว่าง แบบ modern ERP panel) --- */
 .sidebar {
-    width: 260px;
-    /* ลดความกว้างลงนิดนึงให้ดูเพรียวขึ้น */
+    width: 272px;
     height: 100vh;
-    /* ล็อคความสูงเท่าหน้าจอ */
     overflow: hidden;
-    /* ปิดตาย Scrollbar ทั้งหมด */
     background-color: var(--color-white);
-    border-right: 2px dashed var(--brand-200);
+    border-right: 1px solid var(--slate-100);
     display: flex;
     flex-direction: column;
-    box-shadow: 4px 0 15px rgba(234, 88, 12, 0.05);
+    box-shadow: 2px 0 16px rgba(15, 23, 42, 0.04);
     z-index: 10;
 }
 
-.title {
-    text-align: center;
-    padding: 20px 15px;
-    /* ลดระยะห่างบนล่างลง */
-    color: var(--brand-600);
-    font-weight: 900;
-    font-size: 22px;
-    /* ลดขนาดตัวอักษรลงนิดนึง */
-    border-bottom: 2px dashed var(--brand-200);
+/* --- Brand / Logo --- */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 18px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--slate-100);
 }
 
-.title-emoji {
-    font-size: 40px;
-    /* ย่ออิโมจิลง */
-    margin-bottom: -5px;
-    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.1));
-}
-
-.title-sub {
-    font-size: 11px;
-    color: var(--slate-400);
-    letter-spacing: 2px;
-    font-weight: 700;
-}
-
-/* --- User Info Box --- */
-.user-info {
-    padding: 12px;
-    /* ลดความอ้วนของกล่อง */
-    text-align: center;
-    background: linear-gradient(135deg, var(--brand-50) 0%, var(--brand-100) 100%);
-    margin: 15px;
-    /* ลด margin ทำให้มีพื้นที่ด้านล่างเพิ่ม */
+.sidebar-brand-logo {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-md);
-    border: 1px solid var(--amber-200);
-    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
 }
 
-.user-name-text {
-    color: var(--brand-600);
-    font-size: 1rem;
-    font-weight: 800;
+.sidebar-brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.sidebar-brand-title {
+    font-size: 17px;
+    font-weight: 900;
+    color: var(--slate-900);
+}
+
+.sidebar-brand-sub {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--slate-400);
 }
 
 /* --- Navigation Menu --- */
 .menu {
     flex: 1;
-    padding: 5px 15px;
+    padding: 12px 14px 8px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    /* บีบช่องไฟระหว่างปุ่มให้แคบลง */
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.menu::-webkit-scrollbar {
+    display: none;
+}
+
+.menu-group {
+    margin-bottom: 6px;
+}
+
+.menu-group-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--slate-300);
+    text-transform: uppercase;
+    padding: 12px 10px 6px;
 }
 
 .menu-item {
     display: flex;
     align-items: center;
-    padding: 10px 15px;
-    /* ลดความอ้วนของปุ่ม */
-    color: var(--slate-500);
+    gap: 11px;
+    padding: 9px 10px;
+    margin-bottom: 2px;
+    color: var(--slate-600);
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
     border-radius: var(--radius-md);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 14px;
-    /* ลดขนาดฟอนต์เมนูลง */
+    white-space: nowrap;
+    overflow: hidden;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.menu-item i {
-    font-size: 18px;
-    /* ย่อไอคอนลง */
-    margin-right: 12px;
-    color: var(--slate-400);
-    transition: all 0.2s;
+.menu-item-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background-color: var(--slate-100);
+    color: var(--slate-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.menu-item-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* สถานะ Hover */
 .menu-item:hover {
     background-color: var(--brand-50);
-    color: var(--brand-600);
-    transform: translateX(4px);
+    color: var(--brand-700);
 }
 
-.menu-item:hover i {
+.menu-item:hover .menu-item-icon {
+    background-color: var(--brand-100);
     color: var(--brand-600);
 }
 
 /* 🌟 สถานะเมนูที่ถูกเลือก (Active) 🌟 */
 .menu-item.active {
-    background: linear-gradient(135deg, var(--brand-600), var(--brand-700));
+    background-color: var(--brand-50);
+    color: var(--brand-700);
+    font-weight: 800;
+}
+
+.menu-item.active .menu-item-icon {
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
     color: var(--color-white);
-    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
 }
 
-.menu-item.active i {
-    color: var(--color-white);
+/* --- Sidebar Footer: User + Logout --- */
+.sidebar-footer {
+    flex-shrink: 0;
+    padding: 12px 14px 16px;
+    border-top: 1px solid var(--slate-100);
 }
 
-/* --- Logout Section --- */
-.logout-section {
-    padding: 15px;
-    /* ลดความสูงส่วนขอบล่าง */
-    border-top: 2px dashed var(--brand-200);
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 8px;
+    border-radius: var(--radius-md);
+    background-color: var(--slate-50);
+    border: 1px solid var(--slate-100);
 }
 
-.logout-link {
-    color: var(--red-500);
-    /* 🌟 รีเซ็ตสไตล์ปุ่มพื้นเบราว์เซอร์ เพราะเปลี่ยนจาก <a> เป็น <button> เพื่อการเข้าถึง */
-    background: none;
+.sidebar-user-avatar {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--brand-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    border: 1px solid var(--brand-200);
+}
+
+.sidebar-user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.sidebar-user-hello {
+    color: var(--slate-400);
+    font-weight: 700;
+    font-size: 11px;
+}
+
+.sidebar-user-name {
+    color: var(--slate-900);
+    font-size: 13.5px;
+    font-weight: 800;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-logout-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
     border: none;
-    width: 100%;
-    text-align: left;
+    background-color: var(--red-50);
+    color: var(--red-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.sidebar-logout-btn:hover {
+    background-color: var(--red-100);
+    color: var(--red-600);
+}
+
+/* --- Content Area (topbar + main) --- */
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-width: 0;
+}
+
+/* --- App Topbar (breadcrumb + search + user) --- */
+.app-topbar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 64px;
+    padding: 0 24px;
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--slate-100);
+}
+
+.app-topbar-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--slate-400);
+    white-space: nowrap;
+}
+
+.app-breadcrumb-sep {
+    font-size: 10px;
+    margin: 0 8px;
+    color: var(--slate-300);
+}
+
+.app-breadcrumb-current {
+    color: var(--slate-900);
+}
+
+.app-topbar-search {
+    flex: 1;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--slate-50);
+    border: 1px solid var(--slate-100);
+    border-radius: var(--radius-pill);
+    padding: 8px 16px;
+    color: var(--slate-400);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.app-topbar-search:focus-within {
+    border-color: var(--brand-300);
+    background-color: var(--color-white);
+}
+
+.app-topbar-search input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: none;
     font-family: inherit;
+    font-size: 13.5px;
+    color: var(--slate-700);
+}
+
+.app-topbar-search input::placeholder {
+    color: var(--slate-300);
+}
+
+.app-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.app-topbar-icon-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--slate-100);
+    background-color: var(--slate-50);
+    color: var(--slate-500);
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.app-topbar-icon-btn:hover {
+    background-color: var(--brand-50);
+    color: var(--brand-600);
+    border-color: var(--brand-200);
+}
+
+.app-topbar-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 50rem;
+    background-color: var(--red-500);
+    color: var(--color-white);
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--color-white);
+}
+
+.app-topbar-user {
+    position: relative;
+}
+
+.app-topbar-user-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px 5px 5px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--slate-100);
+    background-color: var(--slate-50);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s ease;
+}
+
+.app-topbar-user-btn:hover {
+    background-color: var(--brand-50);
+    border-color: var(--brand-200);
+}
+
+.app-topbar-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--brand-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.app-topbar-username {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--slate-700);
+}
+
+.app-topbar-user-btn i {
+    font-size: 11px;
+    color: var(--slate-400);
+}
+
+.app-topbar-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 190px;
+    background-color: var(--color-white);
+    border: 1px solid var(--slate-100);
+    border-radius: var(--radius-md);
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+    padding: 6px;
+    z-index: 50;
+    animation: slideDownFade 0.15s ease-out;
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.app-topbar-dropdown-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: none;
+    color: var(--slate-600);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
     cursor: pointer;
 }
 
-.logout-link i {
+.app-topbar-dropdown-item:hover {
+    background-color: var(--brand-50);
+    color: var(--brand-700);
+}
+
+.app-topbar-dropdown-danger {
     color: var(--red-500);
 }
 
-.logout-link:hover {
+.app-topbar-dropdown-danger:hover {
     background-color: var(--red-50);
-    color: var(--red-600);
-    transform: translateX(4px);
-}
-
-.logout-link:hover i {
     color: var(--red-600);
 }
 
 /* --- Main Content Area --- */
 .content {
     flex: 1;
-    height: 100vh;
     overflow-y: auto;
     position: relative;
 }
@@ -254,7 +549,7 @@
         height: 56px;
         padding: 0 16px;
         background-color: var(--color-white);
-        border-bottom: 2px dashed var(--brand-200);
+        border-bottom: 1px solid var(--slate-100);
         position: sticky;
         top: 0;
         z-index: 20;
@@ -285,7 +580,7 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 260px;
+        width: 272px;
         max-width: 80vw;
         transform: translateX(-100%);
         transition: transform 0.25s ease-in-out;
@@ -304,12 +599,12 @@
         position: absolute;
         top: 12px;
         right: 12px;
-        width: 40px;
-        height: 40px;
+        width: 34px;
+        height: 34px;
         border-radius: var(--radius-sm);
         border: none;
-        background: var(--brand-50);
-        color: var(--brand-600);
+        background: var(--slate-100);
+        color: var(--slate-500);
         font-size: 14px;
         z-index: 1;
     }
@@ -322,8 +617,27 @@
         z-index: 25;
     }
 
+    .content-wrapper {
+        height: auto;
+    }
+
+    .app-topbar {
+        padding: 0 16px;
+        gap: 12px;
+    }
+
+    .app-topbar-search {
+        max-width: none;
+    }
+
     .content {
         height: auto;
-        min-height: calc(100vh - 56px);
+        min-height: calc(100vh - 56px - 64px);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .app-topbar-breadcrumb {
+        display: none;
     }
 }

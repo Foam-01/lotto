@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Home from "./Home";
 import Swal from "sweetalert2";
 import LottoService from "../services/lotto.service";
+import { PageHeader } from "../components/shared/PageHeader";
 
 function LottoIsBonus() {
   const [lottoisbonus, setLottoisbonus] = useState([]);
@@ -57,125 +58,74 @@ function LottoIsBonus() {
     <>
       <Home>
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
-          {/* 🌟 Header แบบคลีนๆ มินิมอล */}
-          <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
-              รายงานรางวัลของร้าน
-            </h1>
-          </div>
+          <PageHeader
+            eyebrow="ผลรางวัล"
+            title="รางวัลของร้าน"
+            description="รายการสลากที่แผงถือไว้แล้วถูกรางวัลเอง"
+            count={`${totalTickets} ใบ`}
+          />
 
-          {/* 🌟 KPI Dashboard สรุปยอดที่ร้านถูกรางวัล 🌟 */}
           <div className="row g-3 mb-4">
-            <div className="col-12 col-md-6">
-              <div
-                className="card border-0 shadow-sm rounded-4 h-100"
-                style={{
-                  backgroundColor: "var(--brand-tint)",
-                  borderBottom: "4px solid var(--brand-600)",
-                }}
-              >
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <p className="text-muted mb-1 fw-bold fs-6">
-                        จำนวนสลากที่ถูกรางวัล
-                      </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "var(--brand-600)" }}>
-                        {totalTickets}{" "}
-                        <span className="fs-6 fw-normal text-muted">ใบ</span>
-                      </h3>
-                    </div>
-                    <div
-                      className="rounded-circle d-flex justify-content-center align-items-center shadow-sm"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        backgroundColor: "var(--brand-600)",
-                        color: "var(--color-white)",
-                      }}
+            {[
+              {
+                label: "จำนวนสลากที่ถูกรางวัล",
+                value: totalTickets.toLocaleString(),
+                suffix: "ใบ",
+              },
+              {
+                label: "ยอดเงินรางวัลรวม",
+                value: totalPrizeAmount.toLocaleString("th-TH"),
+                suffix: "฿",
+                accent: "var(--green-700)",
+              },
+            ].map((kpi, i) => (
+              <div className="col-12 col-md-6" key={i}>
+                <div
+                  className="card border h-100"
+                  style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+                >
+                  <div className="card-body">
+                    <p
+                      className="mb-1 fw-semibold"
+                      style={{ color: "var(--slate-500)", fontSize: "13px" }}
                     >
-                      <i className="bi bi-ticket-detailed-fill fs-4"></i>
-                    </div>
+                      {kpi.label}
+                    </p>
+                    <h3 className="fw-bold mb-0" style={{ color: kpi.accent || "var(--slate-900)" }}>
+                      {kpi.value}{" "}
+                      <span className="fs-6 fw-normal text-muted">{kpi.suffix}</span>
+                    </h3>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="col-12 col-md-6">
-              <div
-                className="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden"
-                style={{
-                  backgroundColor: "var(--emerald-50)",
-                  borderBottom: "4px solid var(--emerald-500)",
-                }}
-              >
-                <i
-                  className="bi bi-cash-stack position-absolute opacity-25"
-                  style={{
-                    fontSize: "6rem",
-                    right: "-10px",
-                    bottom: "-20px",
-                    color: "var(--emerald-400)",
-                  }}
-                ></i>
-                <div className="card-body position-relative z-1">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <p
-                        className="text-muted mb-1 fw-bold fs-6"
-                        style={{ color: "var(--emerald-600)" }}
-                      >
-                        ยอดเงินรางวัลรวม
-                      </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "var(--emerald-700)" }}>
-                        {totalPrizeAmount.toLocaleString("th-TH")}{" "}
-                        <span className="fs-5 fw-normal">฿</span>
-                      </h3>
-                    </div>
-                    <div
-                      className="rounded-circle d-flex justify-content-center align-items-center shadow-sm"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        backgroundColor: "var(--emerald-500)",
-                        color: "var(--color-white)",
-                      }}
-                    >
-                      <i className="bi bi-piggy-bank-fill fs-4"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* 🌟 ตารางแสดงรายการสลากที่ถูกรางวัล 🌟 */}
-          <div className="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+          <div
+            className="card border overflow-hidden bg-white"
+            style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+          >
             <div className="card-body p-0">
               <div className="table-responsive">
                 <table className="table table-hover align-middle mb-0">
-                  <thead
-                    style={{
-                      backgroundColor: "var(--brand-100)",
-                      borderBottom: "2px solid var(--brand-300)",
-                    }}
-                  >
+                  <thead style={{ backgroundColor: "var(--slate-50)" }}>
                     <tr>
                       <th
                         className="px-4 py-3 border-0 text-center"
-                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
+                        style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}
                       >
                         งวดประจำวันที่
                       </th>
                       <th
                         className="px-4 py-3 border-0 text-center"
-                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
+                        style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}
                       >
                         เลขที่ถูกรางวัล
                       </th>
                       <th
                         className="px-4 py-3 border-0 text-center"
-                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
+                        style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}
                       >
                         ยอดเงินรางวัล
                       </th>
@@ -209,28 +159,19 @@ function LottoIsBonus() {
                             {item.BonusResultDetail?.bonusDate}
                           </td>
 
-                          {/* เลขสลาก */}
-                          <td className="px-4 py-4 text-center">
+                          <td className="px-4 py-3 text-center">
                             <span
-                              className="badge rounded-pill fs-5 shadow-sm bg-white"
-                              style={{
-                                color: "var(--brand-600)",
-                                border: "1px dashed var(--brand-300)",
-                                letterSpacing: "2px",
-                              }}
+                              className="fw-bold"
+                              style={{ color: "var(--blue-700)", fontSize: "15px", letterSpacing: "1px" }}
                             >
-                              🎟️ {item.BonusResultDetail?.number}
+                              {item.BonusResultDetail?.number}
                             </span>
                           </td>
 
-                          {/* ยอดเงิน (สีเขียว) */}
-                          <td className="px-4 py-4 text-center">
+                          <td className="px-4 py-3 text-center">
                             <span
-                              className="fw-bold fs-5"
-                              style={{
-                                color: "var(--emerald-500)",
-                                textShadow: "1px 1px 0px var(--emerald-100)",
-                              }}
+                              className="fw-bold"
+                              style={{ color: "var(--green-700)", fontSize: "15px" }}
                             >
                               +{" "}
                               {item.BonusResultDetail?.price?.toLocaleString(

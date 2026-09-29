@@ -3,6 +3,7 @@ import Home from "./Home";
 import BonusService from "../services/bonus.service";
 import { useEffect, useState } from "react";
 import MyModal from "../components/MyModal";
+import { PageHeader } from "../components/shared/PageHeader";
 
 function Bonus() {
   const [bonusDetails, setBonusDetails] = useState([]);
@@ -38,7 +39,7 @@ function Bonus() {
     setIsFetchingBonus(true);
     try {
       Swal.fire({
-        title: "กำลังดึงข้อมูลสลาก... 🐾",
+        title: "กำลังดึงข้อมูลสลาก...",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -50,7 +51,7 @@ function Bonus() {
       if (res.data.status === "success") {
         Swal.fire({
           icon: "success",
-          title: "สำเร็จ! 🐈",
+          title: "สำเร็จ!",
           text: res.data.message,
           timer: 2500,
           showConfirmButton: false,
@@ -130,13 +131,13 @@ function Bonus() {
       <div
         className="badge rounded-pill mb-3 px-3 py-2"
         style={{
-          backgroundColor: "var(--brand-tint)",
-          color: "var(--brand-600)",
+          backgroundColor: "var(--blue-50)",
+          color: "var(--blue-700)",
           fontSize: "0.85rem",
-          border: "1px dashed var(--brand-300)", // เพิ่มขอบเส้นประให้ดูเหมือนคูปองน่ารักๆ
+          border: "1px solid var(--blue-100, var(--blue-50))",
         }}
       >
-        💰 รางวัลละ {price} บาท
+        รางวัลละ {price} บาท
       </div>
       <div className="d-flex flex-wrap gap-3">
         {numbers.length > 0 ? (
@@ -146,7 +147,7 @@ function Bonus() {
               className="fw-bold"
               style={{
                 fontSize: highlight ? "2.5rem" : "1.25rem",
-                color: highlight ? "var(--red-600)" : "#431407",
+                color: highlight ? "var(--red-600)" : "#1e3a8a",
                 letterSpacing: "2px",
                 textShadow: highlight ? "2px 2px 0px var(--brand-200)" : "none", // เงาสีส้มอ่อน
               }}
@@ -166,58 +167,65 @@ function Bonus() {
       <Home>
         {/* 🌟 เพิ่ม container-fluid และ padding เพื่อแก้ปัญหาเนื้อหาชิดขอบซ้าย 🌟 */}
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
-          {/* 🌟 ส่วน Header 🌟 */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
-              🐈 ผลรางวัลสลากกินแบ่งฯ
-            </h1>
-            <button
-              onClick={handleGetBonus}
-              disabled={isFetchingBonus}
-              className="btn text-white rounded-pill px-4 py-2 shadow-sm"
-              style={{
-                backgroundColor: "var(--brand-600)",
-                border: "none",
-                fontWeight: "500",
-                opacity: isFetchingBonus ? 0.7 : 1,
-                cursor: isFetchingBonus ? "not-allowed" : "pointer",
-              }}
-            >
-              <i className="bi bi-cloud-arrow-down-fill me-2"></i>
-              ดึงผลรางวัลล่าสุด 🐟
-            </button>
-          </div>
+          <PageHeader
+            eyebrow="ผลรางวัล"
+            title="ผลรางวัลสลากกินแบ่งฯ"
+            description="ดึงผลรางวัลล่าสุดจากสำนักงานสลากฯ และดูผลรางวัลย้อนหลังแต่ละงวด"
+            count={`${bonusDetails.length} งวด`}
+            actions={
+              <button
+                onClick={handleGetBonus}
+                disabled={isFetchingBonus}
+                className="btn px-4 py-2"
+                style={{
+                  backgroundColor: "var(--blue-50)",
+                  color: "var(--blue-700)",
+                  border: "1px solid var(--blue-100, var(--blue-50))",
+                  borderRadius: "var(--radius-sm)",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  opacity: isFetchingBonus ? 0.7 : 1,
+                  cursor: isFetchingBonus ? "not-allowed" : "pointer",
+                }}
+              >
+                ดึงผลรางวัลล่าสุด
+              </button>
+            }
+          />
 
-          {/* 🌟 ตารางแสดงผลงวดต่างๆ 🌟 */}
           <div
-            className="card border-0 shadow-sm rounded-4 overflow-hidden mb-4"
-            style={{ backgroundColor: "var(--color-white)" }}
+            className="card border overflow-hidden mb-4"
+            style={{
+              backgroundColor: "var(--color-white)",
+              borderRadius: "var(--radius-lg)",
+              borderColor: "var(--slate-200)",
+              boxShadow: "var(--shadow-card)",
+            }}
           >
             <div className="card-body p-0">
               <div className="table-responsive">
               <table className="table table-hover align-middle mb-0">
-                <thead style={{ backgroundColor: "var(--brand-100)" }}>
+                <thead style={{ backgroundColor: "var(--slate-50)" }}>
                   <tr>
                     <th
                       scope="col"
-                      className="px-4 py-3 border-0 text-uppercase"
+                      className="px-4 py-3 border-0"
                       style={{
-                        color: "var(--brand-600)",
-                        fontWeight: "bold",
-                        letterSpacing: "0.5px",
+                        color: "var(--slate-500)",
+                        fontWeight: "600",
+                        fontSize: "13px",
                       }}
                     >
-                      <i className="bi bi-calendar2-heart-fill me-2"></i>{" "}
                       งวดวันที่ออกรางวัล
                     </th>
                     <th
                       scope="col"
-                      className="px-4 py-3 border-0 text-end text-uppercase"
+                      className="px-4 py-3 border-0 text-end"
                       width="180px"
                       style={{
-                        color: "var(--brand-600)",
-                        fontWeight: "bold",
-                        letterSpacing: "0.5px",
+                        color: "var(--slate-500)",
+                        fontWeight: "600",
+                        fontSize: "13px",
                       }}
                     >
                       จัดการ
@@ -246,56 +254,43 @@ function Bonus() {
                     bonusDetails.map((item, index) => (
                       // 🌟 2. เปลี่ยนจาก item.id เป็น index ตรงนี้เลยครับ!
                       <tr key={index}>
-                        <td className="px-4 py-4">
-                          <div className="d-flex align-items-center">
-                            {/* ไอคอนหน้ารายการ (เปลี่ยนเป็นโบว์/ของขวัญ น่ารักๆ) */}
-                            <div
-                              className="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm"
-                              style={{
-                                width: "48px",
-                                height: "48px",
-                                backgroundColor: "var(--brand-tint)",
-                                color: "var(--brand-600)",
-                                border: "2px solid var(--brand-100)",
-                              }}
-                            >
-                              <i className="bi bi-award-fill fs-4"></i>
-                            </div>
-                            <div>
-                              <div className="fw-bold fs-5 text-dark mb-1">
-                                {item.bonusDate}
-                              </div>
-                              <div className="text-muted small">
-                                <i className="bi bi-check-circle-fill text-success me-1"></i>
-                                ออกรางวัลเรียบร้อยแล้ว
-                              </div>
-                            </div>
+                        <td className="px-4 py-3">
+                          <div
+                            className="fw-bold mb-1"
+                            style={{ color: "var(--blue-700)", fontSize: "14px" }}
+                          >
+                            {item.bonusDate}
                           </div>
+                          <span
+                            style={{
+                              backgroundColor: "var(--green-100)",
+                              color: "var(--green-700)",
+                              padding: "3px 12px",
+                              borderRadius: "var(--radius-pill)",
+                              fontSize: "12px",
+                              fontWeight: "700",
+                              display: "inline-block",
+                            }}
+                          >
+                            ออกรางวัลเรียบร้อยแล้ว
+                          </span>
                         </td>
-                        <td className="px-4 py-4 text-end">
+                        <td className="px-4 py-3 text-end">
                           <button
                             onClick={() => handleDetail(item.bonusDate)}
                             data-bs-toggle="modal"
                             data-bs-target="#myModal"
-                            className="btn rounded-pill px-4 py-2 fw-medium shadow-sm transition-all text-nowrap"
+                            className="btn px-3 py-2 text-nowrap"
                             style={{
-                              backgroundColor: "var(--brand-tint)",
-                              color: "var(--brand-600)",
-                              border: "1px solid var(--brand-300)",
-                              transition: "all 0.2s ease-in-out",
-                            }}
-                            onMouseOver={(e) => {
-                              e.target.style.backgroundColor = "var(--brand-600)";
-                              e.target.style.color = "var(--color-white)";
-                              e.target.style.transform = "translateY(-2px)";
-                            }}
-                            onMouseOut={(e) => {
-                              e.target.style.backgroundColor = "var(--brand-tint)";
-                              e.target.style.color = "var(--brand-600)";
-                              e.target.style.transform = "translateY(0)";
+                              background: "var(--color-white)",
+                              color: "var(--slate-600)",
+                              border: "1px solid var(--slate-200)",
+                              borderRadius: "var(--radius-sm)",
+                              fontWeight: "600",
+                              fontSize: "13px",
                             }}
                           >
-                            <i className="bi bi-search me-1"></i> ดูผลรางวัล
+                            ดูผลรางวัล
                           </button>
                         </td>
                       </tr>
@@ -305,16 +300,15 @@ function Bonus() {
                     <tr>
                       <td colSpan="2" className="text-center py-5">
                         <div className="text-muted d-flex flex-column align-items-center">
-                          <div style={{ fontSize: "4rem" }}>😿</div>
+                          <div style={{ fontSize: "4rem" }}>📭</div>
                           <span
                             className="fs-5 mt-2 fw-bold"
                             style={{ color: "var(--brand-700)" }}
                           >
-                            แง้ววว... ยังไม่มีข้อมูลผลรางวัลในระบบ
+                            ยังไม่มีข้อมูลผลรางวัลในระบบ
                           </span>
                           <span className="small mt-1 text-secondary">
-                            กดปุ่ม "ดึงผลรางวัลล่าสุด"
-                            ด้านบนเพื่อป้อนข้อมูลให้น้อนเลยเจ้านาย! 🐟
+                            กดปุ่ม "ดึงผลรางวัลล่าสุด" ด้านบนเพื่อดึงข้อมูลเข้าระบบ
                           </span>
                         </div>
                       </td>

@@ -2,6 +2,12 @@ import Swal from "sweetalert2";
 import Home from "./Home";
 import { useEffect, useState } from "react";
 import lotto from "../services/lotto.service";
+import { PageHeader } from "../components/shared/PageHeader";
+import {
+  FilterBar,
+  FilterBarSearch,
+  FilterBarButton,
+} from "../components/shared/FilterBar";
 
 const Toast = Swal.mixin({
   toast: true,
@@ -19,8 +25,6 @@ function ChangePrice() {
   // State สำหรับฟีเจอร์ค้นหาและกรอง
   const [searchTerm, setSearchTerm] = useState("");
   const [showOnlyChanged, setShowOnlyChanged] = useState(false);
-  // 🌟 State สำหรับแสดงกรอบโฟกัสของช่องค้นหา (เข้าถึงได้ด้วยคีย์บอร์ด/สกรีนรีดเดอร์)
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   useEffect(() => {
     fetchLottos();
@@ -203,7 +207,7 @@ function ChangePrice() {
               }
               .price-input:focus {
                 background-color: var(--color-white);
-                box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.15) !important;
+                box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15) !important;
                 border-color: var(--brand-600) !important;
                 transform: scale(1.03);
               }
@@ -215,7 +219,7 @@ function ChangePrice() {
                 transition: all 0.3s ease;
               }
               .table-cat-stall tbody tr:hover {
-                box-shadow: 0 10px 25px rgba(234, 88, 12, 0.08);
+                box-shadow: 0 10px 25px rgba(37, 99, 235, 0.08);
                 transform: translateY(-3px);
                 z-index: 2;
                 position: relative;
@@ -229,40 +233,22 @@ function ChangePrice() {
               .table-cat-stall td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
 
               .row-changed td {
-                background-color: var(--brand-50) !important; /* พื้นหลังสีส้มอ่อนไฮไลท์แถวที่แก้ */
+                background-color: var(--blue-50) !important;
               }
               .row-changed td:first-child {
-                border-left: 5px solid var(--brand-600); /* ขอบส้มด้านซ้าย */
+                border-left: 3px solid var(--blue-500, #3b82f6);
               }
 
               /* ดีไซน์ตั๋วลอตเตอรี่ */
               .ticket-badge {
                 background: var(--color-white);
-                border: 2px dashed var(--brand-300);
-                color: var(--brand-700);
-                padding: 10px 20px;
-                border-radius: var(--radius-md);
+                border: 1px solid var(--slate-200);
+                color: var(--blue-700);
+                padding: 8px 16px;
+                border-radius: var(--radius-sm);
                 display: inline-block;
-                position: relative;
-                box-shadow: inset 0 0 10px rgba(253, 186, 116, 0.1);
               }
-              .ticket-badge::before, .ticket-badge::after {
-                content: '';
-                position: absolute;
-                top: 50%;
-                width: 14px;
-                height: 14px;
-                background-color: var(--color-white); /* 🌟 ปรับสีเจาะรูให้เข้ากับแถวสีขาว */
-                border-radius: 50%;
-                transform: translateY(-50%);
-              }
-              /* ปรับสีรอยแหว่งตั๋วเมื่อแถวถูกเลือก */
-              .row-changed .ticket-badge::before, .row-changed .ticket-badge::after {
-                background-color: var(--brand-50);
-              }
-              .ticket-badge::before { left: -8px; border-right: 1px solid var(--brand-300); }
-              .ticket-badge::after { right: -8px; border-left: 1px solid var(--brand-300); }
-              
+
               /* สีสถานะ */
               .bg-success-subtle { background-color: var(--emerald-100); }
               .text-success { color: var(--emerald-600); }
@@ -272,203 +258,122 @@ function ChangePrice() {
             `}
           </style>
 
-          {/* 🌟 Header & Action Section */}
-          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 mt-2 gap-3">
-            <div>
-              <h1
-                className="h3 mb-1 fw-bolder d-flex align-items-center"
-                style={{ color: "var(--slate-900)", letterSpacing: "-1px" }}
-              >
-                <div
-                  className="d-flex justify-content-center align-items-center rounded-3 me-3 shadow-sm"
+          <PageHeader
+            eyebrow="จัดการสลาก"
+            title="ปรับราคาแบบเร่งด่วน"
+            description="แก้ไขราคาขายสลากได้หลายใบพร้อมกัน แล้วกดบันทึกทีเดียว"
+            actions={
+              <>
+                <button
+                  onClick={handleReset}
+                  disabled={isSaving || changedCount === 0}
+                  className="btn px-4 fw-semibold"
                   style={{
-                    width: "45px",
-                    height: "45px",
-                    backgroundColor: "var(--brand-600)",
-                    color: "white",
+                    background: "var(--color-white)",
+                    color: "var(--slate-600)",
+                    border: "1px solid var(--slate-200)",
+                    borderRadius: "var(--radius-sm)",
+                    padding: "10px 18px",
+                    fontSize: "14px",
                   }}
                 >
-                  <i className="bi bi-tags-fill fs-5"></i>
-                </div>
-                ปรับราคาแบบเร่งด่วน
-              </h1>
-            </div>
+                  ล้างค่า ({changedCount})
+                </button>
 
-            <div className="d-flex gap-2 flex-wrap">
-              {/* 🌟 ปุ่มคืนค่าเดิม (Reset) */}
-              <button
-                onClick={handleReset}
-                disabled={isSaving || changedCount === 0}
-                className="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm"
-                style={{
-                  padding: "12px 20px",
-                  borderColor: changedCount > 0 ? "var(--slate-400)" : "var(--slate-200)",
-                }}
-              >
-                <i className="bi bi-arrow-counterclockwise me-2"></i>
-                ล้างค่า ({changedCount})
-              </button>
-
-              {/* ปุ่มบันทึก */}
-              <button
-                onClick={handleSave}
-                disabled={isSaving || changedCount === 0}
-                className="btn rounded-pill px-4 shadow-sm fw-bold transition-all"
-                style={{
-                  backgroundColor: changedCount > 0 ? "var(--brand-600)" : "var(--slate-200)",
-                  color: changedCount > 0 ? "white" : "var(--slate-400)",
-                  padding: "12px 24px",
-                  border: "none",
-                }}
-              >
-                {isSaving ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                    กำลังบันทึก...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-cloud-arrow-up-fill me-2 fs-5 align-middle"></i>
-                    บันทึกการเปลี่ยนแปลง
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving || changedCount === 0}
+                  className="btn px-4 fw-semibold"
+                  style={{
+                    backgroundColor:
+                      changedCount > 0 ? "var(--blue-50)" : "var(--slate-100)",
+                    color: changedCount > 0 ? "var(--blue-700)" : "var(--slate-400)",
+                    padding: "10px 20px",
+                    border: changedCount > 0 ? "1px solid var(--blue-100, var(--blue-50))" : "1px solid var(--slate-200)",
+                    borderRadius: "var(--radius-sm)",
+                    fontSize: "14px",
+                  }}
+                >
+                  {isSaving ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      กำลังบันทึก...
+                    </>
+                  ) : (
+                    "บันทึกการเปลี่ยนแปลง"
+                  )}
+                </button>
+              </>
+            }
+          />
 
           {/* 🌟 แถบสถิติภาพรวม (Cat Stall Dashboard) */}
           <div className="row g-3 mb-4">
             {/* จำนวนสลากทั้งหมด */}
-            <div className="col-12 col-md-6">
-              <div
-                className="card border-0 shadow-sm rounded-4"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--brand-600) 0%, var(--brand-400) 100%)",
-                  color: "white",
-                }}
-              >
-                <div className="card-body p-4 d-flex align-items-center">
-                  <div className="fs-1 me-4 opacity-75">
-                    <i className="bi bi-ticket-detailed-fill"></i>
-                  </div>
-                  <div>
-                    <h6
-                      className="fw-bold opacity-75 mb-1 text-uppercase"
-                      style={{ letterSpacing: "1px" }}
+            {[
+              {
+                label: "สลากทั้งหมดบนแผง",
+                value: `${totalTickets.toLocaleString()} ใบ`,
+              },
+              {
+                label: "มูลค่าแผงรวม (ราคาปัจจุบัน)",
+                value: `฿${currentTotalValue.toLocaleString()}`,
+                accent: "var(--green-700)",
+              },
+            ].map((kpi, i) => (
+              <div className="col-12 col-md-6" key={i}>
+                <div
+                  className="card border h-100"
+                  style={{ borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
+                >
+                  <div className="card-body p-4">
+                    <p
+                      className="mb-1 fw-semibold"
+                      style={{ color: "var(--slate-500)", fontSize: "13px" }}
                     >
-                      สลากทั้งหมดบนแผง
-                    </h6>
-                    <div className="display-6 fw-bolder">
-                      {totalTickets.toLocaleString()}{" "}
-                      <span className="fs-4 fw-normal">ใบ</span>
+                      {kpi.label}
+                    </p>
+                    <div className="fs-3 fw-bold" style={{ color: kpi.accent || "var(--slate-900)" }}>
+                      {kpi.value}
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* มูลค่าแผงรวม */}
-            <div className="col-12 col-md-6">
-              <div
-                className="card border-0 shadow-sm rounded-4 bg-white border-start border-4"
-                style={{ borderColor: "var(--brand-600)" }}
-              >
-                <div className="card-body p-4 d-flex align-items-center">
-                  <div className="fs-1 me-4 text-orange opacity-75">
-                    <i className="bi bi-cash-coin"></i>
-                  </div>
-                  <div>
-                    <h6
-                      className="fw-bold text-secondary mb-1 text-uppercase"
-                      style={{ letterSpacing: "1px" }}
-                    >
-                      มูลค่าแผงรวม (ราคาปัจจุบัน)
-                    </h6>
-                    <div className="display-6 fw-bolder text-dark">
-                      ฿{currentTotalValue.toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
+          {/* 🌟 แถบค้นหา/ตัวกรอง (มาตรฐาน FilterBar) */}
+          <FilterBar>
+            <FilterBarSearch
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="พิมพ์เลขลอตเตอรี่เพื่อค้นหา..."
+              ariaLabel="ค้นหาด้วยเลขสลาก"
+            />
+            <FilterBarButton
+              active={!showOnlyChanged}
+              icon="bi-grid-fill"
+              onClick={() => setShowOnlyChanged(false)}
+            >
+              รายการทั้งหมด
+            </FilterBarButton>
+            <FilterBarButton
+              active={showOnlyChanged}
+              icon="bi-pencil-square"
+              badge={changedCount > 0}
+              onClick={() => setShowOnlyChanged(true)}
+            >
+              แก้ไขแล้ว
+            </FilterBarButton>
+          </FilterBar>
+
           <div
-            className="card border-0 shadow-sm rounded-4 overflow-hidden"
-            style={{ backgroundColor: "var(--color-white)" }}
+            className="card border overflow-hidden"
+            style={{ backgroundColor: "var(--color-white)", borderColor: "var(--slate-200)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-card)" }}
           >
-            {/* Toolbar (ค้นหา & กรอง) */}
-            <div className="card-header bg-white border-bottom p-3 p-md-4 d-flex flex-column flex-md-row gap-3 align-items-center justify-content-between">
-              <div
-                className="input-group shadow-sm rounded-pill overflow-hidden"
-                style={{ maxWidth: "400px", border: "1px solid var(--brand-100)" }}
-              >
-                <span className="input-group-text bg-light border-0 text-orange ps-4">
-                  <i className="bi bi-search"></i>
-                </span>
-                <input
-                  type="text"
-                  className="form-control border-0 bg-light py-2 px-3 fw-medium"
-                  placeholder="พิมพ์เลขลอตเตอรี่เพื่อค้นหา..."
-                  aria-label="ค้นหาด้วยเลขสลาก"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  onBlur={() => setIsSearchFocused(false)}
-                  style={{
-                    outline: "none",
-                    boxShadow: isSearchFocused
-                      ? "0 0 0 3px rgba(234, 88, 12, 0.25)"
-                      : "none",
-                  }}
-                />
-                {searchTerm && (
-                  <button
-                    className="btn btn-light border-0 text-muted pe-4"
-                    onClick={() => setSearchTerm("")}
-                    aria-label="ล้างคำค้นหา"
-                  >
-                    <i className="bi bi-x-circle-fill"></i>
-                  </button>
-                )}
-              </div>
-
-              <div
-                className="bg-light p-1 rounded-pill d-inline-flex shadow-sm border flex-wrap"
-                style={{ borderColor: "var(--brand-100)" }}
-              >
-                <button
-                  className={`btn rounded-pill fw-bold px-4 transition-all ${!showOnlyChanged ? "btn-white shadow-sm" : "border-0"}`}
-                  style={{
-                    backgroundColor: !showOnlyChanged ? "var(--color-white)" : "transparent",
-                    color: !showOnlyChanged ? "var(--brand-600)" : "var(--slate-400)",
-                  }}
-                  onClick={() => setShowOnlyChanged(false)}
-                  aria-pressed={!showOnlyChanged}
-                >
-                  <i className="bi bi-grid-fill me-2"></i>รายการทั้งหมด
-                </button>
-                <button
-                  className={`btn rounded-pill fw-bold px-4 position-relative transition-all ${showOnlyChanged ? "btn-white shadow-sm" : "border-0"}`}
-                  style={{
-                    backgroundColor: showOnlyChanged ? "var(--color-white)" : "transparent",
-                    color: showOnlyChanged ? "var(--brand-600)" : "var(--slate-400)",
-                  }}
-                  onClick={() => setShowOnlyChanged(true)}
-                  aria-pressed={showOnlyChanged}
-                >
-                  <i className="bi bi-pencil-square me-2"></i>แก้ไขแล้ว
-                  {changedCount > 0 && (
-                    <span className="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle shadow-sm"></span>
-                  )}
-                </button>
-              </div>
-            </div>
-
             {/* 🌟 ตารางแสดงผล เปลี่ยนสีพื้นให้กลืนกับการ์ด */}
             <div
-              className="card-body p-0 px-3"
+              className="card-body p-0 px-3 pt-3"
               style={{ backgroundColor: "var(--color-white)" }}
             >
               <div
@@ -492,35 +397,22 @@ function ChangePrice() {
                   >
                     <tr>
                       <th
-                        className="px-4 py-3 text-secondary text-start fw-bold"
-                        style={{
-                          fontSize: "0.9rem",
-                          textTransform: "uppercase",
-                          letterSpacing: "1px",
-                        }}
+                        className="px-4 py-3 text-start"
+                        style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}
                       >
-                        🎫 เลขลอตเตอรี่
+                        เลขลอตเตอรี่
                       </th>
                       <th
-                        className="px-3 py-3 text-secondary fw-bold"
-                        style={{
-                          fontSize: "0.9rem",
-                          textTransform: "uppercase",
-                          letterSpacing: "1px",
-                        }}
+                        className="px-3 py-3"
+                        style={{ color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}
                       >
-                        💰 ราคาเดิม
+                        ราคาเดิม
                       </th>
                       <th
-                        className="px-4 py-3 text-secondary fw-bold"
-                        style={{
-                          width: "300px",
-                          fontSize: "0.9rem",
-                          textTransform: "uppercase",
-                          letterSpacing: "1px",
-                        }}
+                        className="px-4 py-3"
+                        style={{ width: "300px", color: "var(--slate-500)", fontWeight: 600, fontSize: "13px" }}
                       >
-                        ✏️ กำหนดราคาใหม่
+                        กำหนดราคาใหม่
                       </th>
                     </tr>
                   </thead>
@@ -575,13 +467,15 @@ function ChangePrice() {
                                 </div>
                                 {isModified && (
                                   <span
-                                    className="badge rounded-pill bg-warning text-dark ms-3 shadow-sm py-2 px-3"
+                                    className="ms-3 py-1 px-3"
                                     style={{
-                                      fontSize: "0.75rem",
-                                      fontWeight: "bold",
+                                      fontSize: "12px",
+                                      fontWeight: "700",
+                                      backgroundColor: "var(--blue-50)",
+                                      color: "var(--blue-700)",
+                                      borderRadius: "var(--radius-pill)",
                                     }}
                                   >
-                                    <i className="bi bi-pencil-fill me-1"></i>{" "}
                                     ได้แก้ราคา
                                   </span>
                                 )}

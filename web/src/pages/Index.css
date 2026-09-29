@@ -322,7 +322,7 @@
     padding: 50px 0;
     border-radius: 0 0 40px 40px;
     margin-bottom: 50px;
-    box-shadow: 0 15px 40px rgba(234, 88, 12, 0.2);
+    box-shadow: 0 15px 40px rgba(37, 99, 235, 0.2);
     position: relative;
     z-index: 3;
 }
@@ -419,7 +419,7 @@
     background-color: var(--color-white);
     color: var(--brand-600);
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(234, 88, 12, 0.15), 0 0 0 3px rgba(234, 88, 12, 0.1);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15), 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .live-status {
@@ -482,7 +482,7 @@
 .section-header {
     font-size: 26px;
     font-weight: 900;
-    color: #431407;
+    color: #1e3a8a;
     margin-bottom: 30px;
     border-left: 6px solid var(--brand-600);
     padding-left: 16px;
@@ -592,13 +592,13 @@
     border-radius: var(--radius-sm);
     border: 1px solid var(--amber-300);
     width: 100%;
-    box-shadow: 0 2px 5px rgba(245, 158, 11, 0.1);
+    box-shadow: 0 2px 5px rgba(59, 130, 246, 0.1);
 }
 
 .stub-text {
     font-size: 9px;
     font-weight: 700;
-    color: #b45309;
+    color: #1d4ed8;
 }
 
 .stub-highlight {
@@ -718,7 +718,7 @@
     font-weight: 800;
     font-size: 12px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     font-family: inherit;
     transition: background .2s;
 }
@@ -752,7 +752,7 @@
     background-color: var(--color-white);
     border-radius: var(--radius-xl);
     border: 3px dashed var(--brand-300);
-    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
 }
 
 .empty-state.searched {
@@ -781,11 +781,11 @@
 
 .cat-modal-content {
     background-color: var(--color-white);
-    width: 90%;
-    max-width: 400px;
-    /* 👈 ลดความกว้างสูงสุดลง (จากเดิม 480px) */
-    max-height: 88vh;
-    /* 👈 กันไม่ให้ Modal สูงเกินจอ โดยเฉพาะมือถือจอเตี้ย เนื้อหาข้างในจะเลื่อนเอง */
+    width: 94%;
+    max-width: 480px;
+    /* 👈 กว้างขึ้น (จากเดิม 400px) ให้ชื่อ+เบอร์โทรวางเรียงกันได้ ไม่ต้องเลื่อนดู */
+    max-height: 96vh;
+    /* 👈 กันไว้เผื่อจอเตี้ยมากจริงๆ เท่านั้น ปกติเนื้อหาควรพอดีไม่ต้องเลื่อน */
     display: flex;
     flex-direction: column;
     border-radius: var(--radius-xl);
@@ -794,6 +794,16 @@
     border: 2px solid var(--amber-200);
     overflow: hidden;
     animation: slideUp 0.3s ease-out;
+}
+
+.form-row-split {
+    display: flex;
+    gap: 10px;
+}
+
+.form-row-split .form-group {
+    flex: 1;
+    min-width: 0;
 }
 
 .cat-modal-header {
@@ -914,7 +924,7 @@
     outline: none;
     border-color: var(--brand-400);
     background-color: var(--color-white);
-    box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.1);
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
 }
 
 .form-group label {
@@ -951,7 +961,7 @@
 
 .btn-confirm-order:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(234, 88, 12, 0.35);
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
 }
 
 @keyframes fadeIn {

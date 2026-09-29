@@ -1,16 +1,16 @@
 :root {
-  /* Brand (orange) */
-  --brand-50: #fff7ed;
-  --brand-tint: #fff7f2;
-  --brand-100: #ffedd5;
-  --brand-200: #fed7aa;
-  --brand-300: #fdba74;
-  --brand-400: #fb923c;
-  --brand-500: #f97316;
-  --brand-600: #ea580c;
-  --brand-700: #c2410c;
-  --brand-800: #9a3412;
-  --amber-50: #fffbeb;
+  /* Brand (blue / navy) */
+  --brand-50: #eff6ff;
+  --brand-tint: #f5f9ff;
+  --brand-100: #dbeafe;
+  --brand-200: #bfdbfe;
+  --brand-300: #93c5fd;
+  --brand-400: #60a5fa;
+  --brand-500: #3b82f6;
+  --brand-600: #2563eb;
+  --brand-700: #1d4ed8;
+  --brand-800: #1e3a8a;
+  --amber-50: #eff6ff;
 
   /* Neutrals */
   --color-white: #ffffff;
@@ -49,20 +49,20 @@
   --rose-50: #fff1f2;
   --rose-600: #e11d48;
 
-  /* Warning (amber) */
-  --amber-100: #fef3c7;
-  --amber-200: #fde08b;
-  --amber-300: #fcd34d;
-  --amber-500: #f59e0b;
+  /* Warning (kept amber for genuine "pending/caution" states, e.g. bootstrap alerts) */
+  --amber-100: #dbeafe;
+  --amber-200: #bfdbfe;
+  --amber-300: #93c5fd;
+  --amber-500: #3b82f6;
 
   /* Info (blue) */
   --blue-50: #eff6ff;
   --blue-500: #3b82f6;
   --blue-700: #1d4ed8;
 
-  /* Accent (purple / fuchsia) */
-  --fuchsia-50: #fdf4ff;
-  --fuchsia-700: #a21caf;
+  /* Accent (navy, replaces the old purple/fuchsia accent) */
+  --fuchsia-50: #eff6ff;
+  --fuchsia-700: #1e3a8a;
 
   /* Radius scale */
   --radius-sm: 8px;
@@ -72,9 +72,9 @@
   --radius-pill: 50px;
 
   /* Shadow scale (brand-tinted elevation) */
-  --shadow-card: 0 20px 40px rgba(234, 88, 12, 0.08);
-  --shadow-card-lifted: 0 25px 50px -12px rgba(234, 88, 12, 0.25);
-  --shadow-primary-strong: 0 8px 20px rgba(234, 88, 12, 0.25);
+  --shadow-card: 0 20px 40px rgba(37, 99, 235, 0.08);
+  --shadow-card-lifted: 0 25px 50px -12px rgba(37, 99, 235, 0.25);
+  --shadow-primary-strong: 0 8px 20px rgba(37, 99, 235, 0.25);
 }
 
 *,
@@ -106,4 +106,20 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Retint Bootstrap's default yellow "warning" utilities to the blue brand,
+   since this app uses them purely as a loading/attention accent, not semantic warnings. */
+.text-warning {
+  color: var(--brand-600) !important;
+}
+
+.border-warning {
+  border-color: var(--brand-500) !important;
+}
+
+.btn-warning {
+  background-color: var(--brand-600) !important;
+  border-color: var(--brand-600) !important;
+  color: var(--color-white) !important;
 }

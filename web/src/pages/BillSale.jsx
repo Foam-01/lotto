@@ -5,6 +5,12 @@ import { useEffect, useState } from "react";
 import BillSaleService from "../services/bill-sale.service";
 import * as dayjs from "dayjs";
 import { formatDate, formatDateTime } from "../utils/format";
+import { PageHeader } from "../components/shared/PageHeader";
+import {
+  FilterBar,
+  FilterBarSearch,
+  FilterBarClear,
+} from "../components/shared/FilterBar";
 
 const Toast = Swal.mixin({
   toast: true,
@@ -24,6 +30,7 @@ function BillSale() {
 
   const [billSales, setBillSales] = useState([]);
   const [billSale, setBillSale] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
   const [totalPrice, setTotalPrice] = useState(0);
   const [payDate, setPayDate] = useState(currentDate);
   const [payTime, setPayTime] = useState(currentDateTime);
@@ -169,88 +176,44 @@ function BillSale() {
     }
   };
 
+  // 🌟 ค้นหาบิลฝั่ง client จากรายการที่โหลดมาแล้ว (ไม่ยิง API เพิ่ม)
+  const filteredBillSales = billSales.filter((item) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    const haystack = [item.customerName, item.customerPhone]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+
   return (
     <>
       <Home>
         <div style={styles.page}>
-          <div className="sunburst-bg"></div>
-          <div className="bg-pattern"></div>
-          {[
-            { emoji: "🧾", top: "15%", left: "5%", size: "70px", delay: "0s" },
-            { emoji: "🐾", top: "45%", right: "6%", size: "90px", delay: "1s" },
-            { emoji: "💰", top: "75%", left: "8%", size: "60px", delay: "2s" },
-            {
-              emoji: "🍀",
-              top: "85%",
-              right: "12%",
-              size: "65px",
-              delay: "0.5s",
-            },
-            {
-              emoji: "🐈",
-              top: "30%",
-              left: "20%",
-              size: "50px",
-              delay: "1.5s",
-            },
-            {
-              emoji: "🐾",
-              top: "60%",
-              right: "25%",
-              size: "40px",
-              delay: "2.5s",
-            },
-          ].map((icon, index) => (
-            <div
-              key={index}
-              className="floating-icon"
-              aria-hidden="true"
-              style={{
-                top: icon.top,
-                left: icon.left,
-                right: icon.right,
-                fontSize: icon.size,
-                animationDelay: icon.delay,
-              }}
-            >
-              {icon.emoji}
-            </div>
-          ))}
-
-          <style>{`
-            @media (max-width: 480px) {
-              .billsale-header-emoji {
-                font-size: 40px !important;
-              }
-            }
-          `}</style>
-
           <div className="container" style={styles.container}>
-            <div style={styles.header}>
-              <div>
-                <h2 style={{ ...styles.titleMain, flexWrap: "wrap" }}>
-                  <span
-                    className="me-3 billsale-header-emoji"
-                    style={styles.headerEmoji}
-                  >
-                    🐈
-                  </span>
-                  รายการสั่งซื้อ
-                </h2>
-                <p style={styles.subtitleMain}>
-                  ตรวจสอบรายการสั่งซื้อสลาก และอัปเดตสถานะการชำระเงินของลูกค้า
-                </p>
-              </div>
-            </div>
+            <PageHeader
+              eyebrow="งานขาย"
+              title="รายการสั่งซื้อ"
+              description="ตรวจสอบรายการสั่งซื้อสลาก และอัปเดตสถานะการชำระเงินของลูกค้า"
+              count={`${filteredBillSales.length} รายการ`}
+            />
+
+            <FilterBar>
+              <FilterBarSearch
+                value={searchTerm}
+                onChange={setSearchTerm}
+                placeholder="ค้นหาชื่อลูกค้า, เบอร์โทร..."
+              />
+              <FilterBarClear
+                show={!!searchTerm}
+                onClick={() => setSearchTerm("")}
+              />
+            </FilterBar>
 
             <div style={styles.tableCard}>
               <div style={styles.tableHeaderContainer}>
-                <h4 style={styles.cardTitle}>
-                  บิลรายการสั่งซื้อล่าสุด
-                  <span style={styles.badgeCount}>
-                    {billSales.length} รายการ
-                  </span>
-                </h4>
+                <h4 style={styles.cardTitle}>บิลรายการสั่งซื้อล่าสุด</h4>
               </div>
 
               <div style={{ overflowX: "auto" }}>
@@ -282,20 +245,14 @@ function BillSale() {
                           กำลังโหลดข้อมูล...
                         </td>
                       </tr>
-                    ) : billSales.length > 0 ? (
-                      billSales.map((item, index) => (
+                    ) : filteredBillSales.length > 0 ? (
+                      filteredBillSales.map((item, index) => (
                         <tr key={index} style={styles.tableRow}>
                           <td style={styles.td}>
-                            <div style={styles.dateBadge}>
-                              <i className="bi bi-calendar-event text-muted me-1"></i>
-                              {formatDate(item.createdDate)}
-                            </div>
+                            {formatDate(item.createdDate)}
                           </td>
 
-                          <td style={styles.tdName}>
-                            <i className="bi bi-person-circle text-muted me-1"></i>
-                            {item.customerName}
-                          </td>
+                          <td style={styles.tdName}>{item.customerName}</td>
 
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             {item.customerPhone || "-"}
@@ -317,12 +274,10 @@ function BillSale() {
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             {item.payDate ? (
                               <span style={styles.statusPaid}>
-                                <i className="bi bi-check-circle-fill me-1"></i>
                                 {formatDateTime(item.payDate, item.payTime)}
                               </span>
                             ) : (
                               <span style={styles.statusPending}>
-                                <i className="bi bi-clock-fill me-1"></i>{" "}
                                 รอชำระเงิน
                               </span>
                             )}
@@ -343,7 +298,7 @@ function BillSale() {
                                 data-bs-target="#modalBillSalaDetail"
                                 onClick={(e) => handleSumTotalPrice(item)}
                               >
-                                <i className="bi bi-search"></i> รายละเอียด
+                                รายละเอียด
                               </button>
 
                               <button
@@ -353,20 +308,17 @@ function BillSale() {
                                 style={styles.btnSuccess}
                                 title="ยืนยันการชำระเงิน"
                               >
-                                <i className="bi bi-check-circle-fill"></i>{" "}
                                 ยืนยันชำระ
                               </button>
 
-                              <div style={styles.btnCancelWrap}>
-                                <button
-                                  onClick={(e) => handleRemove(item)}
-                                  style={styles.btnCancel}
-                                  title="ยกเลิกออเดอร์"
-                                  aria-label="ยกเลิกออเดอร์"
-                                >
-                                  <i className="bi bi-x-circle-fill"></i>
-                                </button>
-                              </div>
+                              <button
+                                onClick={(e) => handleRemove(item)}
+                                style={styles.btnCancel}
+                                title="ยกเลิกออเดอร์"
+                                aria-label="ยกเลิกออเดอร์"
+                              >
+                                <i className="bi bi-x-lg"></i>
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -379,7 +331,9 @@ function BillSale() {
                           >
                             📭
                           </div>
-                          ยังไม่มีรายการสั่งซื้อเข้ามา
+                          {searchTerm
+                            ? `ไม่พบรายการที่ตรงกับ "${searchTerm}"`
+                            : "ยังไม่มีรายการสั่งซื้อเข้ามา"}
                         </td>
                       </tr>
                     )}
@@ -465,8 +419,8 @@ function BillSale() {
               <div
                 className="mt-4 p-3 rounded-4 d-flex justify-content-between align-items-center"
                 style={{
-                  backgroundColor: "var(--brand-50)",
-                  border: "2px dashed var(--brand-200)",
+                  backgroundColor: "var(--blue-50)",
+                  border: "1px solid var(--slate-200)",
                 }}
               >
                 <span className="fw-bold text-muted">ยอดชำระรวม</span>
@@ -605,13 +559,12 @@ function BillSale() {
 // 🟠 CSS ความสวยงามธีม แผงแมวส้ม
 const styles = {
   page: {
-    backgroundColor: "var(--amber-50)",
+    backgroundColor: "var(--slate-50)",
     minHeight: "100vh",
     paddingTop: "40px",
     paddingBottom: "80px",
     fontFamily: "'Kanit', sans-serif",
     position: "relative",
-    overflow: "hidden",
   },
   container: {
     maxWidth: "1250px",
@@ -619,74 +572,43 @@ const styles = {
     position: "relative",
     zIndex: 2,
   },
-  header: { marginBottom: "40px" },
-  titleMain: {
-    fontSize: "32px",
-    fontWeight: "900",
-    color: "var(--brand-600)",
-    margin: 0,
-    display: "flex",
-    alignItems: "center",
-  },
-  headerEmoji: {
-    fontSize: "70px",
-    filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.1))",
-  },
-  subtitleMain: {
-    color: "var(--slate-400)",
-    marginTop: "10px",
-    fontSize: "16px",
-    fontWeight: "500",
-  },
   tableCard: {
     backgroundColor: "var(--color-white)",
-    borderRadius: "var(--radius-xl)",
-    padding: "35px 40px",
+    borderRadius: "var(--radius-lg)",
+    padding: "28px 32px",
     boxShadow: "var(--shadow-card)",
-    borderTop: "8px solid var(--brand-600)",
-    animation: "slideUp 0.3s ease-out forwards",
+    border: "1px solid var(--slate-200)",
   },
   tableHeaderContainer: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "25px",
-    borderBottom: "2px solid var(--brand-200)",
-    paddingBottom: "20px",
+    marginBottom: "16px",
+    borderBottom: "1px solid var(--slate-100)",
+    paddingBottom: "14px",
   },
   cardTitle: {
-    fontSize: "22px",
-    fontWeight: "800",
+    fontSize: "16px",
+    fontWeight: "700",
     color: "var(--slate-900)",
     margin: 0,
     display: "flex",
     alignItems: "center",
   },
-  badgeCount: {
-    backgroundColor: "var(--brand-50)",
-    color: "var(--brand-600)",
-    fontSize: "14px",
-    fontWeight: "700",
-    padding: "6px 16px",
-    borderRadius: "50rem",
-    marginLeft: "15px",
-    border: "1px solid var(--brand-200)",
-  },
-  table: { width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" },
+  table: { width: "100%", borderCollapse: "collapse" },
   th: {
-    backgroundColor: "var(--brand-50)",
-    padding: "16px",
+    backgroundColor: "var(--slate-50)",
+    padding: "12px 14px",
     textAlign: "left",
-    fontWeight: "700",
-    color: "var(--brand-700)",
-    fontSize: "15px",
+    fontWeight: "600",
+    color: "var(--slate-500)",
+    fontSize: "13px",
     whiteSpace: "nowrap",
-    borderTop: "none",
-    borderBottom: "none",
+    borderBottom: "1px solid var(--slate-200)",
   },
-  tableRow: { transition: "all 0.2s ease" },
+  tableRow: { transition: "background-color 0.2s ease" },
   td: {
-    padding: "18px 16px",
+    padding: "14px",
     color: "var(--slate-600)",
     fontSize: "14px",
     fontWeight: "500",
@@ -694,22 +616,12 @@ const styles = {
     borderBottom: "1px solid var(--slate-100)",
   },
   tdName: {
-    padding: "18px 16px",
-    color: "var(--slate-900)",
-    fontSize: "15px",
+    padding: "14px",
+    color: "var(--blue-700)",
+    fontSize: "14px",
     fontWeight: "700",
     verticalAlign: "middle",
     borderBottom: "1px solid var(--slate-100)",
-  },
-  dateBadge: {
-    display: "inline-block",
-    backgroundColor: "var(--slate-50)",
-    padding: "6px 12px",
-    borderRadius: "var(--radius-md)",
-    border: "1px solid var(--slate-200)",
-    fontSize: "13px",
-    color: "var(--slate-500)",
-    fontWeight: "600",
   },
   addressText: {
     maxWidth: "180px",
@@ -720,62 +632,55 @@ const styles = {
   statusPaid: {
     backgroundColor: "var(--green-100)",
     color: "var(--green-700)",
-    padding: "8px 16px",
-    borderRadius: "50rem",
-    fontSize: "13px",
+    padding: "3px 12px",
+    borderRadius: "var(--radius-pill)",
+    fontSize: "12px",
     fontWeight: "700",
     display: "inline-block",
-    boxShadow: "0 2px 5px rgba(22, 163, 74, 0.1)",
   },
   statusPending: {
     backgroundColor: "var(--amber-100)",
-    color: "#b45309",
-    padding: "8px 16px",
-    borderRadius: "50rem",
-    fontSize: "13px",
+    color: "#1d4ed8",
+    padding: "3px 12px",
+    borderRadius: "var(--radius-pill)",
+    fontSize: "12px",
     fontWeight: "700",
     display: "inline-block",
   },
   btnInfo: {
-    background: "var(--slate-50)",
-    color: "var(--blue-500)",
-    border: "1px solid #bfdbfe",
-    padding: "10px 16px",
-    minHeight: "40px",
-    borderRadius: "50rem",
-    fontWeight: "700",
+    background: "var(--color-white)",
+    color: "var(--slate-600)",
+    border: "1px solid var(--slate-200)",
+    padding: "6px 12px",
+    minHeight: "34px",
+    borderRadius: "var(--radius-sm)",
+    fontWeight: "600",
     cursor: "pointer",
     fontSize: "13px",
     transition: "all 0.2s",
     whiteSpace: "nowrap",
   },
   btnSuccess: {
-    background: "linear-gradient(135deg, var(--emerald-500), var(--emerald-600))",
-    color: "var(--color-white)",
-    border: "none",
-    padding: "10px 18px",
-    minHeight: "40px",
-    borderRadius: "50rem",
-    fontWeight: "700",
+    background: "var(--emerald-50, #ecfdf5)",
+    color: "var(--emerald-700)",
+    border: "1px solid var(--emerald-200, #a7f3d0)",
+    padding: "6px 12px",
+    minHeight: "34px",
+    borderRadius: "var(--radius-sm)",
+    fontWeight: "600",
     cursor: "pointer",
     fontSize: "13px",
     transition: "all 0.2s",
-    boxShadow: "0 4px 10px rgba(16, 185, 129, 0.25)",
     whiteSpace: "nowrap",
-  },
-  btnCancelWrap: {
-    marginLeft: "6px",
-    paddingLeft: "10px",
-    borderLeft: "1px dashed var(--slate-200)",
   },
   btnCancel: {
     background: "var(--red-50)",
-    color: "var(--red-500)",
-    border: "1px solid var(--red-200)",
-    padding: "10px 14px",
-    minHeight: "40px",
-    borderRadius: "50rem",
-    fontWeight: "700",
+    color: "var(--red-600)",
+    border: "1px solid var(--red-100)",
+    padding: "6px 10px",
+    minHeight: "34px",
+    borderRadius: "var(--radius-sm)",
+    fontWeight: "600",
     cursor: "pointer",
     fontSize: "13px",
     transition: "all 0.2s",
@@ -783,9 +688,9 @@ const styles = {
   emptyState: {
     textAlign: "center",
     color: "var(--slate-400)",
-    padding: "80px 20px",
+    padding: "60px 20px",
     fontWeight: "600",
-    fontSize: "18px",
+    fontSize: "16px",
   },
 
   // --- Modal Styles 🌟 ---

@@ -241,7 +241,7 @@ const styles = {
     margin: "0 auto 12px",
     fontSize: "32px",
     border: "2px solid var(--brand-200)",
-    boxShadow: "0 4px 10px rgba(234, 88, 12, 0.1)",
+    boxShadow: "0 4px 10px rgba(37, 99, 235, 0.1)",
   },
   title: {
     margin: 0,
@@ -279,7 +279,7 @@ const styles = {
   inputFocus: {
     border: "2px solid var(--brand-600)",
     backgroundColor: "var(--color-white)",
-    boxShadow: "0 0 0 4px rgba(234, 88, 12, 0.1)",
+    boxShadow: "0 0 0 4px rgba(37, 99, 235, 0.1)",
   },
   button: {
     width: "100%",
@@ -292,7 +292,7 @@ const styles = {
     fontWeight: "700",
     cursor: "pointer",
     marginTop: "8px",
-    boxShadow: "0 4px 15px rgba(234, 88, 12, 0.3)",
+    boxShadow: "0 4px 15px rgba(37, 99, 235, 0.3)",
     transition: "all 0.2s ease",
     fontFamily: "'Kanit', sans-serif",
   },
