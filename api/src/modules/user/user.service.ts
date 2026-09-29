@@ -1,6 +1,12 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
+import { hashPassword, verifyPassword } from '../../common/password.util';
 
 @Injectable()
 export class UserService {
@@ -32,7 +38,7 @@ export class UserService {
       return await this.prisma.user.create({
         data: {
           ...dto,
-          pwd: dto.pwd as string, // 🌟 ใส่ 'as string' เพื่อยืนยันกับ TypeScript ว่าได้รับตัวหนังสือมาแน่นอน ไม่ใช่ undefined
+          pwd: await hashPassword(dto.pwd as string),
         },
       });
     } catch (e) {
@@ -44,7 +50,13 @@ export class UserService {
 
   async edit(id: number, dto: UserDto) {
     try {
-      return await this.prisma.user.update({ where: { id }, data: dto });
+      const data: UserDto = { ...dto };
+      if (data.pwd) {
+        data.pwd = await hashPassword(data.pwd);
+      } else {
+        delete data.pwd;
+      }
+      return await this.prisma.user.update({ where: { id }, data });
     } catch (e) {
       throw new InternalServerErrorException('ไม่สามารถแก้ไขข้อมูลได้');
     }
@@ -59,21 +71,22 @@ export class UserService {
   }
 
   async changePassword(id: number, oldPassword: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException('ไม่พบผู้ใช้งาน');
+
+    // 🌟 ต้องเช็ค oldPassword ให้ตรงก่อนเสมอ (ของเดิมไม่ได้เช็คจุดนี้เลย)
+    const isOldPasswordCorrect = await verifyPassword(oldPassword, user.pwd);
+    if (!isOldPasswordCorrect) {
+      throw new BadRequestException('รหัสผ่านเดิมไม่ถูกต้อง');
+    }
+
     try {
-      const user = await this.prisma.user.findUnique({ where: { id } });
-      if (!user) throw new InternalServerErrorException('ไม่พบผู้ใช้งาน');
-
-      // 🚨 หมายเหตุ: ในระบบจริงต้องมีลอจิกเช็ค oldPassword ด้วยนะครับ
-
       return await this.prisma.user.update({
         where: { id },
-        // 🌟 แก้ตรงนี้ครับ! เปลี่ยนจาก password เป็น pwd ให้ตรงกับ Database
-        data: { pwd: newPassword },
+        data: { pwd: await hashPassword(newPassword) },
       });
     } catch (e) {
-      throw new InternalServerErrorException(
-        'รหัสผ่านเดิมไม่ถูกต้อง หรือไม่สามารถเปลี่ยนได้',
-      );
+      throw new InternalServerErrorException('ไม่สามารถเปลี่ยนรหัสผ่านได้');
     }
   }
 }
