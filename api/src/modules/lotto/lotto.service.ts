@@ -1,16 +1,26 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ConfirmBuyDto, ConfirmPayDto, SearchLottoDto } from './dto/lotto.dto';
-import { it } from 'node:test';
+import {
+  ChangePriceItemDto,
+  ConfirmBuyDto,
+  ConfirmPayDto,
+  LottoDto,
+  SearchLottoDto,
+  SendSaveDto,
+} from './dto/lotto.dto';
 
 @Injectable()
 export class LottoService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: any) {
+  async create(dto: LottoDto) {
     try {
       // 🌟 ใส่ { result: ... } ครอบเอาไว้เพื่อให้ React หน้าบ้านอ่านรู้เรื่องครับ
-      const res = await this.prisma.lotto.create({ data });
+      const res = await this.prisma.lotto.create({ data: dto });
       return { result: res };
     } catch (e) {
       throw new InternalServerErrorException('ไม่สามารถบันทึกสลากได้');
@@ -45,10 +55,10 @@ export class LottoService {
     }
   }
 
-  async edit(id: number, data: any) {
+  async edit(id: number, dto: LottoDto) {
     try {
       return {
-        result: await this.prisma.lotto.update({ where: { id }, data }),
+        result: await this.prisma.lotto.update({ where: { id }, data: dto }),
       };
     } catch (e) {
       throw new InternalServerErrorException('ไม่สามารถแก้ไขข้อมูลได้');
@@ -69,31 +79,60 @@ export class LottoService {
 
   async confirmBuy(dto: ConfirmBuyDto) {
     try {
-      // 🌟 ดึงราคาสลากทุกใบในตะกร้ามาครั้งเดียว แทนการ findFirst ทีละใบในลูป (N+1)
       const cartLottoIds = dto.carts.map((cartData) => cartData.item.id);
-      const lottos = await this.prisma.lotto.findMany({
-        where: { id: { in: cartLottoIds } },
-      });
-      const saleById = new Map(lottos.map((lotto) => [lotto.id, lotto.sale]));
 
-      const res = await this.prisma.billSale.create({
-        data: {
-          customerName: dto.customerName,
-          customerPhone: dto.customerPhone,
-          customerAddress: dto.customerAddress,
-          createdDate: new Date(),
-        },
-      });
+      // 🌟 ทำทุกอย่างในนี้เป็น transaction เดียว: เช็คว่ามีใบไหนถูกจองไปแล้วระหว่างทาง
+      // ก่อนสร้างจริง เพื่อลดโอกาสขายสลากใบเดียวกันซ้ำให้ลูกค้า 2 คนพร้อมกัน (race condition)
+      // เช็คนี้ให้ error message ที่อ่านง่ายในเคสปกติ ส่วนกรณีที่สอง request ชนกันพอดี
+      // (ผ่านเช็คนี้พร้อมกันทั้งคู่) มี @@unique([lottoId]) ที่ BillSaleDetail เป็น
+      // safety net ชั้นสุดท้ายระดับ DB อยู่แล้ว (ดักไว้ใน catch ด้านล่าง)
+      return await this.prisma.$transaction(async (tx) => {
+        const [lottos, alreadyReserved] = await Promise.all([
+          tx.lotto.findMany({ where: { id: { in: cartLottoIds } } }),
+          tx.billSaleDetail.findMany({
+            where: { lottoId: { in: cartLottoIds } },
+            select: { lottoId: true },
+          }),
+        ]);
 
-      await this.prisma.billSaleDetail.createMany({
-        data: dto.carts.map((cartData) => ({
-          billSaleId: res.id,
-          lottoId: cartData.item.id,
-          price: saleById.get(cartData.item.id) ?? 0,
-        })),
+        if (alreadyReserved.length > 0) {
+          throw new ConflictException(
+            'สลากบางใบในตะกร้าเพิ่งถูกลูกค้าคนอื่นซื้อไปก่อนหน้านี้ กรุณาล้างตะกร้าแล้วเลือกใหม่อีกครั้ง',
+          );
+        }
+
+        const saleById = new Map(
+          lottos.map((lotto) => [lotto.id, lotto.sale]),
+        );
+
+        const billSale = await tx.billSale.create({
+          data: {
+            customerName: dto.customerName,
+            customerPhone: dto.customerPhone,
+            customerAddress: dto.customerAddress,
+            createdDate: new Date(),
+          },
+        });
+
+        await tx.billSaleDetail.createMany({
+          data: dto.carts.map((cartData) => ({
+            billSaleId: billSale.id,
+            lottoId: cartData.item.id,
+            price: saleById.get(cartData.item.id) ?? 0,
+          })),
+        });
+
+        return { message: 'success' };
       });
-      return { message: 'success' };
     } catch (e) {
+      if (e instanceof ConflictException) throw e;
+      // 🌟 P2002 = unique constraint violation ที่ DB (เคสสอง request ชนกันพอดีในหน้าต่างเวลาสั้นๆ
+      // ระหว่างเช็คกับ insert ซึ่งเช็คระดับ Application ด้านบนจับไม่ทัน)
+      if ((e as { code?: string })?.code === 'P2002') {
+        throw new ConflictException(
+          'สลากบางใบในตะกร้าเพิ่งถูกลูกค้าคนอื่นซื้อไปก่อนหน้านี้ กรุณาล้างตะกร้าแล้วเลือกใหม่อีกครั้ง',
+        );
+      }
       console.error('🔥 Error ConfirmBuy:', e);
       throw new InternalServerErrorException('ไม่สามารถบันทึกคำสั่งซื้อได้');
     }
@@ -193,13 +232,13 @@ export class LottoService {
     }
   }
 
-  async sendSave(data: any) {
+  async sendSave(dto: SendSaveDto) {
     try {
       const rowCount = await this.prisma.billSaleForSend.findMany({
-        where: { billSaleId: data.billSaleId },
+        where: { billSaleId: dto.billSaleId },
       });
       if (rowCount.length == 0) {
-        await this.prisma.billSaleForSend.create({ data });
+        await this.prisma.billSaleForSend.create({ data: dto as any });
         return { message: 'success' };
       }
       return { message: 'data exist' };
@@ -238,24 +277,14 @@ export class LottoService {
       );
 
       if (matchedBonusResults.length > 0) {
-        const existingRows = await this.prisma.lottoIsBonus.findMany({
-          where: {
-            bonusResultDetailId: {
-              in: matchedBonusResults.map((b) => b.id),
-            },
-          },
+        // 🌟 ให้ DB เป็นคนกันซ้ำผ่าน unique constraint (skipDuplicates) แทนการ findMany เช็คก่อนสร้าง
+        // เพราะการเช็คแล้วค่อย insert ที่ฝั่ง Application ไม่ atomic ถ้ามีคนเรียก endpoint นี้ซ้อนกันพอดี
+        await this.prisma.lottoIsBonus.createMany({
+          data: matchedBonusResults.map((bonusResult) => ({
+            bonusResultDetailId: bonusResult.id,
+          })),
+          skipDuplicates: true,
         });
-        const alreadySaved = new Set(
-          existingRows.map((row) => row.bonusResultDetailId),
-        );
-
-        const toCreate = matchedBonusResults
-          .filter((bonusResult) => !alreadySaved.has(bonusResult.id))
-          .map((bonusResult) => ({ bonusResultDetailId: bonusResult.id }));
-
-        if (toCreate.length > 0) {
-          await this.prisma.lottoIsBonus.createMany({ data: toCreate });
-        }
       }
       return { message: 'success' };
     } catch (e) {
@@ -279,7 +308,7 @@ export class LottoService {
     }
   }
 
-  async changePrice(lottos: any[]) {
+  async changePrice(lottos: ChangePriceItemDto[]) {
     try {
       // 🌟 ส่งคำสั่ง update ทั้งหมดเป็น 1 transaction แทนการ await ทีละแถวแบบ sequential
       // (แต่ละใบราคาไม่เท่ากัน จึงยังต้องเป็นคนละ statement แต่ลด round-trip ระหว่าง statement ลง)

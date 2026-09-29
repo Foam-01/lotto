@@ -70,8 +70,11 @@ model BillSaleDetail {
   price                 Int?
   BillSaleDetailIsBonus BillSaleDetailIsBonus[]
 
+  // ตั๋ว 1 ใบขายได้ครั้งละ 1 ครั้งเท่านั้น (removeBill() ลบแถวนี้ทิ้งจริงตอนยกเลิกบิล เพื่อคืนตั๋วเข้าสต๊อก
+  // จึงไม่มีเคสที่ lottoId เดียวกันควรมีแถวนี้พร้อมกันสองแถว) — เป็น safety net ระดับ DB
+  // ปิด race condition ที่เช็คแค่ระดับ Application ใน confirmBuy() ให้สมบูรณ์
   @@index([billSaleId])
-  @@index([lottoId])
+  @@unique([lottoId])
 }
 
 model BillSaleForSend {
@@ -98,7 +101,6 @@ model BonusResultDetail {
   lottoIsBonuses        LottoIsBonus[]
 
   @@index([bonusDate])
-  @@index([number])
 }
 
 model BillSaleDetailIsBonus {
@@ -108,7 +110,9 @@ model BillSaleDetailIsBonus {
   bonusResultDetailId Int?
   BonusResultDetail   BonusResultDetail? @relation(fields: [bonusResultDetailId], references: [id])
 
-  @@index([billSaleDetailId])
+  // ป้องกันไม่ให้สลากใบเดียวกันถูกบันทึกว่าถูกรางวัลเดียวกันซ้ำสองแถว (กัน race condition ตอนกด "ตรวจรางวัล" ซ้อนกัน)
+  // @@unique ครอบคลุมการค้นหาด้วย billSaleDetailId เดี่ยวๆ ได้อยู่แล้ว (leftmost column) จึงตัด @@index([billSaleDetailId]) เดิมทิ้งเพราะซ้ำซ้อน
+  @@unique([billSaleDetailId, bonusResultDetailId])
   @@index([bonusResultDetailId])
 }
 
@@ -119,7 +123,8 @@ model LottoIsBonus {
   bonusResultDetailId Int
   BonusResultDetail   BonusResultDetail @relation(fields: [bonusResultDetailId], references: [id])
 
-  @@index([bonusResultDetailId])
+  // บังคับที่ระดับ DB ว่าผลรางวัลแต่ละงวดบันทึกได้แค่แถวเดียว (เดิม logic เช็คด้วย findFirst ก่อน create ซึ่งไม่ atomic ใต้ concurrency)
+  @@unique([bonusResultDetailId])
 }
 
 model Banner {

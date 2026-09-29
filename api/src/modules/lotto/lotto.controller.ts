@@ -10,7 +10,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { LottoService } from './lotto.service';
-import { ConfirmBuyDto, ConfirmPayDto, SearchLottoDto } from './dto/lotto.dto';
+import {
+  ChangePriceDto,
+  ConfirmBuyDto,
+  ConfirmPayDto,
+  LottoDto,
+  SearchLottoDto,
+  SendSaveDto,
+} from './dto/lotto.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'; // 🌟 ดึงยามมาจากโฟลเดอร์ common
 
 @Controller('/api/lotto')
@@ -22,8 +29,8 @@ export class LottoController {
   // ----------------------------------------------------
   @UseGuards(JwtAuthGuard)
   @Post('create')
-  async create(@Body() lotto: any) {
-    return this.lottoService.create(lotto);
+  async create(@Body() dto: LottoDto) {
+    return this.lottoService.create(dto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -40,8 +47,8 @@ export class LottoController {
 
   @UseGuards(JwtAuthGuard)
   @Put('edit/:id')
-  async edit(@Param('id', ParseIntPipe) id: number, @Body() lotto: any) {
-    return this.lottoService.edit(id, lotto);
+  async edit(@Param('id', ParseIntPipe) id: number, @Body() dto: LottoDto) {
+    return this.lottoService.edit(id, dto);
   }
 
   // ----------------------------------------------------
@@ -62,37 +69,54 @@ export class LottoController {
     return this.lottoService.confirmBuy(dto);
   }
 
-  // ... ฟังก์ชันที่เหลือด้านล่าง คุณสามารถเลือกแปะ @UseGuards(JwtAuthGuard) ได้ตามความเหมาะสมเลยครับ
-  @Get('billSale') async billSale() {
+  // ----------------------------------------------------
+  // 🔒 โซนของพนักงาน (Admin) เช่นกัน — Guard เดิมหายไป เพิ่มกลับเข้ามาให้ครบ
+  // (Frontend ทุกจุดนี้แนบ Authorization header อยู่แล้ว ไม่กระทบการใช้งาน)
+  // ----------------------------------------------------
+  @UseGuards(JwtAuthGuard)
+  @Get('billSale')
+  async billSale() {
     return this.lottoService.getBillSale();
   }
-  @Delete('removeBill/:id') async removeBill(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  @UseGuards(JwtAuthGuard)
+  @Delete('removeBill/:id')
+  async removeBill(@Param('id', ParseIntPipe) id: number) {
     return this.lottoService.removeBill(id);
   }
-  @Post('ConfirmPay') async confirmPay(@Body() dto: ConfirmPayDto) {
+  @UseGuards(JwtAuthGuard)
+  @Post('ConfirmPay')
+  async confirmPay(@Body() dto: ConfirmPayDto) {
     return this.lottoService.confirmPay(dto);
   }
-  @Get('lottoInShop') async lottoInShop() {
+  @UseGuards(JwtAuthGuard)
+  @Get('lottoInShop')
+  async lottoInShop() {
     return this.lottoService.lottoInShop();
   }
-  @Get('lottoForSend') async lottoForSend() {
+  @UseGuards(JwtAuthGuard)
+  @Get('lottoForSend')
+  async lottoForSend() {
     return this.lottoService.lottoForSend();
   }
-  @Post('sendSave') async sendSave(@Body('data') data: any) {
-    return this.lottoService.sendSave(data);
+  @UseGuards(JwtAuthGuard)
+  @Post('sendSave')
+  async sendSave(@Body('data') dto: SendSaveDto) {
+    return this.lottoService.sendSave(dto);
   }
-  @Get('lottoIsBonus') async lottoIsBonus() {
+  @UseGuards(JwtAuthGuard)
+  @Get('lottoIsBonus')
+  async lottoIsBonus() {
     return this.lottoService.lottoIsBonus();
   }
+  @UseGuards(JwtAuthGuard)
   @Get('lottoIsBonuslist')
   async lottoIsBonuslist() {
     return this.lottoService.lottoIsBonuslist();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('changePrice')
-  async changePrice(@Body('lottos') lottos: any[]) {
-    return this.lottoService.changePrice(lottos);
+  async changePrice(@Body() dto: ChangePriceDto) {
+    return this.lottoService.changePrice(dto.lottos);
   }
 }

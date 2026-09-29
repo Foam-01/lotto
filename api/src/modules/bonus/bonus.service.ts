@@ -164,8 +164,10 @@ export class BonusService {
       }
 
       if (winningPairs.length > 0) {
+        // 🌟 skipDuplicates กันแถวซ้ำถ้า endpoint นี้ถูกเรียกซ้อนกัน (unique constraint บน billSaleDetailId+bonusResultDetailId)
         await this.prisma.billSaleDetailIsBonus.createMany({
           data: winningPairs,
+          skipDuplicates: true,
         });
       }
 
