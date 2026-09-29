@@ -27,6 +27,12 @@ function User() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isProfileLoading, setIsProfileLoading] = useState(false);
 
+  // 🌟 ตรวจสอบว่ารหัสผ่านใหม่กับยืนยันรหัสผ่านตรงกันหรือไม่ (สำหรับ aria-invalid)
+  const passwordMismatch =
+    newPassword.length > 0 &&
+    confirmPassword.length > 0 &&
+    newPassword !== confirmPassword;
+
   const [usersList, setUsersList] = useState([]);
   const [isUsersLoading, setIsUsersLoading] = useState(false);
 
@@ -84,7 +90,7 @@ function User() {
       Toast.fire({ icon: "warning", title: "กรุณากรอกข้อมูลให้ครบถ้วน 😿" });
       return;
     }
-    if (newPassword !== confirmPassword) {
+    if (passwordMismatch) {
       Swal.fire({
         icon: "error",
         title: "ข้อผิดพลาด",
@@ -221,9 +227,9 @@ function User() {
           style={{ backgroundColor: "#fafaf9", minHeight: "100vh" }}
         >
           <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-            <div className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
+            <h1 className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
               👤 ระบบผู้ใช้งาน
-            </div>
+            </h1>
           </div>
 
           <style>
@@ -352,7 +358,10 @@ function User() {
                     <div className="card-body p-0">
                       <form onSubmit={handleChangePassword}>
                         <div className="mb-4">
-                          <label className="form-label fw-bold text-secondary mb-2">
+                          <label
+                            htmlFor="oldPasswordInput"
+                            className="form-label fw-bold text-secondary mb-2"
+                          >
                             รหัสผ่านปัจจุบัน
                           </label>
                           <div className="input-group shadow-sm rounded-3 border overflow-hidden">
@@ -360,6 +369,7 @@ function User() {
                               <i className="bi bi-lock"></i>
                             </span>
                             <input
+                              id="oldPasswordInput"
                               type="password"
                               className="form-control border-0 bg-light p-2.5"
                               placeholder="••••••••"
@@ -369,7 +379,10 @@ function User() {
                           </div>
                         </div>
                         <div className="mb-4">
-                          <label className="form-label fw-bold text-secondary mb-2">
+                          <label
+                            htmlFor="newPasswordInput"
+                            className="form-label fw-bold text-secondary mb-2"
+                          >
                             รหัสผ่านใหม่
                           </label>
                           <div className="input-group shadow-sm rounded-3 border overflow-hidden">
@@ -377,16 +390,21 @@ function User() {
                               <i className="bi bi-shield-lock"></i>
                             </span>
                             <input
+                              id="newPasswordInput"
                               type="password"
                               className="form-control border-0 bg-light p-2.5"
                               placeholder="ระบุรหัสผ่านใหม่ 6 หลักขึ้นไป"
                               value={newPassword}
                               onChange={(e) => setNewPassword(e.target.value)}
+                              aria-invalid={passwordMismatch}
                             />
                           </div>
                         </div>
                         <div className="mb-4">
-                          <label className="form-label fw-bold text-secondary mb-2">
+                          <label
+                            htmlFor="confirmPasswordInput"
+                            className="form-label fw-bold text-secondary mb-2"
+                          >
                             ยืนยันรหัสผ่านใหม่
                           </label>
                           <div className="input-group shadow-sm rounded-3 border overflow-hidden">
@@ -394,6 +412,7 @@ function User() {
                               <i className="bi bi-shield-check"></i>
                             </span>
                             <input
+                              id="confirmPasswordInput"
                               type="password"
                               className="form-control border-0 bg-light p-2.5"
                               placeholder="กรอกรหัสผ่านใหม่อีกครั้งให้ตรงกัน"
@@ -401,6 +420,7 @@ function User() {
                               onChange={(e) =>
                                 setConfirmPassword(e.target.value)
                               }
+                              aria-invalid={passwordMismatch}
                             />
                           </div>
                         </div>
@@ -463,19 +483,19 @@ function User() {
                       <table className="table table-hover align-middle mb-0 text-center">
                         <thead style={{ backgroundColor: "#ffedd5" }}>
                           <tr>
-                            <th className="px-3 py-3 border-0 text-secondary">
+                            <th scope="col" className="px-3 py-3 border-0 text-secondary">
                               ID
                             </th>
-                            <th className="px-3 py-3 border-0 text-secondary text-start">
+                            <th scope="col" className="px-3 py-3 border-0 text-secondary text-start">
                               ชื่อพนักงาน / Username
                             </th>
-                            <th className="px-3 py-3 border-0 text-secondary">
+                            <th scope="col" className="px-3 py-3 border-0 text-secondary">
                               ติดต่อ
                             </th>
-                            <th className="px-3 py-3 border-0 text-secondary">
+                            <th scope="col" className="px-3 py-3 border-0 text-secondary">
                               สิทธิ์ (Level)
                             </th>
-                            <th className="px-3 py-3 border-0 text-secondary">
+                            <th scope="col" className="px-3 py-3 border-0 text-secondary">
                               จัดการ
                             </th>
                           </tr>
@@ -568,21 +588,25 @@ function User() {
                                 </td>
                                 <td>
                                   <button
-                                    className="btn btn-sm btn-outline-primary rounded-pill px-3 me-2"
+                                    className="btn btn-sm btn-outline-primary rounded-pill px-3 py-2 me-2"
                                     data-bs-toggle="modal"
                                     data-bs-target="#userModal"
                                     onClick={() => handleOpenEditModal(user)}
+                                    aria-label="แก้ไข"
+                                    title="แก้ไข"
                                   >
                                     <i className="bi bi-pencil-square"></i>
                                   </button>
                                   <button
-                                    className="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                    className="btn btn-sm btn-outline-danger rounded-pill px-3 py-2"
                                     onClick={() =>
                                       handleDeleteUser(
                                         user.id,
                                         user.name || user.user || user.username,
                                       )
                                     }
+                                    aria-label="ลบ"
+                                    title="ลบ"
                                   >
                                     <i className="bi bi-trash-fill"></i>
                                   </button>
@@ -726,7 +750,7 @@ function User() {
             </div>
 
             <div className="row g-2 mb-3">
-              <div className="col-6">
+              <div className="col-12 col-sm-6">
                 <label className="form-label fw-bold small text-secondary">
                   เบอร์โทรศัพท์ (Phone)
                 </label>
@@ -745,7 +769,7 @@ function User() {
                   />
                 </div>
               </div>
-              <div className="col-6">
+              <div className="col-12 col-sm-6">
                 <label className="form-label fw-bold small text-secondary">
                   อีเมล (Email)
                 </label>

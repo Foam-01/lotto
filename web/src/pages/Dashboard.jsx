@@ -134,6 +134,11 @@ function Dashboard() {
     }
   };
 
+  // 🌟 อัตราการขาย (Sell-through Rate) — คำนวณครั้งเดียว ใช้ทั้งข้อความและ progress bar
+  const totalStock = stats.availableLottos + stats.soldLottos;
+  const sellThroughRate =
+    totalStock > 0 ? Math.round((stats.soldLottos / totalStock) * 100) : 0;
+
   return (
     <Home>
       <div
@@ -145,7 +150,7 @@ function Dashboard() {
 
         {/* 🌟 Header Section */}
         <div className="d-flex justify-content-between align-items-center mb-4 mt-2 position-relative z-2">
-          <div
+          <h1
             className="h3 mb-0 fw-bold d-flex align-items-center"
             style={{ color: "var(--brand-600)" }}
           >
@@ -161,7 +166,7 @@ function Dashboard() {
               <i className="bi bi-speedometer2 fs-5"></i>
             </div>
             ภาพรวมแผงแมวส้ม 📊
-          </div>
+          </h1>
           <div className="text-muted small fw-bold bg-white px-3 py-2 rounded-pill shadow-sm">
             <i className="bi bi-calendar-event me-2 text-orange"></i>
             ข้อมูลเดือนนี้: {dayjs().format("MMMM YYYY")}
@@ -370,7 +375,7 @@ function Dashboard() {
               </div>
               <div className="card-body p-4">
                 <div className="row text-center g-4">
-                  <div className="col-4 border-end">
+                  <div className="col-6 col-md-4 border-end">
                     <p className="text-muted fw-bold mb-1 small text-uppercase">
                       พร้อมขาย
                     </p>
@@ -379,7 +384,7 @@ function Dashboard() {
                     </h2>
                     <span className="text-muted small">ใบ</span>
                   </div>
-                  <div className="col-4 border-end">
+                  <div className="col-6 col-md-4 border-end">
                     <p className="text-muted fw-bold mb-1 small text-uppercase">
                       ขายแล้ว
                     </p>
@@ -388,7 +393,7 @@ function Dashboard() {
                     </h2>
                     <span className="text-muted small">ใบ</span>
                   </div>
-                  <div className="col-4">
+                  <div className="col-6 col-md-4">
                     <p className="text-muted fw-bold mb-1 small text-uppercase">
                       รวมทั้งหมด
                     </p>
@@ -407,16 +412,7 @@ function Dashboard() {
                     <span className="text-muted">
                       อัตราการขาย (Sell-through Rate)
                     </span>
-                    <span className="text-orange">
-                      {stats.availableLottos + stats.soldLottos > 0
-                        ? Math.round(
-                            (stats.soldLottos /
-                              (stats.availableLottos + stats.soldLottos)) *
-                              100,
-                          )
-                        : 0}
-                      %
-                    </span>
+                    <span className="text-orange">{sellThroughRate}%</span>
                   </div>
                   <div
                     className="progress"
@@ -429,14 +425,11 @@ function Dashboard() {
                     <div
                       className="progress-bar progress-bar-striped progress-bar-animated"
                       role="progressbar"
+                      aria-valuenow={sellThroughRate}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
                       style={{
-                        width: `${
-                          stats.availableLottos + stats.soldLottos > 0
-                            ? (stats.soldLottos /
-                                (stats.availableLottos + stats.soldLottos)) *
-                              100
-                            : 0
-                        }%`,
+                        width: `${sellThroughRate}%`,
                         backgroundColor: "var(--brand-600)",
                       }}
                     ></div>

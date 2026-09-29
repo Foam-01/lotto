@@ -316,8 +316,8 @@ function ReportProfit() {
                             </td>
                           </tr>
                         ) : billSaleDetails.length > 0 ? (
-                          billSaleDetails.map((item, index) => (
-                            <tr key={index}>
+                          billSaleDetails.map((item) => (
+                            <tr key={item.id}>
                               {/* 🌟 เปลี่ยน เลขสลาก ให้เป็นปุ่มกดเปิด Modal */}
                               <td>
                                 <button
@@ -403,8 +403,8 @@ function ReportProfit() {
                             </td>
                           </tr>
                         ) : lottoIsBonus.length > 0 ? (
-                          lottoIsBonus.map((item, index) => (
-                            <tr key={index}>
+                          lottoIsBonus.map((item) => (
+                            <tr key={item.id}>
                               <td className="fw-bold text-dark fs-5">
                                 {item.BonusResultDetail?.number}
                               </td>

@@ -202,6 +202,7 @@ function BillSale() {
             <div
               key={index}
               className="floating-icon"
+              aria-hidden="true"
               style={{
                 top: icon.top,
                 left: icon.left,
@@ -214,11 +215,22 @@ function BillSale() {
             </div>
           ))}
 
+          <style>{`
+            @media (max-width: 480px) {
+              .billsale-header-emoji {
+                font-size: 40px !important;
+              }
+            }
+          `}</style>
+
           <div className="container" style={styles.container}>
             <div style={styles.header}>
               <div>
-                <h2 style={styles.titleMain}>
-                  <span className="me-3" style={styles.headerEmoji}>
+                <h2 style={{ ...styles.titleMain, flexWrap: "wrap" }}>
+                  <span
+                    className="me-3 billsale-header-emoji"
+                    style={styles.headerEmoji}
+                  >
                     🐈
                   </span>
                   รายการสั่งซื้อ
@@ -288,7 +300,10 @@ function BillSale() {
                           </td>
 
                           <td style={styles.td}>
-                            <div style={styles.addressText}>
+                            <div
+                              style={styles.addressText}
+                              title={item.customerAddress || "ฝากสลากไว้ที่ร้าน"}
+                            >
                               {item.customerAddress || (
                                 <span className="text-muted fst-italic">
                                   ฝากสลากไว้ที่ร้าน
@@ -500,8 +515,11 @@ function BillSale() {
               >
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label style={styles.modalLabel}>วันที่ชำระเงิน</label>
+                    <label htmlFor="billsale-pay-date" style={styles.modalLabel}>
+                      วันที่ชำระเงิน
+                    </label>
                     <input
+                      id="billsale-pay-date"
                       onChange={(e) => setPayDate(e.target.value)}
                       value={payDate}
                       type="date"
@@ -510,8 +528,11 @@ function BillSale() {
                     />
                   </div>
                   <div className="col-md-6 mb-3">
-                    <label style={styles.modalLabel}>เวลาที่ชำระเงิน</label>
+                    <label htmlFor="billsale-pay-time" style={styles.modalLabel}>
+                      เวลาที่ชำระเงิน
+                    </label>
                     <input
+                      id="billsale-pay-time"
                       onChange={(e) => setPayTime(e.target.value)}
                       value={payTime}
                       type="time"
@@ -522,8 +543,11 @@ function BillSale() {
                 </div>
 
                 <div className="mb-3">
-                  <label style={styles.modalLabel}>วันที่แจ้งโอน</label>
+                  <label htmlFor="billsale-pay-alert-date" style={styles.modalLabel}>
+                    วันที่แจ้งโอน
+                  </label>
                   <input
+                    id="billsale-pay-alert-date"
                     onChange={(e) => setPayAlertDate(e.target.value)}
                     value={payAlertDate}
                     type="date"
@@ -533,8 +557,11 @@ function BillSale() {
                 </div>
 
                 <div>
-                  <label style={styles.modalLabel}>หมายเหตุ (ถ้ามี)</label>
+                  <label htmlFor="billsale-pay-remark" style={styles.modalLabel}>
+                    หมายเหตุ (ถ้ามี)
+                  </label>
                   <textarea
+                    id="billsale-pay-remark"
                     onChange={(e) => setPayRemark(e.target.value)}
                     value={payRemark}
                     className="form-control"
@@ -712,7 +739,8 @@ const styles = {
     background: "var(--slate-50)",
     color: "var(--blue-500)",
     border: "1px solid #bfdbfe",
-    padding: "8px 16px",
+    padding: "10px 16px",
+    minHeight: "40px",
     borderRadius: "50rem",
     fontWeight: "700",
     cursor: "pointer",
@@ -724,7 +752,8 @@ const styles = {
     background: "linear-gradient(135deg, var(--emerald-500), var(--emerald-600))",
     color: "var(--color-white)",
     border: "none",
-    padding: "8px 18px",
+    padding: "10px 18px",
+    minHeight: "40px",
     borderRadius: "50rem",
     fontWeight: "700",
     cursor: "pointer",
@@ -742,7 +771,8 @@ const styles = {
     background: "var(--red-50)",
     color: "var(--red-500)",
     border: "1px solid var(--red-200)",
-    padding: "8px 14px",
+    padding: "10px 14px",
+    minHeight: "40px",
     borderRadius: "50rem",
     fontWeight: "700",
     cursor: "pointer",

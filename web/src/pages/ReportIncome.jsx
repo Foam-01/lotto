@@ -54,9 +54,9 @@ function ReportIncome() {
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
           {/* 🌟 Header แบบคลีนสุดๆ (เอาไอคอนด้านหน้าออก) */}
           <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-            <div className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
+            <h1 className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
               🐈 รายงานรายได้
-            </div>
+            </h1>
           </div>
 
           <div className="row g-4 mb-4">
@@ -70,7 +70,10 @@ function ReportIncome() {
                   </h6>
                   <div className="row g-3 align-items-end">
                     <div className="col-md-4">
-                      <label className="form-label fw-bold text-secondary small mb-1">
+                      <label
+                        htmlFor="incomeFromDate"
+                        className="form-label fw-bold text-secondary small mb-1"
+                      >
                         ตั้งแต่วันที่
                       </label>
                       <div className="input-group shadow-sm rounded-pill overflow-hidden border">
@@ -78,6 +81,7 @@ function ReportIncome() {
                           <i className="bi bi-calendar-event"></i>
                         </span>
                         <input
+                          id="incomeFromDate"
                           value={fromDate}
                           onChange={(e) => setFromDate(e.target.value)}
                           type="date"
@@ -87,7 +91,10 @@ function ReportIncome() {
                     </div>
 
                     <div className="col-md-4">
-                      <label className="form-label fw-bold text-secondary small mb-1">
+                      <label
+                        htmlFor="incomeToDate"
+                        className="form-label fw-bold text-secondary small mb-1"
+                      >
                         ถึงวันที่
                       </label>
                       <div className="input-group shadow-sm rounded-pill overflow-hidden border">
@@ -95,6 +102,7 @@ function ReportIncome() {
                           <i className="bi bi-calendar-event-fill"></i>
                         </span>
                         <input
+                          id="incomeToDate"
                           value={toDate}
                           onChange={(e) => setToDate(e.target.value)}
                           type="date"
@@ -189,30 +197,35 @@ function ReportIncome() {
                   >
                     <tr>
                       <th
+                        scope="col"
                         className="px-4 py-3 border-0 text-center text-uppercase"
                         style={{ color: "#c2410c", fontWeight: "700" }}
                       >
                         เลขสลาก
                       </th>
                       <th
+                        scope="col"
                         className="px-3 py-3 border-0 text-center text-uppercase"
                         style={{ color: "#c2410c", fontWeight: "700" }}
                       >
                         ยอดเงินโอน
                       </th>
                       <th
+                        scope="col"
                         className="px-3 py-3 border-0 text-center text-uppercase"
                         style={{ color: "#c2410c", fontWeight: "700" }}
                       >
                         วันที่/เวลาโอน
                       </th>
                       <th
+                        scope="col"
                         className="px-3 py-3 border-0 text-uppercase"
                         style={{ color: "#c2410c", fontWeight: "700" }}
                       >
                         ข้อมูลลูกค้า
                       </th>
                       <th
+                        scope="col"
                         className="px-4 py-3 border-0 text-uppercase"
                         style={{ color: "#c2410c", fontWeight: "700" }}
                       >

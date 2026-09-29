@@ -239,6 +239,7 @@ function Banner() {
           .bn-table-wrap {
             max-height: 62vh;
             overflow-y: auto;
+            overflow-x: auto;
             padding: 4px 16px 16px;
           }
           .bn-table-wrap::-webkit-scrollbar { width: 4px; }
@@ -257,13 +258,14 @@ function Banner() {
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.6px;
-            color: var(--slate-400);
+            color: var(--slate-500);
             background: transparent;
             border: none;
             position: sticky;
             top: 0;
             z-index: 5;
             background: var(--color-white);
+            white-space: nowrap;
           }
           .bn-table tbody tr {
             background: var(--color-white);
@@ -323,7 +325,7 @@ function Banner() {
             color: var(--green-600);
             border: 1.5px solid var(--green-200);
             border-radius: var(--radius-pill);
-            padding: 5px 14px;
+            padding: 8px 16px;
             font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
@@ -338,10 +340,10 @@ function Banner() {
             align-items: center;
             gap: 5px;
             background: var(--slate-50);
-            color: var(--slate-400);
+            color: var(--slate-500);
             border: 1.5px solid var(--slate-200);
             border-radius: var(--radius-pill);
-            padding: 5px 14px;
+            padding: 8px 16px;
             font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
@@ -359,8 +361,8 @@ function Banner() {
 
           /* ── Action buttons ── */
           .bn-btn-edit {
-            width: 34px;
-            height: 34px;
+            width: 40px;
+            height: 40px;
             border-radius: var(--radius-md);
             border: 1.5px solid #bfdbfe;
             background: var(--blue-50);
@@ -379,8 +381,8 @@ function Banner() {
             box-shadow: 0 4px 12px rgba(59,130,246,0.3);
           }
           .bn-btn-del {
-            width: 34px;
-            height: 34px;
+            width: 40px;
+            height: 40px;
             border-radius: var(--radius-md);
             border: 1.5px solid var(--red-200);
             background: #fff5f5;
@@ -546,7 +548,7 @@ function Banner() {
           }
           .bn-stat-label {
             font-size: 0.72rem;
-            color: var(--slate-400);
+            color: var(--slate-500);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -572,7 +574,7 @@ function Banner() {
 
         <div className="bn-page">
           {/* ── Hero header ── */}
-          <div className="bn-hero d-flex justify-content-between align-items-center">
+          <div className="bn-hero d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div className="d-flex align-items-center">
               <div className="bn-hero-icon">🖼️</div>
               <div>
@@ -622,10 +624,10 @@ function Banner() {
               <table className="bn-table">
                 <thead>
                   <tr>
-                    <th style={{ width: 60, textAlign: "center" }}>ลำดับ</th>
-                    <th>รูปภาพ & รายละเอียด</th>
-                    <th style={{ width: 130, textAlign: "center" }}>สถานะ</th>
-                    <th style={{ width: 110, textAlign: "center" }}>จัดการ</th>
+                    <th scope="col" style={{ width: 60, textAlign: "center" }}>ลำดับ</th>
+                    <th scope="col">รูปภาพ & รายละเอียด</th>
+                    <th scope="col" style={{ width: 130, textAlign: "center" }}>สถานะ</th>
+                    <th scope="col" style={{ width: 110, textAlign: "center" }}>จัดการ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -767,6 +769,7 @@ function Banner() {
                               data-bs-target="#bannerModal"
                               onClick={() => handleOpenEditModal(item)}
                               title="แก้ไข"
+                              aria-label="แก้ไขแบนเนอร์"
                             >
                               <i className="bi bi-pencil-fill"></i>
                             </button>
@@ -776,6 +779,7 @@ function Banner() {
                                 handleDeleteBanner(item.id, item.name)
                               }
                               title="ลบ"
+                              aria-label="ลบแบนเนอร์"
                             >
                               <i className="bi bi-trash-fill"></i>
                             </button>
@@ -856,14 +860,15 @@ function Banner() {
 
             {/* Name */}
             <div className="mb-3">
-              <div className="bn-field-label">
+              <label htmlFor="bannerNameInput" className="bn-field-label">
                 ชื่อแบนเนอร์ <span style={{ color: "var(--red-500)" }}>*</span>
-              </div>
+              </label>
               <div className="bn-input-group">
                 <span className="bn-input-icon">
                   <i className="bi bi-tag-fill"></i>
                 </span>
                 <input
+                  id="bannerNameInput"
                   type="text"
                   placeholder="เช่น โปรโมชั่นปีใหม่, ประกาศวันหยุด"
                   value={bannerForm.name}
@@ -877,15 +882,16 @@ function Banner() {
 
             {/* Image URL */}
             <div className="mb-3">
-              <div className="bn-field-label">
+              <label htmlFor="bannerSrcInput" className="bn-field-label">
                 ลิงก์รูปภาพ (Image URL){" "}
                 <span style={{ color: "var(--red-500)" }}>*</span>
-              </div>
+              </label>
               <div className="bn-input-group">
                 <span className="bn-input-icon">
                   <i className="bi bi-link-45deg"></i>
                 </span>
                 <input
+                  id="bannerSrcInput"
                   type="text"
                   placeholder="https://..."
                   value={bannerForm.src}
@@ -901,14 +907,15 @@ function Banner() {
 
             {/* Link */}
             <div className="mb-3">
-              <div className="bn-field-label">
+              <label htmlFor="bannerLinkInput" className="bn-field-label">
                 ลิงก์ปลายทางเมื่อคลิก (Optional)
-              </div>
+              </label>
               <div className="bn-input-group">
                 <span className="bn-input-icon">
                   <i className="bi bi-cursor-fill"></i>
                 </span>
                 <input
+                  id="bannerLinkInput"
                   type="text"
                   placeholder="วาง URL หรือเว้นว่างไว้"
                   value={bannerForm.link}
@@ -922,12 +929,15 @@ function Banner() {
             {/* Sequence + Status */}
             <div className="row g-3">
               <div className="col-6">
-                <div className="bn-field-label">ลำดับการแสดง</div>
+                <label htmlFor="bannerSequenceInput" className="bn-field-label">
+                  ลำดับการแสดง
+                </label>
                 <div className="bn-input-group">
                   <span className="bn-input-icon">
                     <i className="bi bi-sort-numeric-down"></i>
                   </span>
                   <input
+                    id="bannerSequenceInput"
                     type="number"
                     value={bannerForm.sequence}
                     onChange={(e) =>
@@ -939,7 +949,7 @@ function Banner() {
                 <div
                   style={{
                     fontSize: "0.72rem",
-                    color: "var(--slate-400)",
+                    color: "var(--slate-500)",
                     marginTop: 4,
                   }}
                 >
@@ -947,12 +957,15 @@ function Banner() {
                 </div>
               </div>
               <div className="col-6">
-                <div className="bn-field-label">สถานะ</div>
+                <label htmlFor="bannerStatusSelect" className="bn-field-label">
+                  สถานะ
+                </label>
                 <div className="bn-input-group">
                   <span className="bn-input-icon">
                     <i className="bi bi-toggles"></i>
                   </span>
                   <select
+                    id="bannerStatusSelect"
                     value={bannerForm.isActive}
                     onChange={(e) =>
                       setBannerForm({

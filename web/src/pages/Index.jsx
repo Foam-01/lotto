@@ -161,6 +161,16 @@ function Index() {
 
   const filledCount = digits.filter(Boolean).length;
 
+  // 🌟 ปิด Modal ชำระเงินด้วยปุ่ม Escape (คีย์บอร์ด) เมื่อเปิดอยู่
+  useEffect(() => {
+    if (!showPaymentModal) return;
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") setShowPaymentModal(false);
+    };
+    document.addEventListener("keydown", handleEscKey);
+    return () => document.removeEventListener("keydown", handleEscKey);
+  }, [showPaymentModal]);
+
   const handleConfirmBuy = async () => {
     const Toast = Swal.mixin({
       toast: true,
@@ -245,6 +255,8 @@ function Index() {
           <button
             className="btn-cart-header"
             onClick={() => setIsCartOpen(!isCartOpen)}
+            aria-label="เปิดตะกร้าสินค้า"
+            aria-expanded={isCartOpen}
           >
             <i className="bi bi-cart3"></i>
             <span className="cart-count">{carts.length}</span>
@@ -416,6 +428,7 @@ function Index() {
                       onChange={(e) => handleDigitChange(idx, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(idx, e)}
                       autoComplete="off"
+                      aria-label={`ตัวเลขหลักที่ ${idx + 1}`}
                     />
                   ))}
                 </div>
@@ -449,10 +462,10 @@ function Index() {
       {/* ── TICKET GRID ──────────────────────────────────────────────────── */}
       <div className="container">
         <div style={{ position: "relative", zIndex: 2 }}>
-          <h3 className="section-header">
+          <h2 className="section-header">
             <span className="icon-paw">🐾</span> สลากพร้อมขาย (
             <span className="count-badge">{lottos.length} ใบ</span>)
-          </h3>
+          </h2>
 
           {loading ? (
             <LoadingDots />
@@ -529,12 +542,16 @@ function Index() {
           <div
             className="cat-modal-content"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cat-modal-title"
           >
             <div className="cat-modal-header">
-              <h3 className="cat-modal-title">🐾 ยืนยันการสั่งซื้อ</h3>
+              <h3 id="cat-modal-title" className="cat-modal-title">🐾 ยืนยันการสั่งซื้อ</h3>
               <button
                 className="btn-close-modal"
                 onClick={() => setShowPaymentModal(false)}
+                aria-label="ปิดหน้าต่าง"
               >
                 <i className="bi bi-x-lg"></i>
               </button>
@@ -571,8 +588,9 @@ function Index() {
               {/* ฟอร์มกรอกข้อมูล */}
               <div className="custom-form mt-4">
                 <div className="form-group mb-3">
-                  <label>ชื่อผู้ซื้อ</label>
+                  <label htmlFor="customerName">ชื่อผู้ซื้อ</label>
                   <input
+                    id="customerName"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     type="text"
@@ -581,8 +599,9 @@ function Index() {
                   />
                 </div>
                 <div className="form-group mb-3">
-                  <label>เบอร์โทรศัพท์</label>
+                  <label htmlFor="customerPhone">เบอร์โทรศัพท์</label>
                   <input
+                    id="customerPhone"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     type="tel"
@@ -591,13 +610,14 @@ function Index() {
                   />
                 </div>
                 <div className="form-group mb-4">
-                  <label>
+                  <label htmlFor="customerAddress">
                     ที่อยู่จัดส่ง
                     <span className="sub-label">
                       (หากฝากสลากไว้ที่ร้าน ไม่ต้องกรอก)
                     </span>
                   </label>
                   <textarea
+                    id="customerAddress"
                     value={customerAddress}
                     onChange={(e) => setCustomerAddress(e.target.value)}
                     className="cat-input"
@@ -657,7 +677,7 @@ function EmptyState({ searched, query, onClear }) {
           <h4 style={{ color: "#ea580c", marginTop: "15px" }}>
             แผงแมวส้มว่างเปล่า
           </h4>
-          <p style={{ color: "#f59e0b" }}>
+          <p style={{ color: "#b45309" }}>
             กำลังวิ่งไปคาบสลากมาเพิ่ม รอก่อนน้า...
           </p>
         </>

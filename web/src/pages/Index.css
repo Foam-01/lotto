@@ -566,7 +566,7 @@
 .stub-badge {
     background-color: var(--brand-600);
     color: var(--color-white);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     padding: 3px 6px;
     border-radius: 4px;
@@ -929,4 +929,37 @@
    ========================================= */
 .swal2-container {
     z-index: 10000 !important;
+}
+
+/* =========================================
+   Responsive: แก้ปัญหา overflow บนจอแคบ (เฉพาะจุด)
+   ========================================= */
+@media (max-width: 768px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .inputs-row {
+        flex-wrap: wrap;
+    }
+
+    .digit-box {
+        flex: 0 0 44px;
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 400px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+
+    .cart-dropdown {
+        width: calc(100vw - 24px);
+        right: 12px;
+    }
 }

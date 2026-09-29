@@ -18,6 +18,8 @@ function ChangePrice() {
   // State สำหรับฟีเจอร์ค้นหาและกรอง
   const [searchTerm, setSearchTerm] = useState("");
   const [showOnlyChanged, setShowOnlyChanged] = useState(false);
+  // 🌟 State สำหรับแสดงกรอบโฟกัสของช่องค้นหา (เข้าถึงได้ด้วยคีย์บอร์ด/สกรีนรีดเดอร์)
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   useEffect(() => {
     fetchLottos();
@@ -255,7 +257,7 @@ function ChangePrice() {
           {/* 🌟 Header & Action Section */}
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 mt-2 gap-3">
             <div>
-              <div
+              <h1
                 className="h3 mb-1 fw-bolder d-flex align-items-center"
                 style={{ color: "var(--slate-900)", letterSpacing: "-1px" }}
               >
@@ -271,10 +273,10 @@ function ChangePrice() {
                   <i className="bi bi-tags-fill fs-5"></i>
                 </div>
                 ปรับราคาแบบเร่งด่วน
-              </div>
+              </h1>
             </div>
 
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 flex-wrap">
               {/* 🌟 ปุ่มคืนค่าเดิม (Reset) */}
               <button
                 onClick={handleReset}
@@ -391,14 +393,23 @@ function ChangePrice() {
                   type="text"
                   className="form-control border-0 bg-light py-2 px-3 fw-medium"
                   placeholder="พิมพ์เลขลอตเตอรี่เพื่อค้นหา..."
+                  aria-label="ค้นหาด้วยเลขสลาก"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ outline: "none", boxShadow: "none" }}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  style={{
+                    outline: "none",
+                    boxShadow: isSearchFocused
+                      ? "0 0 0 3px rgba(234, 88, 12, 0.25)"
+                      : "none",
+                  }}
                 />
                 {searchTerm && (
                   <button
                     className="btn btn-light border-0 text-muted pe-4"
                     onClick={() => setSearchTerm("")}
+                    aria-label="ล้างคำค้นหา"
                   >
                     <i className="bi bi-x-circle-fill"></i>
                   </button>
@@ -406,7 +417,7 @@ function ChangePrice() {
               </div>
 
               <div
-                className="bg-light p-1 rounded-pill d-inline-flex shadow-sm border"
+                className="bg-light p-1 rounded-pill d-inline-flex shadow-sm border flex-wrap"
                 style={{ borderColor: "var(--brand-100)" }}
               >
                 <button
@@ -416,6 +427,7 @@ function ChangePrice() {
                     color: !showOnlyChanged ? "var(--brand-600)" : "var(--slate-400)",
                   }}
                   onClick={() => setShowOnlyChanged(false)}
+                  aria-pressed={!showOnlyChanged}
                 >
                   <i className="bi bi-grid-fill me-2"></i>รายการทั้งหมด
                 </button>
@@ -426,6 +438,7 @@ function ChangePrice() {
                     color: showOnlyChanged ? "var(--brand-600)" : "var(--slate-400)",
                   }}
                   onClick={() => setShowOnlyChanged(true)}
+                  aria-pressed={showOnlyChanged}
                 >
                   <i className="bi bi-pencil-square me-2"></i>แก้ไขแล้ว
                   {changedCount > 0 && (
@@ -559,6 +572,7 @@ function ChangePrice() {
                                     type="number"
                                     className={`form-control price-input text-center fw-bolder fs-5 py-2 shadow-sm ${isModified ? "text-danger border-warning" : "text-primary border-0"}`}
                                     placeholder="ระบุราคา"
+                                    aria-label={`ราคาสำหรับเลข ${item.numbers}`}
                                     value={
                                       item.newPrice !== undefined
                                         ? item.newPrice

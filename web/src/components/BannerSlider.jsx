@@ -50,7 +50,9 @@ function BannerSlider() {
                   objectFit: "cover", // ให้รูปตัดพอดีกรอบ ไม่เบี้ยว
                   transition: "transform 0.3s ease",
                 }}
-                alt={b.name || "Banner"}
+                alt={b.name || "รูปแบนเนอร์โฆษณา"}
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   e.target.src =
                     "https://placehold.co/600x90/f1f5f9/94a3b8?text=Image+Error";

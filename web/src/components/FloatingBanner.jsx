@@ -21,6 +21,7 @@ function FloatingBanner({ imageUrl, link, side = "right" }) {
     >
       <button
         onClick={() => setIsVisible(false)}
+        aria-label="ปิดแบนเนอร์"
         style={{
           position: "absolute",
           top: "5px",
@@ -45,7 +46,7 @@ function FloatingBanner({ imageUrl, link, side = "right" }) {
       <a href={link} target="_blank" rel="noreferrer">
         <img
           src={imageUrl}
-          alt="Banner"
+          alt="รูปแบนเนอร์โฆษณาด้านข้าง"
           style={{
             width: "100%",
             height: "240px",

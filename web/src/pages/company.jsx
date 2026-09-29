@@ -140,11 +140,19 @@ function Company() {
           </div>
         ))}
 
+        {/* 🌟 ย่ออิโมจิหัวข้อ + อนุญาตให้ตัดบรรทัดบนจอแคบมาก ๆ (media query เฉพาะจุด) 🌟 */}
+        <style>{`
+          @media (max-width: 480px) {
+            .company-header-emoji { font-size: 48px !important; }
+            .company-title-main { flex-wrap: wrap; }
+          }
+        `}</style>
+
         <div className="container" style={styles.contentContainer}>
           <div style={styles.header}>
             <div>
-              <h2 style={styles.titleMain}>
-                <span className="me-3" style={styles.headerEmoji}>
+              <h2 className="company-title-main" style={styles.titleMain}>
+                <span className="me-3 company-header-emoji" style={styles.headerEmoji}>
                   🐈
                 </span>
                  จัดการข้อมูลร้าน
@@ -158,18 +166,19 @@ function Company() {
 
           <div style={styles.premiumCard}>
             <div style={styles.cardHeader}>
-              <h4 style={styles.cardTitle}>
+              <h3 style={styles.cardTitle}>
                 โปรไฟล์แผงล็อตเตอรี่ของคุณ
-              </h4>
+              </h3>
               <span style={styles.badge}>SYSTEM CONFIG</span>
             </div>
 
             <div style={{ marginTop: "30px" }}>
               <div style={styles.formGroup}>
-                <label style={styles.label}>ชื่อแผงล็อตเตอรี่</label>
+                <label htmlFor="company-name" style={styles.label}>ชื่อแผงล็อตเตอรี่</label>
                 <div style={styles.inputWrapper}>
                   <i className="bi bi-tag-fill" style={styles.inputIcon}></i>
                   <input
+                    id="company-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     type="text"
@@ -181,13 +190,14 @@ function Company() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>เบอร์โทรศัพท์ติดต่อ</label>
+                <label htmlFor="company-phone" style={styles.label}>เบอร์โทรศัพท์ติดต่อ</label>
                 <div style={styles.inputWrapper}>
                   <i
                     className="bi bi-telephone-fill"
                     style={styles.inputIcon}
                   ></i>
                   <input
+                    id="company-phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     type="text"
@@ -199,13 +209,14 @@ function Company() {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>ที่อยู่ของแผงล็อตเตอรี่</label>
+                <label htmlFor="company-address" style={styles.label}>ที่อยู่ของแผงล็อตเตอรี่</label>
                 <div style={styles.inputWrapper}>
                   <i
                     className="bi bi-geo-alt-fill"
                     style={{ ...styles.inputIcon, top: "20px" }}
                   ></i>
                   <textarea
+                    id="company-address"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className="cat-input"
@@ -289,7 +300,7 @@ const styles = {
     filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.1))",
   },
   subtitleMain: {
-    color: "var(--slate-400)",
+    color: "var(--slate-600)",
     marginTop: "10px",
     fontSize: "16px",
     fontWeight: "500",

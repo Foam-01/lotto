@@ -201,9 +201,9 @@ function SaleBonus() {
       <Home>
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <div className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
-              🎉 รายงานเศรษฐีใหม่ 
-            </div>
+            <h1 className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
+              🎉 รายงานเศรษฐีใหม่
+            </h1>
           </div>
 
           {/* 🌟 KPI Dashboard Cards 🌟 */}
@@ -697,7 +697,10 @@ function SaleBonus() {
 
         <div className="row g-3 mb-4">
           <div className="col-md-6">
-            <label className="form-label fw-bold text-secondary">
+            <label
+              htmlFor="transferMoneyDate"
+              className="form-label fw-bold text-secondary"
+            >
               วันที่โอนเงิน
             </label>
             <div className="input-group shadow-sm rounded-pill overflow-hidden border">
@@ -705,6 +708,7 @@ function SaleBonus() {
                 <i className="bi bi-calendar-check-fill"></i>
               </span>
               <input
+                id="transferMoneyDate"
                 type="date"
                 className="form-control border-0 px-2 bg-light fw-medium"
                 value={tranferMoneyDate}
@@ -713,7 +717,10 @@ function SaleBonus() {
             </div>
           </div>
           <div className="col-md-6">
-            <label className="form-label fw-bold text-secondary">
+            <label
+              htmlFor="transferMoneyTime"
+              className="form-label fw-bold text-secondary"
+            >
               เวลาที่โอน
             </label>
             <div className="input-group shadow-sm rounded-pill overflow-hidden border">
@@ -721,6 +728,7 @@ function SaleBonus() {
                 <i className="bi bi-clock-fill"></i>
               </span>
               <input
+                id="transferMoneyTime"
                 type="time"
                 className="form-control border-0 px-2 bg-light fw-medium"
                 value={tranferMoneyTime}
@@ -748,17 +756,19 @@ function SaleBonus() {
             }}
           ></i>
           <label
+            htmlFor="transferPriceAmount"
             className="form-label fw-bold mb-2 position-relative"
             style={{ color: "#059669", fontSize: "1.2rem" }}
           >
             💰 ยอดเงินรางวัลที่ต้องโอน
           </label>
           <input
+            id="transferPriceAmount"
             type="text"
             inputMode="numeric"
             className="form-control text-center fw-bold bg-transparent border-0 position-relative w-100"
             style={{
-              fontSize: "3.5rem",
+              fontSize: "clamp(1.75rem, 8vw, 3.5rem)",
               color: "#047857",
               textShadow: "2px 2px 0px #d1fae5",
               padding: "0",
@@ -836,7 +846,10 @@ function SaleBonus() {
         </div>
 
         <div className="mb-4">
-          <label className="form-label fw-bold text-secondary">
+          <label
+            htmlFor="deliverDateInput"
+            className="form-label fw-bold text-secondary"
+          >
             วันที่ทำการส่งมอบ
           </label>
           <div className="input-group shadow-sm rounded-pill overflow-hidden border">
@@ -844,6 +857,7 @@ function SaleBonus() {
               <i className="bi bi-calendar-event-fill"></i>
             </span>
             <input
+              id="deliverDateInput"
               type="date"
               className="form-control border-0 px-2 bg-light fw-medium"
               value={deliverDate}
@@ -870,17 +884,19 @@ function SaleBonus() {
             }}
           ></i>
           <label
+            htmlFor="deliverPriceAmount"
             className="form-label fw-bold mb-2 position-relative"
             style={{ color: "#be123c", fontSize: "1.2rem" }}
           >
             🧧 จำนวนเงินสดที่มอบ
           </label>
           <input
+            id="deliverPriceAmount"
             type="text"
             inputMode="numeric"
             className="form-control text-center fw-bold bg-transparent border-0 position-relative w-100"
             style={{
-              fontSize: "3.5rem",
+              fontSize: "clamp(1.75rem, 8vw, 3.5rem)",
               color: "#9f1239",
               textShadow: "2px 2px 0px #ffe4e6",
               padding: "0",

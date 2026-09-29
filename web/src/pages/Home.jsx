@@ -28,6 +28,16 @@ function Home(props) {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
+  // 🌟 ปิด Sidebar ด้วยปุ่ม Escape (คีย์บอร์ด) เมื่อเปิดอยู่บนมือถือ
+  useEffect(() => {
+    if (!isSidebarOpen) return;
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") setIsSidebarOpen(false);
+    };
+    document.addEventListener("keydown", handleEscKey);
+    return () => document.removeEventListener("keydown", handleEscKey);
+  }, [isSidebarOpen]);
+
   const fetchDate = async () => {
     try {
       const res = await AuthService.getUserInfo();
@@ -102,11 +112,19 @@ function Home(props) {
         <span className="mobile-topbar-title">🐈 แผงแมวส้ม</span>
       </div>
 
-      {/* 🌟 ฉากหลังมืดตอนเปิดเมนูบนมือถือ กดเพื่อปิดเมนูได้ 🌟 */}
+      {/* 🌟 ฉากหลังมืดตอนเปิดเมนูบนมือถือ กดเพื่อปิดเมนูได้ (รองรับคีย์บอร์ดด้วย) 🌟 */}
       {isSidebarOpen && (
         <div
           className="sidebar-overlay"
           onClick={() => setIsSidebarOpen(false)}
+          role="button"
+          tabIndex={0}
+          aria-label="ปิดเมนู"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === "Escape") {
+              setIsSidebarOpen(false);
+            }
+          }}
         ></div>
       )}
 
@@ -150,7 +168,7 @@ function Home(props) {
             <br />
             <span
               className="title-sub"
-              style={{ fontSize: "0.65rem", letterSpacing: "1px" }}
+              style={{ fontSize: "0.75rem", letterSpacing: "1px" }}
             >
               ADMIN PANEL
             </span>
@@ -162,7 +180,7 @@ function Home(props) {
           >
             <small
               className="text-muted d-block fw-bold"
-              style={{ fontSize: "0.7rem", marginBottom: "2px" }}
+              style={{ fontSize: "0.75rem", marginBottom: "2px" }}
             >
               ยินดีต้อนรับ
             </small>
@@ -173,7 +191,7 @@ function Home(props) {
         </div>
 
         {/* --- ส่วนเมนู (จัดระเบียบให้พอดีจอ) --- */}
-        <div
+        <nav
           className="menu"
           style={{
             flexGrow: 1,
@@ -192,6 +210,8 @@ function Home(props) {
             to="/home"
             className={`menu-item ${isActive("/home")}`}
             style={compactMenuItem}
+            title="หน้าแรก"
+            aria-current={isActive("/home") ? "page" : undefined}
           >
             <i
               className="bi bi-house-door-fill me-2"
@@ -204,6 +224,8 @@ function Home(props) {
             to="/banner"
             className={`menu-item ${isActive("/banner")}`}
             style={compactMenuItem}
+            title="ป้ายโฆษณา"
+            aria-current={isActive("/banner") ? "page" : undefined}
           >
             <i className="bi bi-gem me-2" style={{ color: "var(--amber-500)" }}></i>
             <span>ป้ายโฆษณา</span>
@@ -213,6 +235,8 @@ function Home(props) {
             to="/lotto"
             className={`menu-item ${isActive("/lotto")}`}
             style={compactMenuItem}
+            title="จัดการสลาก"
+            aria-current={isActive("/lotto") ? "page" : undefined}
           >
             <i
               className="bi bi-ticket-detailed-fill me-2"
@@ -225,6 +249,8 @@ function Home(props) {
             to="/changePrice"
             className={`menu-item ${isActive("/changePrice")}`}
             style={compactMenuItem}
+            title="ปรับราคาแบบเร่งด่วน"
+            aria-current={isActive("/changePrice") ? "page" : undefined}
           >
             <i
               className="bi bi-lightning-charge-fill me-2"
@@ -237,6 +263,8 @@ function Home(props) {
             to="/billSale"
             className={`menu-item ${isActive("/billSale")}`}
             style={compactMenuItem}
+            title="รายการสั่งซื้อ"
+            aria-current={isActive("/billSale") ? "page" : undefined}
           >
             <i
               className="bi bi-receipt-cutoff me-2"
@@ -249,6 +277,8 @@ function Home(props) {
             to="/lottoInShop"
             className={`menu-item ${isActive("/lottoInShop")}`}
             style={compactMenuItem}
+            title="รายการที่ฝากร้าน"
+            aria-current={isActive("/lottoInShop") ? "page" : undefined}
           >
             <i className="bi bi-inbox me-2" style={{ color: "#8b5cf6" }}></i>
             <span>รายการที่ฝากร้าน</span>
@@ -258,6 +288,8 @@ function Home(props) {
             to="/lottoForSend"
             className={`menu-item ${isActive("/lottoForSend")}`}
             style={compactMenuItem}
+            title="รายการที่จัดส่ง"
+            aria-current={isActive("/lottoForSend") ? "page" : undefined}
           >
             <i className="bi bi-truck me-2" style={{ color: "#06b6d4" }}></i>
             <span>รายการที่จัดส่ง</span>
@@ -267,6 +299,8 @@ function Home(props) {
             to="/Bonus"
             className={`menu-item ${isActive("/Bonus")}`}
             style={compactMenuItem}
+            title="ผลรางวัล"
+            aria-current={isActive("/Bonus") ? "page" : undefined}
           >
             <i className="bi bi-gift me-2" style={{ color: "#ec4899" }}></i>
             <span>ผลรางวัล</span>
@@ -276,6 +310,8 @@ function Home(props) {
             to="/saleBonus"
             className={`menu-item ${isActive("/saleBonus")}`}
             style={compactMenuItem}
+            title="รายงานผู้ถูกรางวัล"
+            aria-current={isActive("/saleBonus") ? "page" : undefined}
           >
             <i
               className="bi bi-trophy-fill me-2"
@@ -288,6 +324,8 @@ function Home(props) {
             to="/lottoIsBonus"
             className={`menu-item ${isActive("/lottoIsBonus")}`}
             style={compactMenuItem}
+            title="รางวัลของร้าน"
+            aria-current={isActive("/lottoIsBonus") ? "page" : undefined}
           >
             <i
               className="bi bi-award-fill me-2"
@@ -300,6 +338,8 @@ function Home(props) {
             to="/reportIncome"
             className={`menu-item ${isActive("/reportIncome")}`}
             style={compactMenuItem}
+            title="รายงานรายได้"
+            aria-current={isActive("/reportIncome") ? "page" : undefined}
           >
             <i
               className="bi bi-cash-coin me-2"
@@ -312,6 +352,8 @@ function Home(props) {
             to="/reportProfit"
             className={`menu-item ${isActive("/reportProfit")}`}
             style={compactMenuItem}
+            title="รายงานผลกำไร"
+            aria-current={isActive("/reportProfit") ? "page" : undefined}
           >
             <i
               className="bi bi-piggy-bank me-2"
@@ -324,6 +366,8 @@ function Home(props) {
             to="/company"
             className={`menu-item ${isActive("/company")}`}
             style={compactMenuItem}
+            title="ข้อมูลร้าน"
+            aria-current={isActive("/company") ? "page" : undefined}
           >
             <i
               className="bi bi-shop-window me-2"
@@ -336,11 +380,13 @@ function Home(props) {
             to="/user"
             className={`menu-item ${isActive("/user")}`}
             style={compactMenuItem}
+            title="ข้อมูลผู้ใช้"
+            aria-current={isActive("/user") ? "page" : undefined}
           >
             <i className="bi bi-person me-2" style={{ color: "var(--slate-600)" }}></i>
             <span>ข้อมูลผู้ใช้</span>
           </Link>
-        </div>
+        </nav>
 
         {/* --- ส่วนออกจากระบบ (🌟 ล็อคติดขอบล่าง 100%) --- */}
         <div
@@ -353,19 +399,20 @@ function Home(props) {
             paddingTop: "8px",
           }}
         >
-          <a
-            href="#"
+          <button
+            type="button"
             className="menu-item logout-link"
             onClick={handleLogout}
             style={compactMenuItem}
+            title="ออกจากระบบ"
           >
             <i className="bi bi-power me-2"></i> <span>ออกจากระบบ</span>
-          </a>
+          </button>
         </div>
       </div>
 
       {/* 🌟 Content Area 🌟 */}
-      <div className="content">
+      <main className="content">
         {props.children || (
           <div className="welcome-box">
             <div className="welcome-emoji">🐈🐾</div>
@@ -377,7 +424,7 @@ function Home(props) {
             </p>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

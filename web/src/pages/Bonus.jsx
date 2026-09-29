@@ -160,9 +160,9 @@ function Bonus() {
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
           {/* 🌟 ส่วน Header 🌟 */}
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <div className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
+            <h1 className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
               🐈 ผลรางวัลสลากกินแบ่งฯ
-            </div>
+            </h1>
             <button
               onClick={handleGetBonus}
               className="btn text-white rounded-pill px-4 py-2 shadow-sm"
@@ -183,10 +183,12 @@ function Bonus() {
             style={{ backgroundColor: "#fff" }}
           >
             <div className="card-body p-0">
+              <div className="table-responsive">
               <table className="table table-hover align-middle mb-0">
                 <thead style={{ backgroundColor: "#ffedd5" }}>
                   <tr>
                     <th
+                      scope="col"
                       className="px-4 py-3 border-0 text-uppercase"
                       style={{
                         color: "#ea580c",
@@ -198,6 +200,7 @@ function Bonus() {
                       งวดวันที่ออกรางวัล
                     </th>
                     <th
+                      scope="col"
                       className="px-4 py-3 border-0 text-end text-uppercase"
                       width="180px"
                       style={{
@@ -292,6 +295,7 @@ function Bonus() {
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>
