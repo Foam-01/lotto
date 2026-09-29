@@ -1,5 +1,6 @@
 import Swal from "sweetalert2";
 import Home from "./Home";
+import MyModal from "../components/MyModal";
 import { useEffect, useState } from "react";
 import BillSaleService from "../services/bill-sale.service";
 import { toast, ToastContainer } from "react-toastify";
@@ -18,25 +19,32 @@ function BillSale() {
   const [payTime, setPayTime] = useState(currentDateTime);
   const [payAlertDate, setPayAlertDate] = useState(currentDate);
   const [payRemark, setPayRemark] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPaying, setIsPaying] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       const res = await BillSaleService.getBillSales(); // 🌟 ใช้ Service
 
       if (res.data.result && res.data.result.length > 0) {
         setBillSales(res.data.result);
+      } else {
+        setBillSales([]);
       }
     } catch (e) {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,9 +67,9 @@ function BillSale() {
         text: "ต้องการยกเลิกบิลของ " + billSale.customerName + " ใช่หรือไม่?",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#ea580c",
-        cancelButtonColor: "#94a3b8",
-        confirmButtonText: "ยืนยันการลบ",
+        confirmButtonColor: "var(--brand-600)",
+        cancelButtonColor: "var(--slate-400)",
+        confirmButtonText: "ยืนยันการยกเลิก",
         cancelButtonText: "ยกเลิก",
       });
 
@@ -72,7 +80,7 @@ function BillSale() {
 
         if (res.data.message === "success") {
           toast.update(toastId, {
-            render: "ยกเลิกออเดอร์ของ " + billSale.customerName + " แล้ว 🗑️",
+            render: "ยกเลิกออเดอร์ของ " + billSale.customerName + " แล้ว",
             type: "success",
             isLoading: false,
             autoClose: 2000,
@@ -84,7 +92,7 @@ function BillSale() {
         }
       }
     } catch (e) {
-      toast.error("โง้ววว... ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่ 😿", {
+      toast.error("ยกเลิกออเดอร์ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", {
         autoClose: 3000,
       });
       console.error("Remove Bill Error:", e);
@@ -100,18 +108,21 @@ function BillSale() {
   };
 
   const handleConfirmPay = async () => {
+    if (isPaying) return; // 🛡️ กันกดซ้ำระหว่างรอบันทึกการชำระเงิน
+
     const button = await Swal.fire({
-      title: "ยืนยันการชําระเงิน",
-      text: "ต้องการชําระเงินใช่หรือไม่?",
+      title: "ยืนยันการชำระเงิน",
+      text: "ต้องการชำระเงินใช่หรือไม่?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#ea580c",
-      cancelButtonColor: "#94a3b8",
-      confirmButtonText: "ยืนยันการชําระเงิน",
+      confirmButtonColor: "var(--brand-600)",
+      cancelButtonColor: "var(--slate-400)",
+      confirmButtonText: "ยืนยันการชำระเงิน",
       cancelButtonText: "ยกเลิก",
     });
 
     if (button.isConfirmed) {
+      setIsPaying(true);
       const toastId = toast.loading("กำลังบันทึกการชำระเงิน...");
 
       try {
@@ -127,7 +138,7 @@ function BillSale() {
 
         if (res.data.message === "success") {
           toast.update(toastId, {
-            render: "บันทึกการชำระเงินสำเร็จ 💰",
+            render: "บันทึกการชำระเงินสำเร็จ",
             type: "success",
             isLoading: false,
             autoClose: 2000,
@@ -144,12 +155,14 @@ function BillSale() {
         }
       } catch (e) {
         toast.update(toastId, {
-          render: "เกิดข้อผิดพลาด ไม่สามารถชำระเงินได้ 😿",
+          render: "เกิดข้อผิดพลาด ไม่สามารถชำระเงินได้",
           type: "error",
           isLoading: false,
           autoClose: 3000,
         });
         console.error("Pay Error:", e);
+      } finally {
+        setIsPaying(false);
       }
     }
   };
@@ -219,7 +232,6 @@ function BillSale() {
             <div style={styles.tableCard}>
               <div style={styles.tableHeaderContainer}>
                 <h4 style={styles.cardTitle}>
-                  <span className="icon-paw me-2">🐾</span>
                   บิลรายการสั่งซื้อล่าสุด
                   <span style={styles.badgeCount}>
                     {billSales.length} รายการ
@@ -246,7 +258,17 @@ function BillSale() {
                     </tr>
                   </thead>
                   <tbody>
-                    {billSales.length > 0 ? (
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan="6" style={styles.emptyState}>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            style={{ color: "var(--brand-600)" }}
+                          ></span>
+                          กำลังโหลดข้อมูล...
+                        </td>
+                      </tr>
+                    ) : billSales.length > 0 ? (
                       billSales.map((item, index) => (
                         <tr key={index} style={styles.tableRow}>
                           <td style={styles.td}>
@@ -318,13 +340,16 @@ function BillSale() {
                                 ยืนยันชำระ
                               </button>
 
-                              <button
-                                onClick={(e) => handleRemove(item)}
-                                style={styles.btnCancel}
-                                title="ยกเลิกออเดอร์"
-                              >
-                                <i className="bi bi-x-circle-fill"></i>
-                              </button>
+                              <div style={styles.btnCancelWrap}>
+                                <button
+                                  onClick={(e) => handleRemove(item)}
+                                  style={styles.btnCancel}
+                                  title="ยกเลิกออเดอร์"
+                                  aria-label="ยกเลิกออเดอร์"
+                                >
+                                  <i className="bi bi-x-circle-fill"></i>
+                                </button>
+                              </div>
                             </div>
                           </td>
                         </tr>
@@ -335,9 +360,9 @@ function BillSale() {
                           <div
                             style={{ fontSize: "50px", marginBottom: "15px" }}
                           >
-                            😿
+                            📭
                           </div>
-                          ยังไม่มีรายการสั่งซื้อเข้ามาเลยเจ้านาย...
+                          ยังไม่มีรายการสั่งซื้อเข้ามา
                         </td>
                       </tr>
                     )}
@@ -350,31 +375,19 @@ function BillSale() {
       </Home>
 
       {/* --- Modal รายละเอียดบิล --- */}
-      <div
-        className="modal fade"
+      <MyModal
         id="modalBillSalaDetail"
-        tabIndex="-1"
-        aria-hidden="true"
+        title={
+          <>
+            <i className="bi bi-receipt-cutoff me-2"></i>
+            รายละเอียดสั่งซื้อ {billSale.id ? `#${billSale.id}` : ""}
+          </>
+        }
       >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content" style={styles.modalContent}>
-            <div className="modal-header" style={styles.modalHeader}>
-              <h5 className="modal-title fw-bold" style={styles.modalTitle}>
-                <i className="bi bi-receipt-cutoff me-2"></i>
-                รายละเอียดสั่งซื้อ {billSale.id ? `#${billSale.id}` : ""}
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-
-            <div className="modal-body" style={{ padding: "25px 30px" }}>
+        <>
               <div
                 className="d-flex justify-content-between align-items-center mb-4 pb-3"
-                style={{ borderBottom: "1px dashed #cbd5e1" }}
+                style={{ borderBottom: "1px dashed var(--slate-300)" }}
               >
                 <div>
                   <small className="text-muted d-block mb-1">ลูกค้า</small>
@@ -393,7 +406,7 @@ function BillSale() {
               </div>
 
               <table className="mt-2 table table-borderless">
-                <thead style={{ borderBottom: "2px solid #f1f5f9" }}>
+                <thead style={{ borderBottom: "2px solid var(--slate-100)" }}>
                   <tr>
                     <th className="text-muted pb-2" style={{ width: "20%" }}>
                       ลำดับ
@@ -408,7 +421,7 @@ function BillSale() {
                     billSale.billSaleDetail.map((item, index) => (
                       <tr
                         key={index}
-                        style={{ borderBottom: "1px solid #f8fafc" }}
+                        style={{ borderBottom: "1px solid var(--slate-50)" }}
                       >
                         <td className="fw-bold text-muted pt-3 pb-3">
                           {index + 1}
@@ -435,46 +448,32 @@ function BillSale() {
               <div
                 className="mt-4 p-3 rounded-4 d-flex justify-content-between align-items-center"
                 style={{
-                  backgroundColor: "#fff7ed",
-                  border: "2px dashed #fed7aa",
+                  backgroundColor: "var(--brand-50)",
+                  border: "2px dashed var(--brand-200)",
                 }}
               >
                 <span className="fw-bold text-muted">ยอดชำระรวม</span>
-                <span className="fw-bold fs-4" style={{ color: "#ea580c" }}>
+                <span className="fw-bold fs-4" style={{ color: "var(--brand-600)" }}>
                   ฿{totalPrice?.toLocaleString() || 0}
                 </span>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </>
+      </MyModal>
 
       {/* --- Modal ชำระเงิน --- */}
-      <div
-        className="modal fade"
+      <MyModal
         id="modalPay"
-        tabIndex="-1"
-        aria-hidden="true"
+        title={
+          <>
+            <i className="bi bi-wallet2 me-2"></i>
+            ยืนยันการชำระเงินบิล {billSale.id ? `#${billSale.id}` : ""}
+          </>
+        }
       >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content" style={styles.modalContent}>
-            <div className="modal-header" style={styles.modalHeader}>
-              <h5 className="modal-title fw-bold" style={styles.modalTitle}>
-                <i className="bi bi-wallet2 me-2"></i>
-                ยืนยันการชำระเงินบิล {billSale.id ? `#${billSale.id}` : ""}
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-
-            <div className="modal-body" style={{ padding: "25px 30px" }}>
+        <>
               <div
                 className="d-flex justify-content-between align-items-center mb-4 pb-3"
-                style={{ borderBottom: "1px dashed #cbd5e1" }}
+                style={{ borderBottom: "1px dashed var(--slate-300)" }}
               >
                 <div>
                   <small className="text-muted d-block mb-1">สั่งซื้อโดย</small>
@@ -495,8 +494,8 @@ function BillSale() {
               <div
                 className="p-4 rounded-4"
                 style={{
-                  backgroundColor: "#f8fafc",
-                  border: "1px solid #e2e8f0",
+                  backgroundColor: "var(--slate-50)",
+                  border: "1px solid var(--slate-200)",
                 }}
               >
                 <div className="row">
@@ -549,16 +548,27 @@ function BillSale() {
               <div className="mt-4 text-center">
                 <button
                   onClick={handleConfirmPay}
-                  style={styles.btnConfirmModal}
+                  disabled={isPaying}
+                  style={{
+                    ...styles.btnConfirmModal,
+                    ...(isPaying ? { opacity: 0.7, cursor: "not-allowed" } : {}),
+                  }}
                 >
-                  <i className="bi bi-check-circle-fill me-2"></i>{" "}
-                  บันทึกการชำระเงิน
+                  {isPaying ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      กำลังบันทึก...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle-fill me-2"></i>
+                      บันทึกการชำระเงิน
+                    </>
+                  )}
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </>
+      </MyModal>
       <ToastContainer />
     </>
   );
@@ -567,7 +577,7 @@ function BillSale() {
 // 🟠 CSS ความสวยงามธีม แผงแมวส้ม
 const styles = {
   page: {
-    backgroundColor: "#fffbeb",
+    backgroundColor: "var(--amber-50)",
     minHeight: "100vh",
     paddingTop: "40px",
     paddingBottom: "80px",
@@ -585,7 +595,7 @@ const styles = {
   titleMain: {
     fontSize: "32px",
     fontWeight: "900",
-    color: "#ea580c",
+    color: "var(--brand-600)",
     margin: 0,
     display: "flex",
     alignItems: "center",
@@ -595,17 +605,17 @@ const styles = {
     filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.1))",
   },
   subtitleMain: {
-    color: "#94a3b8",
+    color: "var(--slate-400)",
     marginTop: "10px",
     fontSize: "16px",
     fontWeight: "500",
   },
   tableCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: "24px",
+    backgroundColor: "var(--color-white)",
+    borderRadius: "var(--radius-xl)",
     padding: "35px 40px",
-    boxShadow: "0 20px 50px rgba(234, 88, 12, 0.08)",
-    borderTop: "8px solid #ea580c",
+    boxShadow: "var(--shadow-card)",
+    borderTop: "8px solid var(--brand-600)",
     animation: "slideUp 0.3s ease-out forwards",
   },
   tableHeaderContainer: {
@@ -613,34 +623,34 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "25px",
-    borderBottom: "2px solid #fed7aa",
+    borderBottom: "2px solid var(--brand-200)",
     paddingBottom: "20px",
   },
   cardTitle: {
     fontSize: "22px",
     fontWeight: "800",
-    color: "#1e293b",
+    color: "var(--slate-900)",
     margin: 0,
     display: "flex",
     alignItems: "center",
   },
   badgeCount: {
-    backgroundColor: "#fff7ed",
-    color: "#ea580c",
+    backgroundColor: "var(--brand-50)",
+    color: "var(--brand-600)",
     fontSize: "14px",
     fontWeight: "700",
     padding: "6px 16px",
     borderRadius: "50rem",
     marginLeft: "15px",
-    border: "1px solid #fed7aa",
+    border: "1px solid var(--brand-200)",
   },
   table: { width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" },
   th: {
-    backgroundColor: "#fff7ed",
+    backgroundColor: "var(--brand-50)",
     padding: "16px",
     textAlign: "left",
     fontWeight: "700",
-    color: "#c2410c",
+    color: "var(--brand-700)",
     fontSize: "15px",
     whiteSpace: "nowrap",
     borderTop: "none",
@@ -649,28 +659,28 @@ const styles = {
   tableRow: { transition: "all 0.2s ease" },
   td: {
     padding: "18px 16px",
-    color: "#475569",
+    color: "var(--slate-600)",
     fontSize: "14px",
     fontWeight: "500",
     verticalAlign: "middle",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--slate-100)",
   },
   tdName: {
     padding: "18px 16px",
-    color: "#1e293b",
+    color: "var(--slate-900)",
     fontSize: "15px",
     fontWeight: "700",
     verticalAlign: "middle",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--slate-100)",
   },
   dateBadge: {
     display: "inline-block",
-    backgroundColor: "#f8fafc",
+    backgroundColor: "var(--slate-50)",
     padding: "6px 12px",
-    borderRadius: "10px",
-    border: "1px solid #e2e8f0",
+    borderRadius: "var(--radius-md)",
+    border: "1px solid var(--slate-200)",
     fontSize: "13px",
-    color: "#64748b",
+    color: "var(--slate-500)",
     fontWeight: "600",
   },
   addressText: {
@@ -680,8 +690,8 @@ const styles = {
     whiteSpace: "nowrap",
   },
   statusPaid: {
-    backgroundColor: "#dcfce7",
-    color: "#15803d",
+    backgroundColor: "var(--green-100)",
+    color: "var(--green-700)",
     padding: "8px 16px",
     borderRadius: "50rem",
     fontSize: "13px",
@@ -690,7 +700,7 @@ const styles = {
     boxShadow: "0 2px 5px rgba(22, 163, 74, 0.1)",
   },
   statusPending: {
-    backgroundColor: "#fef3c7",
+    backgroundColor: "var(--amber-100)",
     color: "#b45309",
     padding: "8px 16px",
     borderRadius: "50rem",
@@ -699,8 +709,8 @@ const styles = {
     display: "inline-block",
   },
   btnInfo: {
-    background: "#f8fafc",
-    color: "#3b82f6",
+    background: "var(--slate-50)",
+    color: "var(--blue-500)",
     border: "1px solid #bfdbfe",
     padding: "8px 16px",
     borderRadius: "50rem",
@@ -711,8 +721,8 @@ const styles = {
     whiteSpace: "nowrap",
   },
   btnSuccess: {
-    background: "linear-gradient(135deg, #10b981, #059669)",
-    color: "#ffffff",
+    background: "linear-gradient(135deg, var(--emerald-500), var(--emerald-600))",
+    color: "var(--color-white)",
     border: "none",
     padding: "8px 18px",
     borderRadius: "50rem",
@@ -723,10 +733,15 @@ const styles = {
     boxShadow: "0 4px 10px rgba(16, 185, 129, 0.25)",
     whiteSpace: "nowrap",
   },
+  btnCancelWrap: {
+    marginLeft: "6px",
+    paddingLeft: "10px",
+    borderLeft: "1px dashed var(--slate-200)",
+  },
   btnCancel: {
-    background: "#fef2f2",
-    color: "#ef4444",
-    border: "1px solid #fecaca",
+    background: "var(--red-50)",
+    color: "var(--red-500)",
+    border: "1px solid var(--red-200)",
     padding: "8px 14px",
     borderRadius: "50rem",
     fontWeight: "700",
@@ -736,52 +751,40 @@ const styles = {
   },
   emptyState: {
     textAlign: "center",
-    color: "#94a3b8",
+    color: "var(--slate-400)",
     padding: "80px 20px",
     fontWeight: "600",
     fontSize: "18px",
   },
 
   // --- Modal Styles 🌟 ---
-  modalContent: {
-    borderRadius: "24px",
-    border: "none",
-    overflow: "hidden",
-    boxShadow: "0 25px 50px -12px rgba(234, 88, 12, 0.25)",
-  },
-  modalHeader: {
-    backgroundColor: "#fff7ed",
-    borderBottom: "2px solid #fed7aa",
-    padding: "20px 30px",
-  },
-  modalTitle: { color: "#ea580c", margin: 0, fontSize: "20px" },
   modalLabel: {
     fontSize: "14px",
-    color: "#64748b",
+    color: "var(--slate-500)",
     fontWeight: "700",
     marginBottom: "8px",
     display: "block",
   },
   modalInput: {
-    border: "2px solid #e2e8f0",
-    borderRadius: "12px",
+    border: "2px solid var(--slate-200)",
+    borderRadius: "var(--radius-md)",
     padding: "12px 16px",
     fontSize: "15px",
-    backgroundColor: "#ffffff",
-    color: "#1e293b",
+    backgroundColor: "var(--color-white)",
+    color: "var(--slate-900)",
     fontFamily: "'Kanit', sans-serif",
   },
   btnConfirmModal: {
     width: "100%",
     padding: "16px",
-    borderRadius: "16px",
+    borderRadius: "var(--radius-lg)",
     border: "none",
-    background: "linear-gradient(135deg, #ea580c, #c2410c)",
-    color: "#ffffff",
+    background: "linear-gradient(135deg, var(--brand-600), var(--brand-700))",
+    color: "var(--color-white)",
     fontSize: "16px",
     fontWeight: "700",
     cursor: "pointer",
-    boxShadow: "0 8px 20px rgba(234, 88, 12, 0.25)",
+    boxShadow: "var(--shadow-primary-strong)",
     transition: "all 0.2s",
     fontFamily: "'Kanit', sans-serif",
   },

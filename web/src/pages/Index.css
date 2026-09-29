@@ -53,7 +53,7 @@
    Background & Layout
    ========================================= */
 .page {
-    background-color: #fffbeb;
+    background-color: var(--amber-50);
     min-height: 100vh;
     padding-bottom: 80px;
     font-family: 'Kanit', sans-serif;
@@ -80,7 +80,7 @@
     right: 0;
     bottom: 0;
     opacity: 0.8;
-    background-image: radial-gradient(#fcd34d 3px, transparent 3px), radial-gradient(#fcd34d 3px, transparent 3px);
+    background-image: radial-gradient(var(--amber-300) 3px, transparent 3px), radial-gradient(var(--amber-300) 3px, transparent 3px);
     background-size: 60px 60px;
     background-position: 0 0, 30px 30px;
     z-index: 0;
@@ -130,16 +130,16 @@
 .cart-label {
     font-size: 16px;
     font-weight: 700;
-    color: #fff;
+    color: var(--color-white);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-cart-header {
-    background-color: #fff;
-    color: #ea580c;
+    background-color: var(--color-white);
+    color: var(--brand-600);
     border: none;
     padding: 8px 20px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     font-size: 18px;
     font-weight: 800;
     cursor: pointer;
@@ -156,10 +156,10 @@
 }
 
 .cart-count {
-    background: linear-gradient(135deg, #ea580c, #c2410c);
-    color: #fff;
+    background: linear-gradient(135deg, var(--brand-600), var(--brand-700));
+    color: var(--color-white);
     padding: 2px 10px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     font-size: 16px;
 }
 
@@ -170,8 +170,8 @@
     right: 0;
     width: 340px;
     /* เพิ่มความกว้างนิดนึงจะได้ไม่เบียด */
-    background: #ffffff;
-    border-radius: 20px;
+    background: var(--color-white);
+    border-radius: var(--radius-xl);
     box-shadow: 0 15px 35px rgba(230, 92, 0, 0.15);
     border: 1px solid rgba(250, 204, 21, 0.4);
     z-index: 100;
@@ -180,9 +180,9 @@
 }
 
 .cart-dropdown-header {
-    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    background: linear-gradient(135deg, var(--brand-50) 0%, var(--brand-100) 100%);
     padding: 15px 20px;
-    border-bottom: 2px dashed #fed7aa;
+    border-bottom: 2px dashed var(--brand-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -192,7 +192,7 @@
     margin: 0;
     font-size: 16px;
     font-weight: 800;
-    color: #9a3412;
+    color: var(--brand-800);
     display: flex;
     align-items: center;
 }
@@ -208,8 +208,8 @@
 }
 
 .cart-items-container::-webkit-scrollbar-thumb {
-    background-color: #fdba74;
-    border-radius: 10px;
+    background-color: var(--brand-300);
+    border-radius: var(--radius-md);
 }
 
 .cart-item {
@@ -217,7 +217,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--slate-100);
 }
 
 .cart-item:last-child {
@@ -227,12 +227,12 @@
 .cart-item-number {
     font-size: 18px;
     font-weight: 900;
-    color: #ea580c;
+    color: var(--brand-600);
     letter-spacing: 2px;
-    background: #fffbeb;
+    background: var(--amber-50);
     padding: 4px 12px;
-    border-radius: 8px;
-    border: 1px solid #fde08b;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--amber-200);
 }
 
 /* 🌟 จัดกลุ่มราคาและปุ่มลบให้อยู่ชิดขวา 🌟 */
@@ -246,13 +246,13 @@
 .cart-item-price {
     font-size: 16px;
     font-weight: 700;
-    color: #64748b;
+    color: var(--slate-500);
 }
 
 .btn-remove-cart {
     background: none;
     border: none;
-    color: #ef4444;
+    color: var(--red-500);
     /* สีแดง */
     font-size: 18px;
     cursor: pointer;
@@ -265,15 +265,15 @@
 }
 
 .btn-remove-cart:hover {
-    background-color: #fee2e2;
-    color: #dc2626;
+    background-color: var(--red-100);
+    color: var(--red-600);
     transform: scale(1.15);
 }
 
 .cart-dropdown-footer {
-    background: #f8fafc;
+    background: var(--slate-50);
     padding: 15px 20px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--slate-200);
 }
 
 .cart-total {
@@ -286,22 +286,22 @@
 .cart-total-label {
     font-size: 14px;
     font-weight: 700;
-    color: #64748b;
+    color: var(--slate-500);
 }
 
 .cart-total-price {
     font-size: 22px;
     font-weight: 900;
-    color: #dc2626;
+    color: var(--red-600);
 }
 
 .btn-checkout {
     width: 100%;
-    background: linear-gradient(135deg, #16a34a, #15803d);
-    color: #fff;
+    background: linear-gradient(135deg, var(--green-600), var(--green-700));
+    color: var(--color-white);
     border: none;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     font-size: 16px;
     font-weight: 800;
     cursor: pointer;
@@ -309,7 +309,7 @@
 }
 
 .btn-checkout:hover {
-    background: linear-gradient(135deg, #15803d, #166534);
+    background: linear-gradient(135deg, var(--green-700), #166534);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
 }
@@ -318,7 +318,7 @@
    Hero Section
    ========================================= */
 .hero-section {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-600) 100%);
     padding: 50px 0;
     border-radius: 0 0 40px 40px;
     margin-bottom: 50px;
@@ -335,9 +335,9 @@
 }
 
 .hero-left {
-    background-color: #fff;
+    background-color: var(--color-white);
     padding: 30px;
-    border-radius: 24px;
+    border-radius: var(--radius-xl);
     box-shadow: 0 10px 25px rgba(0, 0, 0, .1);
 }
 
@@ -353,14 +353,14 @@
 }
 
 .hero-title {
-    color: #ea580c;
+    color: var(--brand-600);
     font-size: 36px;
     font-weight: 900;
     margin: 0 0 5px;
 }
 
 .hero-subtitle {
-    color: #64748b;
+    color: var(--slate-500);
     font-size: 16px;
     margin: 0;
     font-weight: 500;
@@ -370,8 +370,8 @@
    Search Card & Inputs
    ========================================= */
 .search-card {
-    background-color: #fff;
-    border-radius: 24px;
+    background-color: var(--color-white);
+    border-radius: var(--radius-xl);
     overflow: hidden;
     box-shadow: 0 20px 40px rgba(0, 0, 0, .1);
 }
@@ -382,7 +382,7 @@
 
 .search-label {
     font-weight: 800;
-    color: #1e293b;
+    color: var(--slate-900);
     margin-bottom: 20px;
     font-size: 20px;
     text-align: center;
@@ -403,11 +403,11 @@
     font-size: 36px;
     font-weight: 900;
     text-align: center;
-    color: #cbd5e1;
-    border: 2px solid #e2e8f0;
-    border-radius: 16px;
+    color: var(--slate-300);
+    border: 2px solid var(--slate-200);
+    border-radius: var(--radius-lg);
     outline: none;
-    background-color: #f8fafc;
+    background-color: var(--slate-50);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, .02);
     font-family: inherit;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -415,16 +415,16 @@
 }
 
 .digit-box.filled {
-    border-color: #ea580c;
-    background-color: #fff;
-    color: #ea580c;
+    border-color: var(--brand-600);
+    background-color: var(--color-white);
+    color: var(--brand-600);
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(234, 88, 12, 0.15), 0 0 0 3px rgba(234, 88, 12, 0.1);
 }
 
 .live-status {
     font-size: 14px;
-    color: #ea580c;
+    color: var(--brand-600);
     margin-bottom: 20px;
     text-align: center;
     font-weight: 600;
@@ -440,11 +440,11 @@
 
 .btn-search {
     flex: 1;
-    background-color: #dc2626;
-    color: #fff;
+    background-color: var(--red-600);
+    color: var(--color-white);
     border: none;
     padding: 18px;
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     font-size: 20px;
     font-weight: 800;
     cursor: pointer;
@@ -456,7 +456,7 @@
 .btn-clear {
     background: none;
     border: none;
-    color: #94a3b8;
+    color: var(--slate-400);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -465,11 +465,11 @@
 }
 
 .btn-clear-large {
-    background-color: #ea580c;
-    color: #fff;
+    background-color: var(--brand-600);
+    color: var(--color-white);
     border: none;
     padding: 12px 28px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     font-weight: 700;
     font-size: 16px;
     cursor: pointer;
@@ -484,7 +484,7 @@
     font-weight: 900;
     color: #431407;
     margin-bottom: 30px;
-    border-left: 6px solid #ea580c;
+    border-left: 6px solid var(--brand-600);
     padding-left: 16px;
     display: flex;
     align-items: center;
@@ -492,16 +492,16 @@
 }
 
 .icon-paw {
-    color: #ea580c;
+    color: var(--brand-600);
 }
 
 .count-badge {
-    background-color: #ea580c;
-    color: #fff;
+    background-color: var(--brand-600);
+    color: var(--color-white);
     font-size: 15px;
     font-weight: 700;
     padding: 4px 14px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
 }
 
 .grid-container {
@@ -512,18 +512,18 @@
 
 .ticket-card {
     background-color: #292524;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     padding: 10px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
     display: flex;
     flex-direction: column;
     transition: transform .2s, box-shadow .2s;
-    border: 2px solid #fcd34d;
+    border: 2px solid var(--amber-300);
 }
 
 .ticket-visual {
-    background-color: #fff;
-    border-radius: 12px;
+    background-color: var(--color-white);
+    border-radius: var(--radius-md);
     display: flex;
     height: 150px;
     overflow: hidden;
@@ -532,20 +532,20 @@
 
 .ticket-stub {
     width: 80px;
-    background-color: #fef3c7;
+    background-color: var(--amber-100);
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 10px;
-    border-right: 2px dashed #f59e0b;
+    border-right: 2px dashed var(--amber-500);
 }
 
 .stub-inner {
     text-align: center;
-    background-color: #fffbeb;
+    background-color: var(--amber-50);
     padding: 10px 5px;
-    border-radius: 8px;
-    border: 1px solid #fcd34d;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--amber-300);
     width: 100%;
     box-shadow: 0 2px 5px rgba(245, 158, 11, 0.1);
 }
@@ -559,13 +559,13 @@
 .stub-highlight {
     font-size: 22px;
     font-weight: 900;
-    color: #ea580c;
+    color: var(--brand-600);
     margin: 5px 0;
 }
 
 .stub-badge {
-    background-color: #ea580c;
-    color: #fff;
+    background-color: var(--brand-600);
+    color: var(--color-white);
     font-size: 11px;
     font-weight: 800;
     padding: 3px 6px;
@@ -576,7 +576,7 @@
 
 .perforated-line {
     width: 4px;
-    background: repeating-linear-gradient(to bottom, transparent, transparent 4px, #fcd34d 4px, #fcd34d 8px);
+    background: repeating-linear-gradient(to bottom, transparent, transparent 4px, var(--amber-300) 4px, var(--amber-300) 8px);
 }
 
 .ticket-main {
@@ -608,19 +608,19 @@
 .gov-text {
     font-size: 12px;
     font-weight: 800;
-    color: #ea580c;
+    color: var(--brand-600);
 }
 
 .barcode-placeholder {
     width: 60px;
     height: 15px;
-    background: repeating-linear-gradient(to right, #000, #000 2px, #fff 2px, #fff 4px);
+    background: repeating-linear-gradient(to right, var(--color-black), var(--color-black) 2px, var(--color-white) 2px, var(--color-white) 4px);
 }
 
 .ticket-red-number {
     font-size: 42px;
     font-weight: 900;
-    color: #dc2626;
+    color: var(--red-600);
     letter-spacing: 6px;
     text-align: center;
     margin: 5px 0;
@@ -629,8 +629,8 @@
 }
 
 .match-highlight {
-    color: #16a34a;
-    background-color: #dcfce7;
+    color: var(--green-600);
+    background-color: var(--green-100);
     border-radius: 6px;
     padding: 0 4px;
 }
@@ -639,7 +639,7 @@
     display: flex;
     justify-content: space-between;
     font-size: 12px;
-    color: #64748b;
+    color: var(--slate-500);
     font-weight: 700;
     z-index: 1;
 }
@@ -653,23 +653,23 @@
 }
 
 .price-tag {
-    color: #fff;
+    color: var(--color-white);
     font-size: 15px;
     font-weight: 500;
 }
 
 .price-highlight {
-    color: #fcd34d;
+    color: var(--amber-300);
     font-size: 26px;
     font-weight: 900;
 }
 
 .btn-cart {
-    background-color: #ea580c;
-    color: #fff;
+    background-color: var(--brand-600);
+    color: var(--color-white);
     border: none;
     padding: 10px 20px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     font-weight: 800;
     font-size: 15px;
     cursor: pointer;
@@ -679,7 +679,7 @@
 }
 
 .btn-cart.added {
-    background-color: #16a34a;
+    background-color: var(--green-600);
     box-shadow: 0 4px 12px rgba(22, 163, 74, .4);
 }
 
@@ -696,7 +696,7 @@
 .dot {
     width: 14px;
     height: 14px;
-    background-color: #ea580c;
+    background-color: var(--brand-600);
     border-radius: 50%;
     animation: bounce .8s infinite ease-in-out;
 }
@@ -704,15 +704,15 @@
 .empty-state {
     text-align: center;
     padding: 100px;
-    background-color: #fff;
-    border-radius: 24px;
-    border: 3px dashed #fdba74;
+    background-color: var(--color-white);
+    border-radius: var(--radius-xl);
+    border: 3px dashed var(--brand-300);
     box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1);
 }
 
 .empty-state.searched {
     border: 3px dashed #fca5a5;
-    background-color: #fef2f2;
+    background-color: var(--red-50);
     box-shadow: none;
 }
 
@@ -735,26 +735,26 @@
 }
 
 .cat-modal-content {
-    background-color: #ffffff;
+    background-color: var(--color-white);
     width: 90%;
     max-width: 400px;
     /* 👈 ลดความกว้างสูงสุดลง (จากเดิม 480px) */
-    border-radius: 24px;
+    border-radius: var(--radius-xl);
     /* 👈 ลดความมนของขอบลงนิดนึงให้สมส่วน */
-    box-shadow: 0 25px 50px -12px rgba(234, 88, 12, 0.25);
-    border: 2px solid #fde08b;
+    box-shadow: var(--shadow-card-lifted);
+    border: 2px solid var(--amber-200);
     overflow: hidden;
     animation: slideUp 0.3s ease-out;
 }
 
 .cat-modal-header {
-    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    background: linear-gradient(135deg, var(--brand-50) 0%, var(--brand-100) 100%);
     padding: 16px 20px;
     /* 👈 ลด padding ลงให้หัวบาร์แคบขึ้น */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px dashed #fed7aa;
+    border-bottom: 2px dashed var(--brand-200);
 }
 
 .cat-modal-title {
@@ -762,16 +762,16 @@
     font-size: 16px;
     /* 👈 ปรับขนาดตัวอักษรลงตรงนี้ครับ */
     font-weight: 800;
-    color: #9a3412;
+    color: var(--brand-800);
 }
 
 .btn-close-modal {
-    background: #ffedd5;
+    background: var(--brand-100);
     border: none;
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    color: #ea580c;
+    color: var(--brand-600);
     font-size: 18px;
     cursor: pointer;
     display: flex;
@@ -781,8 +781,8 @@
 }
 
 .btn-close-modal:hover {
-    background: #ea580c;
-    color: #fff;
+    background: var(--brand-600);
+    color: var(--color-white);
     transform: scale(1.1);
 }
 
@@ -792,12 +792,12 @@
 }
 
 .bank-details-box {
-    background-color: #f8fafc;
-    border-radius: 16px;
+    background-color: var(--slate-50);
+    border-radius: var(--radius-lg);
     padding: 16px;
     /* 👈 ลดช่องว่างในกล่องธนาคาร */
     text-align: center;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--slate-200);
 }
 
 /* 👈 เพิ่มคลาสสำหรับจัดระยะห่างข้อความในกล่องธนาคาร */
@@ -810,28 +810,28 @@
     font-size: 24px;
     /* 👈 ย่อขนาดเลขบัญชีลงนิดนึง */
     font-weight: 900;
-    color: #ea580c;
+    color: var(--brand-600);
     letter-spacing: 2px;
     margin-top: 12px;
     margin-bottom: 16px;
 }
 
 .total-amount-box {
-    background-color: #fffbeb;
+    background-color: var(--amber-50);
     padding: 10px 16px;
     /* 👈 ย่อกล่องยอดเงินให้บางลง */
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     font-weight: 700;
-    color: #475569;
+    color: var(--slate-600);
     display: inline-block;
-    border: 1px solid #fde08b;
+    border: 1px solid var(--amber-200);
     margin-bottom: 12px;
 }
 
 .amount-highlight {
     font-size: 24px;
     /* 👈 ขยายตัวเลขยอดเงิน */
-    color: #dc2626;
+    color: var(--red-600);
     font-weight: 900;
 }
 
@@ -849,9 +849,9 @@
     width: 100%;
     padding: 12px 16px;
     /* 👈 ลดความอ้วนของช่องกรอก */
-    border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    background-color: #f8fafc;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--slate-200);
+    background-color: var(--slate-50);
     font-family: inherit;
     font-size: 14px;
     /* 👈 ย่อขนาดฟอนต์ในช่องกรอกนิดนึง */
@@ -861,8 +861,8 @@
 
 .cat-input:focus {
     outline: none;
-    border-color: #fb923c;
-    background-color: #fff;
+    border-color: var(--brand-400);
+    background-color: var(--color-white);
     box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.1);
 }
 
@@ -877,23 +877,23 @@
 
 .sub-label {
     font-weight: 400;
-    color: #94a3b8;
+    color: var(--slate-400);
     font-size: 12px;
     margin-left: 6px;
 }
 
 .btn-confirm-order {
     width: 100%;
-    background: linear-gradient(135deg, #ea580c, #c2410c);
-    color: #fff;
+    background: linear-gradient(135deg, var(--brand-600), var(--brand-700));
+    color: var(--color-white);
     border: none;
     padding: 14px;
     /* 👈 ลดความสูงปุ่มลง */
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     font-size: 16px;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 8px 20px rgba(234, 88, 12, 0.25);
+    box-shadow: var(--shadow-primary-strong);
     transition: all 0.2s;
     margin-top: 8px;
 }

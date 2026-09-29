@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import axios from "axios";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
@@ -22,6 +23,26 @@ import User from "./pages/User";
 import ChangePrice from "./pages/ChangePrice";
 import Banner from "./pages/Banner";
 import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
+
+// 🌟 เมื่อ Token หมดอายุ (401) ให้เคลียร์ session แล้วพากลับไปหน้า Login
+// ทำงานเฉพาะตอนที่เคย "ล็อกอินอยู่" จริง (มี token ค้างอยู่) และไม่ใช่ตอนที่กรอกรหัสผ่าน Login ผิด
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const isLoginRequest = error.config?.url?.includes("/user/login");
+    const hadToken = !!localStorage.getItem("token");
+
+    if (error.response?.status === 401 && hadToken && !isLoginRequest) {
+      localStorage.removeItem("token");
+      if (!window.location.pathname.startsWith("/login")) {
+        window.location.href = "/login";
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 const router = createBrowserRouter([
   {
@@ -87,7 +108,11 @@ const router = createBrowserRouter([
   {
     path: '/banner',
     element: <Banner />,
-  }
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

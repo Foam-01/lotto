@@ -38,7 +38,7 @@ function BannerSlider() {
               style={{
                 display: "block",
                 overflow: "hidden",
-                borderRadius: "12px", // ปรับความมนให้ดูเพรียวขึ้น
+                borderRadius: "var(--radius-md)", // ปรับความมนให้ดูเพรียวขึ้น
                 boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
               }}
             >

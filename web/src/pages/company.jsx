@@ -10,6 +10,7 @@ function Company() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [id, setId] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -30,12 +31,14 @@ function Company() {
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถโหลดข้อมูลแผงได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     }
   };
 
   const handleSave = async () => {
+    if (isSaving) return; // 🛡️ กันกดซ้ำระหว่างรอบันทึก
+
     const Toast = Swal.mixin({
       toast: true,
       position: "top-end",
@@ -48,6 +51,7 @@ function Company() {
       },
     });
 
+    setIsSaving(true);
     try {
       Toast.fire({
         title: "กำลังบันทึกข้อมูลแผงแมวส้ม...",
@@ -75,7 +79,7 @@ function Company() {
       if (res.data.id !== undefined || res.data.message === "success") {
         Toast.fire({
           icon: "success",
-          title: "บันทึกข้อมูลแผงแมวส้มเรียบร้อย! 🐈",
+          title: "บันทึกข้อมูลแผงแมวส้มเรียบร้อย!",
           timer: 2500,
         });
         fetchData();
@@ -86,9 +90,11 @@ function Company() {
       console.error(e);
       Toast.fire({
         icon: "error",
-        title: "โง้ววว... บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่ 😿",
+        title: "บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
         timer: 3500,
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -153,10 +159,9 @@ function Company() {
           <div style={styles.premiumCard}>
             <div style={styles.cardHeader}>
               <h4 style={styles.cardTitle}>
-                <span className="icon-paw me-2">🐾</span>{" "}
                 โปรไฟล์แผงล็อตเตอรี่ของคุณ
               </h4>
-              <span style={styles.badge}>🐾 SYSTEM CONFIG</span>
+              <span style={styles.badge}>SYSTEM CONFIG</span>
             </div>
 
             <div style={{ marginTop: "30px" }}>
@@ -216,12 +221,31 @@ function Company() {
               </div>
 
               <div style={styles.footerAction}>
-                <button style={styles.btnSave} onClick={handleSave}>
-                  <i
-                    className="bi bi-cloud-check-fill"
-                    style={{ marginRight: "12px" }}
-                  ></i>
-                  บันทึกข้อมูลแผงแมวส้ม
+                <button
+                  style={{
+                    ...styles.btnSave,
+                    ...(isSaving ? styles.btnSaveDisabled : {}),
+                  }}
+                  onClick={handleSave}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm"
+                        style={{ marginRight: "12px" }}
+                      ></span>
+                      กำลังบันทึก...
+                    </>
+                  ) : (
+                    <>
+                      <i
+                        className="bi bi-cloud-check-fill"
+                        style={{ marginRight: "12px" }}
+                      ></i>
+                      บันทึกข้อมูลแผงแมวส้ม
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -235,7 +259,7 @@ function Company() {
 // 🟠 CSS Styles
 const styles = {
   page: {
-    backgroundColor: "#fffbeb",
+    backgroundColor: "var(--amber-50)",
     minHeight: "100vh",
     paddingTop: "40px",
     paddingBottom: "80px",
@@ -255,7 +279,7 @@ const styles = {
   titleMain: {
     fontSize: "32px",
     fontWeight: "900",
-    color: "#ea580c",
+    color: "var(--brand-600)",
     margin: 0,
     display: "flex",
     alignItems: "center",
@@ -265,17 +289,17 @@ const styles = {
     filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.1))",
   },
   subtitleMain: {
-    color: "#94a3b8",
+    color: "var(--slate-400)",
     marginTop: "10px",
     fontSize: "16px",
     fontWeight: "500",
   },
   premiumCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: "24px",
+    backgroundColor: "var(--color-white)",
+    borderRadius: "var(--radius-xl)",
     padding: "40px",
-    boxShadow: "0 20px 40px rgba(234, 88, 12, 0.08)",
-    borderTop: "10px solid #ea580c",
+    boxShadow: "var(--shadow-card)",
+    borderTop: "10px solid var(--brand-600)",
     marginBottom: "35px",
     animation: "slideUp 0.3s ease-out forwards",
   },
@@ -283,26 +307,26 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    borderBottom: "2px solid #fed7aa",
+    borderBottom: "2px solid var(--brand-200)",
     paddingBottom: "20px",
   },
   cardTitle: {
     fontSize: "22px",
     fontWeight: "800",
-    color: "#1e293b",
+    color: "var(--slate-900)",
     margin: 0,
     display: "flex",
     alignItems: "center",
   },
   badge: {
-    backgroundColor: "#fff7ed",
-    color: "#9a3412",
+    backgroundColor: "var(--brand-50)",
+    color: "var(--brand-800)",
     padding: "8px 18px",
-    borderRadius: "50px",
+    borderRadius: "var(--radius-pill)",
     fontSize: "13px",
     fontWeight: "bold",
     letterSpacing: "1px",
-    border: "1px solid #ffedd5",
+    border: "1px solid var(--brand-100)",
   },
   formGroup: {
     marginBottom: "30px",
@@ -311,7 +335,7 @@ const styles = {
     display: "block",
     marginBottom: "12px",
     fontWeight: "700",
-    color: "#475569",
+    color: "var(--slate-600)",
     fontSize: "15px",
   },
   inputWrapper: {
@@ -322,18 +346,18 @@ const styles = {
   inputIcon: {
     position: "absolute",
     left: "20px",
-    color: "#94a3b8",
+    color: "var(--slate-400)",
     fontSize: "20px",
   },
   input: {
     width: "100%",
     padding: "18px 16px 18px 55px",
-    borderRadius: "16px",
-    border: "2px solid #e2e8f0",
+    borderRadius: "var(--radius-lg)",
+    border: "2px solid var(--slate-200)",
     fontSize: "17px",
     color: "#212529",
     outline: "none",
-    backgroundColor: "#f8fafc",
+    backgroundColor: "var(--slate-50)",
     boxSizing: "border-box",
     fontFamily: "inherit",
     transition: "all 0.2s",
@@ -341,23 +365,28 @@ const styles = {
   footerAction: {
     marginTop: "40px",
     paddingTop: "25px",
-    borderTop: "2px dashed #e2e8f0",
+    borderTop: "2px dashed var(--slate-200)",
   },
   btnSave: {
     width: "100%",
     padding: "18px",
-    background: "linear-gradient(135deg, #ea580c, #c2410c)",
-    color: "#ffffff",
+    background: "linear-gradient(135deg, var(--brand-600), var(--brand-700))",
+    color: "var(--color-white)",
     border: "none",
-    borderRadius: "16px",
+    borderRadius: "var(--radius-lg)",
     fontSize: "20px",
     fontWeight: "800",
     cursor: "pointer",
-    boxShadow: "0 8px 20px rgba(234, 88, 12, 0.25)",
+    boxShadow: "var(--shadow-primary-strong)",
     transition: "all 0.2s",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+  btnSaveDisabled: {
+    background: "var(--slate-300)",
+    boxShadow: "none",
+    cursor: "not-allowed",
   },
 };
 

@@ -147,14 +147,14 @@ function Dashboard() {
         <div className="d-flex justify-content-between align-items-center mb-4 mt-2 position-relative z-2">
           <div
             className="h3 mb-0 fw-bold d-flex align-items-center"
-            style={{ color: "#ea580c" }}
+            style={{ color: "var(--brand-600)" }}
           >
             <div
               className="d-flex justify-content-center align-items-center rounded-3 me-3 shadow-sm"
               style={{
                 width: "45px",
                 height: "45px",
-                backgroundColor: "#ea580c",
+                backgroundColor: "var(--brand-600)",
                 color: "white",
               }}
             >
@@ -176,7 +176,7 @@ function Dashboard() {
               role="status"
             ></div>
             <h5 className="mt-3 text-muted fw-bold">
-              กำลังรวบรวมข้อมูลแผง... 🐈
+              กำลังรวบรวมข้อมูลแผง...
             </h5>
           </div>
         ) : (
@@ -193,10 +193,10 @@ function Dashboard() {
                       className="bi bi-wallet2 position-absolute opacity-25"
                       style={styles.cardBgIcon}
                     ></i>
-                    <p className="fw-bold mb-1 fs-6" style={{ color: "#fff" }}>
+                    <p className="fw-bold mb-1 fs-6" style={{ color: "var(--color-white)" }}>
                       รายได้รวมเดือนนี้
                     </p>
-                    <h2 className="fw-bold mb-0" style={{ color: "#fff" }}>
+                    <h2 className="fw-bold mb-0" style={{ color: "var(--color-white)" }}>
                       ฿{stats.totalIncome.toLocaleString()}
                     </h2>
                     <div className="mt-3">
@@ -253,14 +253,14 @@ function Dashboard() {
                       <span
                         className="badge rounded-pill"
                         style={{
-                          backgroundColor: "#fdf4ff",
+                          backgroundColor: "var(--fuchsia-50)",
                           color: "#c026d3",
                         }}
                       >
                         รอบล่าสุด
                       </span>
                     </div>
-                    <h2 className="fw-bold mb-0" style={{ color: "#a21caf" }}>
+                    <h2 className="fw-bold mb-0" style={{ color: "var(--fuchsia-700)" }}>
                       ฿{stats.shopBonusPrize.toLocaleString()}
                     </h2>
                   </div>
@@ -275,8 +275,8 @@ function Dashboard() {
                   <div
                     className="card border-0 shadow-sm rounded-4 h-100 transition-hover"
                     style={{
-                      backgroundColor: "#fff",
-                      borderLeft: "6px solid #ef4444",
+                      backgroundColor: "var(--color-white)",
+                      borderLeft: "6px solid var(--red-500)",
                     }}
                   >
                     <div className="card-body p-4 d-flex align-items-center justify-content-between">
@@ -286,8 +286,8 @@ function Dashboard() {
                           style={{
                             width: "55px",
                             height: "55px",
-                            backgroundColor: "#fee2e2",
-                            color: "#ef4444",
+                            backgroundColor: "var(--red-100)",
+                            color: "var(--red-500)",
                           }}
                         >
                           <i className="bi bi-clock-history fs-3"></i>
@@ -315,8 +315,8 @@ function Dashboard() {
                   <div
                     className="card border-0 shadow-sm rounded-4 h-100 transition-hover"
                     style={{
-                      backgroundColor: "#fff",
-                      borderLeft: "6px solid #3b82f6",
+                      backgroundColor: "var(--color-white)",
+                      borderLeft: "6px solid var(--blue-500)",
                     }}
                   >
                     <div className="card-body p-4 d-flex align-items-center justify-content-between">
@@ -326,8 +326,8 @@ function Dashboard() {
                           style={{
                             width: "55px",
                             height: "55px",
-                            backgroundColor: "#eff6ff",
-                            color: "#3b82f6",
+                            backgroundColor: "var(--blue-50)",
+                            color: "var(--blue-500)",
                           }}
                         >
                           <i className="bi bi-box-seam fs-3"></i>
@@ -422,8 +422,8 @@ function Dashboard() {
                     className="progress"
                     style={{
                       height: "12px",
-                      borderRadius: "10px",
-                      backgroundColor: "#ffedd5",
+                      borderRadius: "var(--radius-md)",
+                      backgroundColor: "var(--brand-100)",
                     }}
                   >
                     <div
@@ -437,7 +437,7 @@ function Dashboard() {
                               100
                             : 0
                         }%`,
-                        backgroundColor: "#ea580c",
+                        backgroundColor: "var(--brand-600)",
                       }}
                     ></div>
                   </div>
@@ -458,20 +458,20 @@ const styles = {
     fontFamily: "'Kanit', sans-serif",
   },
   cardIncome: {
-    background: "linear-gradient(135deg, #ea580c 0%, #c2410c 100%)",
+    background: "linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%)",
   },
   cardProfit: {
-    background: "linear-gradient(135deg, #10b981 0%, #047857 100%)",
+    background: "linear-gradient(135deg, var(--emerald-500) 0%, var(--emerald-700) 100%)",
   },
   cardBgIcon: {
     fontSize: "8rem",
     right: "-15px",
     bottom: "-25px",
-    color: "#fff",
+    color: "var(--color-white)",
   },
   btnOutlineOrange: {
-    color: "#ea580c",
-    border: "1px solid #ea580c",
+    color: "var(--brand-600)",
+    border: "1px solid var(--brand-600)",
     backgroundColor: "transparent",
   },
 };

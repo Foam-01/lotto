@@ -128,11 +128,15 @@ export class BonusService {
         where: { bonusDate: lastResult?.bonusDate },
       });
 
-      for (let i = 0; i < billSaleDetails.length; i++) {
-        const item = billSaleDetails[i];
+      // 🌟 จับคู่ผลรางวัลใน memory ก่อน แล้วค่อย create/update เป็น batch เดียว
+      // แทนการ await create()/update() อยู่ข้างในลูปซ้อนลูป (เดิมคือ O(N*M) query ไปที่ DB)
+      const winningPairs: {
+        billSaleDetailId: number;
+        bonusResultDetailId: number;
+      }[] = [];
 
-        for (let j = 0; j < bonusResultDetails.length; j++) {
-          const item2 = bonusResultDetails[j];
+      for (const item of billSaleDetails) {
+        for (const item2 of bonusResultDetails) {
           let isWin = false;
 
           if (
@@ -151,18 +155,27 @@ export class BonusService {
           }
 
           if (isWin) {
-            await this.prisma.billSaleDetailIsBonus.create({
-              data: {
-                billSaleDetailId: item.id,
-                bonusResultDetailId: item2.id,
-              },
+            winningPairs.push({
+              billSaleDetailId: item.id,
+              bonusResultDetailId: item2.id,
             });
           }
         }
+      }
 
-        await this.prisma.lotto.update({
+      if (winningPairs.length > 0) {
+        await this.prisma.billSaleDetailIsBonus.createMany({
+          data: winningPairs,
+        });
+      }
+
+      const checkedLottoIds = [
+        ...new Set(billSaleDetails.map((item) => item.lotto.id)),
+      ];
+      if (checkedLottoIds.length > 0) {
+        await this.prisma.lotto.updateMany({
           data: { isCheckBonus: 1 },
-          where: { id: item.lotto.id },
+          where: { id: { in: checkedLottoIds } },
         });
       }
 

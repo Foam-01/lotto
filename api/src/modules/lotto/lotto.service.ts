@@ -69,6 +69,13 @@ export class LottoService {
 
   async confirmBuy(dto: ConfirmBuyDto) {
     try {
+      // 🌟 ดึงราคาสลากทุกใบในตะกร้ามาครั้งเดียว แทนการ findFirst ทีละใบในลูป (N+1)
+      const cartLottoIds = dto.carts.map((cartData) => cartData.item.id);
+      const lottos = await this.prisma.lotto.findMany({
+        where: { id: { in: cartLottoIds } },
+      });
+      const saleById = new Map(lottos.map((lotto) => [lotto.id, lotto.sale]));
+
       const res = await this.prisma.billSale.create({
         data: {
           customerName: dto.customerName,
@@ -78,19 +85,13 @@ export class LottoService {
         },
       });
 
-      for (let i = 0; i < dto.carts.length; i++) {
-        const cartData = dto.carts[i];
-        const lotto = await this.prisma.lotto.findFirst({
-          where: { id: cartData.item.id },
-        });
-        await this.prisma.billSaleDetail.create({
-          data: {
-            billSaleId: res.id,
-            lottoId: cartData.item.id,
-            price: lotto?.sale ?? 0,
-          },
-        });
-      }
+      await this.prisma.billSaleDetail.createMany({
+        data: dto.carts.map((cartData) => ({
+          billSaleId: res.id,
+          lottoId: cartData.item.id,
+          price: saleById.get(cartData.item.id) ?? 0,
+        })),
+      });
       return { message: 'success' };
     } catch (e) {
       console.error('🔥 Error ConfirmBuy:', e);
@@ -144,15 +145,13 @@ export class LottoService {
           where: { billSaleId: dto.billSaleId },
         });
 
-        // 3. Loop เพื่ออัปเดตลอตเตอรี่ "ทุกใบ" ในบิลให้สถานะเป็นขายแล้ว (isSale: 1)
-        for (const detail of billDetails) {
-          await tx.lotto.update({
-            where: { id: detail.lottoId },
-            data: {
-              inSale: 1,
-            },
-          });
-        }
+        // 3. อัปเดตลอตเตอรี่ "ทุกใบ" ในบิลให้สถานะเป็นขายแล้ว (isSale: 1) ด้วย query เดียว แทนการ update ทีละแถวในลูป
+        await tx.lotto.updateMany({
+          where: { id: { in: billDetails.map((detail) => detail.lottoId) } },
+          data: {
+            inSale: 1,
+          },
+        });
 
         return { message: 'success' };
       });
@@ -232,28 +231,30 @@ export class LottoService {
         },
       });
 
-      // 4. วนลูปตรวจรางวัล
-      for (let i = 0; i < lottos.length; i++) {
-        const item = lottos[i];
-        for (let j = 0; j < bonusResults.length; j++) {
-          const bonusResult = bonusResults[j];
+      // 4. ตรวจรางวัล (จับคู่ใน memory แทนการ query ทีละคู่ในลูป เพื่อลดจำนวน query ลงจาก O(N*M) เป็นค่าคงที่)
+      const inStockNumbers = new Set(lottos.map((item) => item.numbers));
+      const matchedBonusResults = bonusResults.filter((bonusResult) =>
+        inStockNumbers.has(bonusResult.number),
+      );
 
-          if (bonusResult.number === item.numbers) {
-            // บันทึกผลรางวัลเก็บไว้
-            const fileRow = await this.prisma.lottoIsBonus.findFirst({
-              where: {
-                bonusResultDetailId: bonusResult.id,
-              },
-            });
+      if (matchedBonusResults.length > 0) {
+        const existingRows = await this.prisma.lottoIsBonus.findMany({
+          where: {
+            bonusResultDetailId: {
+              in: matchedBonusResults.map((b) => b.id),
+            },
+          },
+        });
+        const alreadySaved = new Set(
+          existingRows.map((row) => row.bonusResultDetailId),
+        );
 
-            if (fileRow === null) {
-              await this.prisma.lottoIsBonus.create({
-                data: {
-                  bonusResultDetailId: bonusResult.id,
-                },
-              });
-            }
-          }
+        const toCreate = matchedBonusResults
+          .filter((bonusResult) => !alreadySaved.has(bonusResult.id))
+          .map((bonusResult) => ({ bonusResultDetailId: bonusResult.id }));
+
+        if (toCreate.length > 0) {
+          await this.prisma.lottoIsBonus.createMany({ data: toCreate });
         }
       }
       return { message: 'success' };
@@ -280,14 +281,16 @@ export class LottoService {
 
   async changePrice(lottos: any[]) {
     try {
-      for (let i = 0; i < lottos.length; i++) {
-        const item = lottos[i];
-
-        await this.prisma.lotto.update({
-          where: { id: item.id },
-          data: { sale: item.newPrice },
-        });
-      }
+      // 🌟 ส่งคำสั่ง update ทั้งหมดเป็น 1 transaction แทนการ await ทีละแถวแบบ sequential
+      // (แต่ละใบราคาไม่เท่ากัน จึงยังต้องเป็นคนละ statement แต่ลด round-trip ระหว่าง statement ลง)
+      await this.prisma.$transaction(
+        lottos.map((item) =>
+          this.prisma.lotto.update({
+            where: { id: item.id },
+            data: { sale: item.newPrice },
+          }),
+        ),
+      );
 
       return { message: 'success' };
     } catch (e) {

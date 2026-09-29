@@ -7,12 +7,26 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 function Home(props) {
   const [userName, setUserName] = useState("");
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    // 🛡️ เช็คว่ามี token อยู่ในเครื่องหรือไม่ก่อนเลย ถ้าไม่มีเด้งกลับหน้า Login ทันที
+    // ป้องกันไม่ให้เมนู/เนื้อหาหลังบ้านแวบขึ้นมาให้เห็นก่อนที่จะรู้ว่ายังไม่ได้ล็อกอิน
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     fetchDate();
   }, []);
+
+  // 🌟 ปิด Sidebar อัตโนมัติทุกครั้งที่เปลี่ยนหน้า (สำหรับมือถือ)
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
 
   const fetchDate = async () => {
     try {
@@ -20,7 +34,10 @@ function Home(props) {
       setUserName(res.data.payload.user);
     } catch (e) {
       localStorage.removeItem("token");
-      navigate("/");
+      navigate("/login");
+      return;
+    } finally {
+      setIsAuthChecked(true);
     }
   };
 
@@ -36,14 +53,14 @@ function Home(props) {
       text: "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบแผงแมวส้ม",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#94a3b8",
+      confirmButtonColor: "var(--red-600)",
+      cancelButtonColor: "var(--slate-400)",
       confirmButtonText: "ออกจากระบบ",
       cancelButtonText: "ยกเลิก",
     }).then((result) => {
       if (result.isConfirmed) {
         localStorage.removeItem("token");
-        navigate("/");
+        navigate("/login");
       }
     });
   };
@@ -60,11 +77,42 @@ function Home(props) {
     textOverflow: "ellipsis",
   };
 
+  // 🛡️ ระหว่างรอเช็คสิทธิ์ (เรียก /user/info) ยังไม่โชว์เมนู/เนื้อหาหลังบ้าน
+  // กันไม่ให้แวบเห็น UI ก่อนรู้ว่า login อยู่จริงไหม
+  if (!isAuthChecked) {
+    return (
+      <div className="auth-check-screen">
+        <div className="spinner-border text-warning" role="status"></div>
+        <p>กำลังตรวจสอบสิทธิ์การเข้าใช้งาน...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="layout-wrapper">
+      {/* 🌟 แถบบนสำหรับมือถือ: ปุ่มเปิดเมนู 🌟 */}
+      <div className="mobile-topbar">
+        <button
+          className="mobile-menu-btn"
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="เปิดเมนู"
+        >
+          <i className="bi bi-list"></i>
+        </button>
+        <span className="mobile-topbar-title">🐈 แผงแมวส้ม</span>
+      </div>
+
+      {/* 🌟 ฉากหลังมืดตอนเปิดเมนูบนมือถือ กดเพื่อปิดเมนูได้ 🌟 */}
+      {isSidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* 🌟 Sidebar 🌟 */}
       <div
-        className="sidebar"
+        className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}
         style={{
           display: "flex",
           flexDirection: "column",
@@ -72,6 +120,13 @@ function Home(props) {
           overflow: "hidden", // ปิด Scroll รวม
         }}
       >
+        <button
+          className="sidebar-close-btn"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-label="ปิดเมนู"
+        >
+          <i className="bi bi-x-lg"></i>
+        </button>
         {/* --- ส่วนหัว (🌟 รีดไขมัน ลดขนาดลงให้กระชับที่สุด) --- */}
         <div style={{ flexShrink: 0, paddingBottom: "5px" }}>
           <div
@@ -103,16 +158,16 @@ function Home(props) {
 
           <div
             className="user-info"
-            style={{ marginBottom: "5px", padding: "6px", borderRadius: "8px" }}
+            style={{ marginBottom: "5px", padding: "6px", borderRadius: "var(--radius-sm)" }}
           >
             <small
               className="text-muted d-block fw-bold"
               style={{ fontSize: "0.7rem", marginBottom: "2px" }}
             >
-              ยินดีต้อนรับเจ้านาย
+              ยินดีต้อนรับ
             </small>
             <strong className="user-name-text" style={{ fontSize: "0.9rem" }}>
-              🐾 {userName || "Admin"}
+              {userName || "Admin"}
             </strong>
           </div>
         </div>
@@ -140,7 +195,7 @@ function Home(props) {
           >
             <i
               className="bi bi-house-door-fill me-2"
-              style={{ color: "#ea580c" }}
+              style={{ color: "var(--brand-600)" }}
             ></i>
             <span>หน้าแรก</span>
           </Link>
@@ -150,7 +205,7 @@ function Home(props) {
             className={`menu-item ${isActive("/banner")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-gem me-2" style={{ color: "#f59e0b" }}></i>
+            <i className="bi bi-gem me-2" style={{ color: "var(--amber-500)" }}></i>
             <span>ป้ายโฆษณา</span>
           </Link>
 
@@ -161,7 +216,7 @@ function Home(props) {
           >
             <i
               className="bi bi-ticket-detailed-fill me-2"
-              style={{ color: "#3b82f6" }}
+              style={{ color: "var(--blue-500)" }}
             ></i>{" "}
             <span>จัดการสลาก</span>
           </Link>
@@ -173,9 +228,9 @@ function Home(props) {
           >
             <i
               className="bi bi-lightning-charge-fill me-2"
-              style={{ color: "#ef4444" }}
+              style={{ color: "var(--red-500)" }}
             ></i>{" "}
-            <span>ปรับราคา เร่งด่วน</span>
+            <span>ปรับราคาแบบเร่งด่วน</span>
           </Link>
 
           <Link
@@ -185,7 +240,7 @@ function Home(props) {
           >
             <i
               className="bi bi-receipt-cutoff me-2"
-              style={{ color: "#10b981" }}
+              style={{ color: "var(--emerald-500)" }}
             ></i>{" "}
             <span>รายการสั่งซื้อ</span>
           </Link>
@@ -236,7 +291,7 @@ function Home(props) {
           >
             <i
               className="bi bi-award-fill me-2"
-              style={{ color: "#f97316" }}
+              style={{ color: "var(--brand-500)" }}
             ></i>
             <span>รางวัลของร้าน</span>
           </Link>
@@ -248,7 +303,7 @@ function Home(props) {
           >
             <i
               className="bi bi-cash-coin me-2"
-              style={{ color: "#10b981" }}
+              style={{ color: "var(--emerald-500)" }}
             ></i>
             <span>รายงานรายได้</span>
           </Link>
@@ -260,7 +315,7 @@ function Home(props) {
           >
             <i
               className="bi bi-piggy-bank me-2"
-              style={{ color: "#059669" }}
+              style={{ color: "var(--emerald-600)" }}
             ></i>
             <span>รายงานผลกำไร</span>
           </Link>
@@ -272,7 +327,7 @@ function Home(props) {
           >
             <i
               className="bi bi-shop-window me-2"
-              style={{ color: "#64748b" }}
+              style={{ color: "var(--slate-500)" }}
             ></i>
             <span>ข้อมูลร้าน</span>
           </Link>
@@ -282,7 +337,7 @@ function Home(props) {
             className={`menu-item ${isActive("/user")}`}
             style={compactMenuItem}
           >
-            <i className="bi bi-person me-2" style={{ color: "#475569" }}></i>
+            <i className="bi bi-person me-2" style={{ color: "var(--slate-600)" }}></i>
             <span>ข้อมูลผู้ใช้</span>
           </Link>
         </div>
@@ -294,7 +349,7 @@ function Home(props) {
             flexShrink: 0,
             marginTop: "auto", // ดันให้ติดขอบล่าง
             paddingBottom: "15px",
-            borderTop: "1px dashed #fed7aa",
+            borderTop: "1px dashed var(--brand-200)",
             paddingTop: "8px",
           }}
         >

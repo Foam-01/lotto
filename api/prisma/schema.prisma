@@ -35,6 +35,10 @@ model Lotto {
   billSaleDetails BillSaleDetail[]
   isCheckBonus    Int              @default(0)
   inSale          Int              @default(0)
+
+  @@index([inSale])
+  @@index([isCheckBonus])
+  @@index([numbers])
 }
 
 model BillSale {
@@ -53,6 +57,8 @@ model BillSale {
   tranferMoneyTime String?
   deliverDate      DateTime?
   price            Int?
+
+  @@index([payDate])
 }
 
 model BillSaleDetail {
@@ -63,6 +69,9 @@ model BillSaleDetail {
   lotto                 Lotto                   @relation(fields: [lottoId], references: [id])
   price                 Int?
   BillSaleDetailIsBonus BillSaleDetailIsBonus[]
+
+  @@index([billSaleId])
+  @@index([lottoId])
 }
 
 model BillSaleForSend {
@@ -76,6 +85,8 @@ model BillSaleForSend {
   sendPlatform String
   remark       String?
   price        Int
+
+  @@index([billSaleId])
 }
 
 model BonusResultDetail {
@@ -85,6 +96,9 @@ model BonusResultDetail {
   bonusDate             String
   BillSaleDetailIsBonus BillSaleDetailIsBonus[]
   lottoIsBonuses        LottoIsBonus[]
+
+  @@index([bonusDate])
+  @@index([number])
 }
 
 model BillSaleDetailIsBonus {
@@ -93,6 +107,9 @@ model BillSaleDetailIsBonus {
   BillSaleDetail      BillSaleDetail     @relation(fields: [billSaleDetailId], references: [id])
   bonusResultDetailId Int?
   BonusResultDetail   BonusResultDetail? @relation(fields: [bonusResultDetailId], references: [id])
+
+  @@index([billSaleDetailId])
+  @@index([bonusResultDetailId])
 }
 
 model LottoIsBonus {
@@ -101,6 +118,8 @@ model LottoIsBonus {
   // SQL query = คำสั่งค้นข้อมูล จากฐานข้อมูล  = คิว-รี่
   bonusResultDetailId Int
   BonusResultDetail   BonusResultDetail @relation(fields: [bonusResultDetailId], references: [id])
+
+  @@index([bonusResultDetailId])
 }
 
 model Banner {

@@ -8,19 +8,23 @@ function Login() {
   const [password, setPassword] = useState("");
   const [isUsrFocused, setIsUsrFocused] = useState(false);
   const [isPwdFocused, setIsPwdFocused] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
 
   const handleSingIn = async () => {
+    if (isLoggingIn) return; // 🛡️ กันกดซ้ำระหว่างรอผลล็อกอิน
+
     if (!username || !password) {
       Swal.fire({
         icon: "warning",
-        title: "เมี๊ยวว!",
-        text: "เจ้านายลืมกรอกชื่อผู้ใช้หรือรหัสผ่านนะ",
-        confirmButtonColor: "#ea580c",
+        title: "กรอกข้อมูลไม่ครบ",
+        text: "กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน",
+        confirmButtonColor: "var(--brand-600)",
       });
       return;
     }
 
+    setIsLoggingIn(true);
     try {
       const payload = {
         usr: username,
@@ -36,7 +40,7 @@ function Login() {
         await Swal.fire({
           icon: "success",
           title: "เข้าสู่ระบบสำเร็จ",
-          text: "ยินดีต้อนรับกลับแผงแมวส้มครับเจ้านาย! 🐈",
+          text: "ยินดีต้อนรับกลับเข้าสู่ระบบ",
           timer: 1500,
           showConfirmButton: false,
         });
@@ -49,11 +53,13 @@ function Login() {
       Swal.fire({
         icon: "error",
         title: "เข้าสู่ระบบไม่สำเร็จ",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
         text:
           error.response?.data?.message ||
           "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง",
       });
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -73,10 +79,18 @@ function Login() {
 
   return (
     <div style={styles.container}>
-      {/* 🌟 ไอคอนลอยๆ เป็นแบคกราว 🌟 */}
+      {/* 🌟 ปรับ padding การ์ดให้เล็กลงบนจอแคบมาก ๆ (media query เฉพาะจุด) 🌟 */}
+      <style>{`
+        @media (max-width: 480px) {
+          .login-card { padding: 30px 20px !important; }
+        }
+      `}</style>
+
+      {/* 🌟 ไอคอนลอยๆ เป็นแบคกราว (ตกแต่งอย่างเดียว ไม่มีความหมายเชิงข้อมูล) 🌟 */}
       {floatingIcons.map((item) => (
         <div
           key={item.id}
+          aria-hidden="true"
           style={{
             ...styles.floatingIcon,
             top: item.top,
@@ -90,16 +104,17 @@ function Login() {
         </div>
       ))}
 
-      <div style={styles.card}>
+      <main className="login-card" style={styles.card}>
         <div style={styles.header}>
-          <div style={styles.logoCircle}>🐈</div>
+          <div style={styles.logoCircle} aria-hidden="true">🐈</div>
           <h1 style={styles.title}>แผงแมวส้ม</h1>
-          <p style={styles.subtitle}>ระบบจัดการหลังบ้าน (Admin Panel)</p>
+          <p style={styles.subtitle}>ระบบจัดการหลังบ้าน</p>
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>ชื่อผู้ใช้งาน</label>
+          <label htmlFor="login-username" style={styles.label}>ชื่อผู้ใช้งาน</label>
           <input
+            id="login-username"
             type="text"
             style={{
               ...styles.input,
@@ -114,8 +129,9 @@ function Login() {
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>รหัสผ่าน</label>
+          <label htmlFor="login-password" style={styles.label}>รหัสผ่าน</label>
           <input
+            id="login-password"
             type="password"
             style={{
               ...styles.input,
@@ -132,17 +148,33 @@ function Login() {
 
         <button
           onClick={handleSingIn}
-          style={styles.button}
+          disabled={isLoggingIn}
+          style={{
+            ...styles.button,
+            ...(isLoggingIn ? styles.buttonDisabled : {}),
+          }}
           onMouseOver={(e) =>
+            !isLoggingIn &&
             (e.currentTarget.style.transform = "translateY(-2px)")
           }
           onMouseOut={(e) => (e.currentTarget.style.transform = "none")}
         >
-          เข้าสู่ระบบ
+          {isLoggingIn ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-2"></span>
+              กำลังเข้าสู่ระบบ...
+            </>
+          ) : (
+            "เข้าสู่ระบบ"
+          )}
         </button>
 
-        <div style={styles.footer}>ระบบจัดการสลากออนไลน์ 🐾</div>
-      </div>
+        <p style={styles.forgotPassword}>
+          ลืมรหัสผ่าน? กรุณาติดต่อผู้ดูแลระบบ
+        </p>
+
+        <div style={styles.footer}>ระบบจัดการสลากออนไลน์</div>
+      </main>
     </div>
   );
 }
@@ -150,15 +182,15 @@ function Login() {
 // 🟠 CSS ธีมแผงแมวส้มที่แท้ทรู (ปรับให้กรอบใหญ่ขึ้น)
 const styles = {
   container: {
-    height: "100vh",
+    minHeight: "100vh",
     width: "100vw",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fffbeb",
+    backgroundColor: "var(--amber-50)",
     margin: 0,
     padding: 0,
-    overflow: "hidden",
+    overflow: "auto",
     fontFamily: "'Kanit', sans-serif",
     position: "relative",
   },
@@ -169,11 +201,11 @@ const styles = {
     filter: "grayscale(20%) opacity(0.8)",
   },
   card: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "var(--color-white)",
     padding: "60px 50px", // 👈 ขยาย Padding ด้านใน (เดิม 50px 40px)
-    borderRadius: "24px",
-    borderTop: "10px solid #ea580c",
-    boxShadow: "0 20px 40px rgba(234, 88, 12, 0.08)",
+    borderRadius: "var(--radius-xl)",
+    borderTop: "10px solid var(--brand-600)",
+    boxShadow: "var(--shadow-card)",
     width: "90%",
     maxWidth: "480px", // 👈 ขยายกรอบให้กว้างขึ้น (เดิม 400px)
     textAlign: "center",
@@ -185,24 +217,24 @@ const styles = {
   logoCircle: {
     width: "80px", // 👈 ขยายโลโก้ (เดิม 70px)
     height: "80px", // 👈 ขยายโลโก้
-    backgroundColor: "#fff7ed",
+    backgroundColor: "var(--brand-50)",
     borderRadius: "50%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     margin: "0 auto 15px",
     fontSize: "45px", // 👈 ขยายอิโมจิแมว (เดิม 40px)
-    border: "2px solid #fed7aa",
+    border: "2px solid var(--brand-200)",
     boxShadow: "0 4px 10px rgba(234, 88, 12, 0.1)",
   },
   title: {
     margin: 0,
-    color: "#ea580c",
+    color: "var(--brand-600)",
     fontSize: "32px", // 👈 ขยายฟอนต์หัวข้อ (เดิม 28px)
     fontWeight: "900",
   },
   subtitle: {
-    color: "#94a3b8",
+    color: "var(--slate-500)",
     fontSize: "16px", // 👈 ขยายฟอนต์ย่อย (เดิม 15px)
     marginTop: "5px",
     fontWeight: "500",
@@ -212,16 +244,16 @@ const styles = {
     display: "block",
     marginBottom: "8px",
     fontWeight: "700",
-    color: "#475569",
+    color: "var(--slate-600)",
     fontSize: "15px", // 👈 ขยายฟอนต์ Label (เดิม 14px)
   },
   input: {
     width: "100%",
     padding: "16px 20px", // 👈 ทำให้ช่องกรอกอ้วนขึ้นนิดนึง (เดิม 14px 16px)
-    borderRadius: "12px",
-    border: "2px solid #e2e8f0",
-    backgroundColor: "#f8fafc",
-    color: "#1e293b",
+    borderRadius: "var(--radius-md)",
+    border: "2px solid var(--slate-200)",
+    backgroundColor: "var(--slate-50)",
+    color: "var(--slate-900)",
     fontSize: "16px", // 👈 ขยายฟอนต์ในช่องกรอก
     boxSizing: "border-box",
     outline: "none",
@@ -229,17 +261,17 @@ const styles = {
     fontFamily: "'Kanit', sans-serif",
   },
   inputFocus: {
-    border: "2px solid #ea580c",
-    backgroundColor: "#ffffff",
+    border: "2px solid var(--brand-600)",
+    backgroundColor: "var(--color-white)",
     boxShadow: "0 0 0 4px rgba(234, 88, 12, 0.1)",
   },
   button: {
     width: "100%",
     padding: "16px", // 👈 ขยายปุ่มให้หนาขึ้น (เดิม 14px)
-    borderRadius: "12px",
+    borderRadius: "var(--radius-md)",
     border: "none",
-    background: "linear-gradient(135deg, #ea580c, #c2410c)",
-    color: "#ffffff",
+    background: "linear-gradient(135deg, var(--brand-600), var(--brand-700))",
+    color: "var(--color-white)",
     fontSize: "18px", // 👈 ขยายตัวหนังสือในปุ่ม (เดิม 16px)
     fontWeight: "700",
     cursor: "pointer",
@@ -248,10 +280,21 @@ const styles = {
     transition: "all 0.2s ease",
     fontFamily: "'Kanit', sans-serif",
   },
+  buttonDisabled: {
+    background: "var(--slate-300)",
+    boxShadow: "none",
+    cursor: "not-allowed",
+  },
+  forgotPassword: {
+    marginTop: "18px",
+    fontSize: "13px",
+    color: "var(--slate-600)",
+    fontWeight: "500",
+  },
   footer: {
     marginTop: "30px",
     fontSize: "15px",
-    color: "#94a3b8",
+    color: "var(--slate-500)",
     fontWeight: "500",
   },
 };

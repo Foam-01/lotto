@@ -8,12 +8,14 @@ import { formatDate, formatTime } from "../utils/format";
 function LottoInShop() {
   const [billSales, setBillSales] = useState([]);
   const [billSale, setBillSale] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       const res = await BillSaleService.getLottoInShop(); // 🌟 ใช้ Service
       if (res.data.results !== undefined) {
@@ -24,8 +26,10 @@ function LottoInShop() {
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,6 +61,7 @@ function LottoInShop() {
             <div
               key={index}
               className="floating-icon"
+              aria-hidden="true"
               style={{
                 top: icon.top,
                 left: icon.left,
@@ -72,12 +77,23 @@ function LottoInShop() {
             </div>
           ))}
 
+          <style>{`
+            @media (max-width: 480px) {
+              .lottoinshop-header-emoji {
+                font-size: 38px !important;
+              }
+            }
+          `}</style>
+
           <div className="container" style={styles.container}>
             {/* 🌟 ส่วนหัว 🌟 */}
             <div style={styles.header}>
               <div>
-                <h2 style={styles.titleMain}>
-                  <span className="me-3" style={styles.headerEmoji}>
+                <h2 style={{ ...styles.titleMain, flexWrap: "wrap" }}>
+                  <span
+                    className="me-3 lottoinshop-header-emoji"
+                    style={styles.headerEmoji}
+                  >
                     🏪
                   </span>
                   รายการที่ฝากร้าน
@@ -92,7 +108,6 @@ function LottoInShop() {
             <div style={styles.tableCard}>
               <div style={styles.tableHeaderContainer}>
                 <h4 style={styles.cardTitle}>
-                  <span className="icon-paw me-2">🐾</span>
                   บิลฝากร้านทั้งหมด
                   <span style={styles.badgeCount}>
                     {billSales?.length || 0} รายการ
@@ -121,7 +136,17 @@ function LottoInShop() {
                     </tr>
                   </thead>
                   <tbody>
-                    {billSales?.length > 0 ? (
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan="6" style={styles.emptyState}>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            style={{ color: "var(--brand-600)" }}
+                          ></span>
+                          กำลังโหลดข้อมูล...
+                        </td>
+                      </tr>
+                    ) : billSales?.length > 0 ? (
                       billSales.map((item) => (
                         <tr key={item.id} style={styles.tableRow}>
                           <td style={styles.td}>
@@ -192,8 +217,8 @@ function LottoInShop() {
             className="p-4 mb-4"
             style={{
               backgroundColor: "#fffcf0", // สีครีมละมุน
-              borderRadius: "15px",
-              border: "2px dashed #fed7aa", // เส้นประสีส้มอ่อน
+              borderRadius: "var(--radius-lg)",
+              border: "2px dashed var(--brand-200)", // เส้นประสีส้มอ่อน
               position: "relative",
             }}
           >
@@ -225,12 +250,12 @@ function LottoInShop() {
               <div className="fs-6 fw-bold text-muted">
                 <i className="bi bi-receipt me-2"></i>เลขที่บิล
               </div>
-              <div className="fs-5 fw-bold" style={{ color: "#ea580c" }}>
+              <div className="fs-5 fw-bold" style={{ color: "var(--brand-600)" }}>
                 #{billSale?.id || "-"}
               </div>
             </div>
 
-            <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "15px" }}>
+            <div style={{ borderTop: "1px solid var(--slate-200)", paddingTop: "15px" }}>
               <div className="row">
                 <div className="col-6">
                   <small className="text-muted d-block mb-1">ชื่อลูกค้า</small>
@@ -255,7 +280,7 @@ function LottoInShop() {
               style={{
                 width: "4px",
                 height: "20px",
-                backgroundColor: "#ea580c",
+                backgroundColor: "var(--brand-600)",
                 display: "inline-block",
                 marginRight: "10px",
                 borderRadius: "2px",
@@ -268,9 +293,9 @@ function LottoInShop() {
           <table className="table table-borderless table-striped align-middle">
             <thead
               style={{
-                backgroundColor: "#fff7ed", // สีส้มอ่อนจัดๆ
-                borderBottom: "2px solid #fed7aa",
-                borderTop: "1px solid #f1f5f9",
+                backgroundColor: "var(--brand-50)", // สีส้มอ่อนจัดๆ
+                borderBottom: "2px solid var(--brand-200)",
+                borderTop: "1px solid var(--slate-100)",
               }}
             >
               <tr>
@@ -291,7 +316,7 @@ function LottoInShop() {
             <tbody>
               {billSale?.billSaleDetail?.length > 0 ? (
                 billSale.billSaleDetail.map((item, index) => (
-                  <tr key={index} style={{ borderBottom: "1px solid #f8fafc" }}>
+                  <tr key={index} style={{ borderBottom: "1px solid var(--slate-50)" }}>
                     <td className="ps-3 py-3">
                       <div className="d-flex align-items-center">
                         <span
@@ -303,7 +328,7 @@ function LottoInShop() {
                         <span
                           className="fw-bold fs-5"
                           style={{
-                            color: "#1d4ed8", // สีน้ำเงินเข้มดูเป็นตัวเลขทางการ
+                            color: "var(--blue-700)", // สีน้ำเงินเข้มดูเป็นตัวเลขทางการ
                             letterSpacing: "1px",
                             fontFamily: "monospace", // ใช้ Font ตัวเลขตรงๆ
                           }}
@@ -335,9 +360,9 @@ function LottoInShop() {
             <div
               className="mt-4 p-3 d-flex justify-content-between align-items-center"
               style={{
-                backgroundColor: "#ea580c", // สีส้มเข้ม brand
+                backgroundColor: "var(--brand-600)", // สีส้มเข้ม brand
                 color: "white",
-                borderRadius: "12px",
+                borderRadius: "var(--radius-md)",
                 boxShadow: "0 4px 6px rgba(234, 88, 12, 0.2)",
               }}
             >
@@ -359,7 +384,7 @@ function LottoInShop() {
 // 🟠 CSS ความสวยงามธีม แผงแมวส้ม
 const styles = {
   page: {
-    backgroundColor: "#fffbeb",
+    backgroundColor: "var(--amber-50)",
     minHeight: "100vh",
     paddingTop: "40px",
     paddingBottom: "80px",
@@ -377,7 +402,7 @@ const styles = {
   titleMain: {
     fontSize: "32px",
     fontWeight: "900",
-    color: "#ea580c",
+    color: "var(--brand-600)",
     margin: 0,
     display: "flex",
     alignItems: "center",
@@ -387,17 +412,17 @@ const styles = {
     filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.15))",
   },
   subtitleMain: {
-    color: "#94a3b8",
+    color: "var(--slate-400)",
     marginTop: "10px",
     fontSize: "16px",
     fontWeight: "500",
   },
   tableCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: "24px",
+    backgroundColor: "var(--color-white)",
+    borderRadius: "var(--radius-xl)",
     padding: "35px 40px",
-    boxShadow: "0 20px 50px rgba(234, 88, 12, 0.08)",
-    borderTop: "8px solid #ea580c",
+    boxShadow: "var(--shadow-card)",
+    borderTop: "8px solid var(--brand-600)",
     animation: "slideUp 0.3s ease-out forwards",
   },
   tableHeaderContainer: {
@@ -405,78 +430,78 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "25px",
-    borderBottom: "2px solid #fed7aa",
+    borderBottom: "2px solid var(--brand-200)",
     paddingBottom: "20px",
   },
   cardTitle: {
     fontSize: "22px",
     fontWeight: "800",
-    color: "#1e293b",
+    color: "var(--slate-900)",
     margin: 0,
     display: "flex",
     alignItems: "center",
   },
   badgeCount: {
-    backgroundColor: "#fff7ed",
-    color: "#ea580c",
+    backgroundColor: "var(--brand-50)",
+    color: "var(--brand-600)",
     fontSize: "14px",
     fontWeight: "700",
     padding: "6px 16px",
     borderRadius: "50rem",
     marginLeft: "15px",
-    border: "1px solid #fed7aa",
+    border: "1px solid var(--brand-200)",
   },
   table: { width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" },
   th: {
-    backgroundColor: "#fff7ed",
+    backgroundColor: "var(--brand-50)",
     padding: "16px",
     textAlign: "left",
     fontWeight: "700",
-    color: "#c2410c",
+    color: "var(--brand-700)",
     fontSize: "15px",
     whiteSpace: "nowrap",
     borderTop: "none",
     borderBottom: "none",
   },
-  tableRow: { transition: "all 0.2s ease", backgroundColor: "#fff" },
+  tableRow: { transition: "all 0.2s ease", backgroundColor: "var(--color-white)" },
   td: {
     padding: "18px 16px",
-    color: "#475569",
+    color: "var(--slate-600)",
     fontSize: "14px",
     fontWeight: "500",
     verticalAlign: "middle",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--slate-100)",
   },
   tdName: {
     padding: "18px 16px",
-    color: "#1e293b",
+    color: "var(--slate-900)",
     fontSize: "15px",
     fontWeight: "700",
     verticalAlign: "middle",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--slate-100)",
   },
   dateBadge: {
     display: "inline-block",
-    backgroundColor: "#dcfce7",
+    backgroundColor: "var(--green-100)",
     padding: "6px 12px",
-    borderRadius: "10px",
+    borderRadius: "var(--radius-md)",
     fontSize: "13px",
-    color: "#15803d",
+    color: "var(--green-700)",
     fontWeight: "700",
   },
   timeBadge: {
     display: "inline-block",
-    backgroundColor: "#eff6ff",
+    backgroundColor: "var(--blue-50)",
     padding: "6px 12px",
-    borderRadius: "10px",
+    borderRadius: "var(--radius-md)",
     fontSize: "13px",
-    color: "#1d4ed8",
+    color: "var(--blue-700)",
     fontWeight: "700",
   },
   btnInfo: {
-    background: "#f8fafc",
-    color: "#ea580c",
-    border: "1px solid #fed7aa",
+    background: "var(--slate-50)",
+    color: "var(--brand-600)",
+    border: "1px solid var(--brand-200)",
     padding: "8px 16px",
     borderRadius: "50rem",
     fontWeight: "700",
@@ -487,7 +512,7 @@ const styles = {
   },
   emptyState: {
     textAlign: "center",
-    color: "#94a3b8",
+    color: "var(--slate-400)",
     padding: "80px 20px",
     fontWeight: "600",
     fontSize: "18px",

@@ -34,7 +34,7 @@ function ChangePrice() {
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถโหลดข้อมูลลอตเตอรี่ได้",
         icon: "error",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     }
   };
@@ -48,8 +48,8 @@ function ChangePrice() {
       text: `คุณต้องการยกเลิกการแก้ไขราคาลอตเตอรี่จำนวน ${changedCount} รายการใช่หรือไม่?`,
       icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#ea580c",
-      cancelButtonColor: "#94a3b8",
+      confirmButtonColor: "var(--brand-600)",
+      cancelButtonColor: "var(--slate-400)",
       confirmButtonText: "ใช่, คืนค่าเดิม",
       cancelButtonText: "ยกเลิก",
     }).then((result) => {
@@ -64,7 +64,7 @@ function ChangePrice() {
           return item;
         });
         setLottos(resetLottos);
-        Toast.fire({ icon: "info", title: "คืนค่าราคาเดิมเรียบร้อยแล้ว 🔄" });
+        Toast.fire({ icon: "info", title: "คืนค่าราคาเดิมเรียบร้อยแล้ว" });
       }
     });
   };
@@ -79,7 +79,23 @@ function ChangePrice() {
       );
 
       if (changedItems.length === 0) {
-        Toast.fire({ icon: "info", title: "ไม่มีการเปลี่ยนแปลงราคา 🐾" });
+        Toast.fire({ icon: "info", title: "ไม่มีการเปลี่ยนแปลงราคา" });
+        return;
+      }
+
+      // 🛡️ ยืนยันก่อนบันทึก เพราะเป็นการเปลี่ยนราคาหลายรายการพร้อมกัน
+      const button = await Swal.fire({
+        title: "ยืนยันการบันทึกราคาใหม่?",
+        text: `คุณกำลังจะบันทึกการเปลี่ยนราคาลอตเตอรี่จำนวน ${changedItems.length} รายการ`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "var(--brand-600)",
+        cancelButtonColor: "var(--slate-400)",
+        confirmButtonText: "ยืนยันบันทึก",
+        cancelButtonText: "ยกเลิก",
+      });
+
+      if (!button.isConfirmed) {
         return;
       }
 
@@ -89,7 +105,7 @@ function ChangePrice() {
       if (res.data.message === "success") {
         Toast.fire({
           icon: "success",
-          title: `บันทึกสำเร็จ ${changedItems.length} รายการ 🐈✨`,
+          title: `บันทึกสำเร็จ ${changedItems.length} รายการ`,
         });
 
         setSearchTerm("");
@@ -99,7 +115,7 @@ function ChangePrice() {
     } catch (e) {
       Toast.fire({
         icon: "error",
-        title: "เกิดข้อผิดพลาด บันทึกไม่สำเร็จ 😿",
+        title: "เกิดข้อผิดพลาด บันทึกไม่สำเร็จ",
       });
     } finally {
       setIsSaving(false);
@@ -156,26 +172,26 @@ function ChangePrice() {
             {`
               .premium-scrollbar::-webkit-scrollbar { width: 6px; }
               .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
-              .premium-scrollbar::-webkit-scrollbar-thumb { background: #fed7aa; border-radius: 10px; }
-              .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: #fb923c; }
+              .premium-scrollbar::-webkit-scrollbar-thumb { background: var(--brand-200); border-radius: var(--radius-md); }
+              .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--brand-400); }
               
               .price-input {
                 transition: all 0.2s ease-in-out;
                 border: 2px solid transparent !important;
-                background-color: #f3f4f6;
-                border-radius: 12px;
+                background-color: var(--gray-100);
+                border-radius: var(--radius-md);
               }
               .price-input:focus {
-                background-color: #fff;
+                background-color: var(--color-white);
                 box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.15) !important;
-                border-color: #ea580c !important;
+                border-color: var(--brand-600) !important;
                 transform: scale(1.03);
               }
               
               /* ตารางแบบการ์ดลอย (Floating Cards) */
               .table-cat-stall tbody tr {
-                background-color: #ffffff;
-                border-radius: 16px;
+                background-color: var(--color-white);
+                border-radius: var(--radius-lg);
                 transition: all 0.3s ease;
               }
               .table-cat-stall tbody tr:hover {
@@ -185,7 +201,7 @@ function ChangePrice() {
                 position: relative;
               }
               .table-cat-stall td {
-                border-top: 10px solid #ffffff !important; 
+                border-top: 10px solid var(--color-white) !important; 
                 border-bottom: 0 !important;
                 vertical-align: middle;
               }
@@ -193,19 +209,19 @@ function ChangePrice() {
               .table-cat-stall td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
 
               .row-changed td {
-                background-color: #fff7ed !important; /* พื้นหลังสีส้มอ่อนไฮไลท์แถวที่แก้ */
+                background-color: var(--brand-50) !important; /* พื้นหลังสีส้มอ่อนไฮไลท์แถวที่แก้ */
               }
               .row-changed td:first-child {
-                border-left: 5px solid #ea580c; /* ขอบส้มด้านซ้าย */
+                border-left: 5px solid var(--brand-600); /* ขอบส้มด้านซ้าย */
               }
 
               /* ดีไซน์ตั๋วลอตเตอรี่ */
               .ticket-badge {
-                background: #ffffff;
-                border: 2px dashed #fdba74;
-                color: #c2410c;
+                background: var(--color-white);
+                border: 2px dashed var(--brand-300);
+                color: var(--brand-700);
                 padding: 10px 20px;
-                border-radius: 12px;
+                border-radius: var(--radius-md);
                 display: inline-block;
                 position: relative;
                 box-shadow: inset 0 0 10px rgba(253, 186, 116, 0.1);
@@ -216,23 +232,23 @@ function ChangePrice() {
                 top: 50%;
                 width: 14px;
                 height: 14px;
-                background-color: #ffffff; /* 🌟 ปรับสีเจาะรูให้เข้ากับแถวสีขาว */
+                background-color: var(--color-white); /* 🌟 ปรับสีเจาะรูให้เข้ากับแถวสีขาว */
                 border-radius: 50%;
                 transform: translateY(-50%);
               }
               /* ปรับสีรอยแหว่งตั๋วเมื่อแถวถูกเลือก */
               .row-changed .ticket-badge::before, .row-changed .ticket-badge::after {
-                background-color: #fff7ed;
+                background-color: var(--brand-50);
               }
-              .ticket-badge::before { left: -8px; border-right: 1px solid #fdba74; }
-              .ticket-badge::after { right: -8px; border-left: 1px solid #fdba74; }
+              .ticket-badge::before { left: -8px; border-right: 1px solid var(--brand-300); }
+              .ticket-badge::after { right: -8px; border-left: 1px solid var(--brand-300); }
               
               /* สีสถานะ */
-              .bg-success-subtle { background-color: #d1fae5; }
-              .text-success { color: #059669; }
-              .bg-danger-subtle { background-color: #fee2e2; }
-              .text-danger { color: #dc2626; }
-              .text-orange { color: #ea580c; }
+              .bg-success-subtle { background-color: var(--emerald-100); }
+              .text-success { color: var(--emerald-600); }
+              .bg-danger-subtle { background-color: var(--red-100); }
+              .text-danger { color: var(--red-600); }
+              .text-orange { color: var(--brand-600); }
             `}
           </style>
 
@@ -241,20 +257,20 @@ function ChangePrice() {
             <div>
               <div
                 className="h3 mb-1 fw-bolder d-flex align-items-center"
-                style={{ color: "#1e293b", letterSpacing: "-1px" }}
+                style={{ color: "var(--slate-900)", letterSpacing: "-1px" }}
               >
                 <div
                   className="d-flex justify-content-center align-items-center rounded-3 me-3 shadow-sm"
                   style={{
                     width: "45px",
                     height: "45px",
-                    backgroundColor: "#ea580c",
+                    backgroundColor: "var(--brand-600)",
                     color: "white",
                   }}
                 >
                   <i className="bi bi-tags-fill fs-5"></i>
                 </div>
-                ปรับราคาแบบเร่งด่วน 🐈🍊
+                ปรับราคาแบบเร่งด่วน
               </div>
             </div>
 
@@ -266,7 +282,7 @@ function ChangePrice() {
                 className="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm"
                 style={{
                   padding: "12px 20px",
-                  borderColor: changedCount > 0 ? "#94a3b8" : "#e2e8f0",
+                  borderColor: changedCount > 0 ? "var(--slate-400)" : "var(--slate-200)",
                 }}
               >
                 <i className="bi bi-arrow-counterclockwise me-2"></i>
@@ -279,8 +295,8 @@ function ChangePrice() {
                 disabled={isSaving || changedCount === 0}
                 className="btn rounded-pill px-4 shadow-sm fw-bold transition-all"
                 style={{
-                  backgroundColor: changedCount > 0 ? "#ea580c" : "#e2e8f0",
-                  color: changedCount > 0 ? "white" : "#94a3b8",
+                  backgroundColor: changedCount > 0 ? "var(--brand-600)" : "var(--slate-200)",
+                  color: changedCount > 0 ? "white" : "var(--slate-400)",
                   padding: "12px 24px",
                   border: "none",
                 }}
@@ -308,7 +324,7 @@ function ChangePrice() {
                 className="card border-0 shadow-sm rounded-4"
                 style={{
                   background:
-                    "linear-gradient(135deg, #ea580c 0%, #fb923c 100%)",
+                    "linear-gradient(135deg, var(--brand-600) 0%, var(--brand-400) 100%)",
                   color: "white",
                 }}
               >
@@ -336,7 +352,7 @@ function ChangePrice() {
             <div className="col-12 col-md-6">
               <div
                 className="card border-0 shadow-sm rounded-4 bg-white border-start border-4"
-                style={{ borderColor: "#ea580c" }}
+                style={{ borderColor: "var(--brand-600)" }}
               >
                 <div className="card-body p-4 d-flex align-items-center">
                   <div className="fs-1 me-4 text-orange opacity-75">
@@ -360,13 +376,13 @@ function ChangePrice() {
 
           <div
             className="card border-0 shadow-sm rounded-4 overflow-hidden"
-            style={{ backgroundColor: "#ffffff" }}
+            style={{ backgroundColor: "var(--color-white)" }}
           >
             {/* Toolbar (ค้นหา & กรอง) */}
             <div className="card-header bg-white border-bottom p-3 p-md-4 d-flex flex-column flex-md-row gap-3 align-items-center justify-content-between">
               <div
                 className="input-group shadow-sm rounded-pill overflow-hidden"
-                style={{ maxWidth: "400px", border: "1px solid #ffedd5" }}
+                style={{ maxWidth: "400px", border: "1px solid var(--brand-100)" }}
               >
                 <span className="input-group-text bg-light border-0 text-orange ps-4">
                   <i className="bi bi-search"></i>
@@ -391,13 +407,13 @@ function ChangePrice() {
 
               <div
                 className="bg-light p-1 rounded-pill d-inline-flex shadow-sm border"
-                style={{ borderColor: "#ffedd5" }}
+                style={{ borderColor: "var(--brand-100)" }}
               >
                 <button
                   className={`btn rounded-pill fw-bold px-4 transition-all ${!showOnlyChanged ? "btn-white shadow-sm" : "border-0"}`}
                   style={{
-                    backgroundColor: !showOnlyChanged ? "#fff" : "transparent",
-                    color: !showOnlyChanged ? "#ea580c" : "#94a3b8",
+                    backgroundColor: !showOnlyChanged ? "var(--color-white)" : "transparent",
+                    color: !showOnlyChanged ? "var(--brand-600)" : "var(--slate-400)",
                   }}
                   onClick={() => setShowOnlyChanged(false)}
                 >
@@ -406,8 +422,8 @@ function ChangePrice() {
                 <button
                   className={`btn rounded-pill fw-bold px-4 position-relative transition-all ${showOnlyChanged ? "btn-white shadow-sm" : "border-0"}`}
                   style={{
-                    backgroundColor: showOnlyChanged ? "#fff" : "transparent",
-                    color: showOnlyChanged ? "#ea580c" : "#94a3b8",
+                    backgroundColor: showOnlyChanged ? "var(--color-white)" : "transparent",
+                    color: showOnlyChanged ? "var(--brand-600)" : "var(--slate-400)",
                   }}
                   onClick={() => setShowOnlyChanged(true)}
                 >
@@ -422,7 +438,7 @@ function ChangePrice() {
             {/* 🌟 ตารางแสดงผล เปลี่ยนสีพื้นให้กลืนกับการ์ด */}
             <div
               className="card-body p-0 px-3"
-              style={{ backgroundColor: "#ffffff" }}
+              style={{ backgroundColor: "var(--color-white)" }}
             >
               <div
                 className="table-responsive premium-scrollbar pe-2 pb-3 pt-2"
@@ -437,7 +453,7 @@ function ChangePrice() {
                 >
                   <thead
                     style={{
-                      backgroundColor: "#ffffff",
+                      backgroundColor: "var(--color-white)",
                       position: "sticky",
                       top: 0,
                       zIndex: 10,
@@ -562,7 +578,7 @@ function ChangePrice() {
                                     <span
                                       className={`badge rounded-pill shadow-sm px-3 py-2 ${diff > 0 ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger"}`}
                                       style={{
-                                        border: `1px solid ${diff > 0 ? "#bbf7d0" : "#fecaca"}`,
+                                        border: `1px solid ${diff > 0 ? "var(--green-200)" : "var(--red-200)"}`,
                                         fontWeight: "bold",
                                       }}
                                     >
@@ -596,14 +612,13 @@ function ChangePrice() {
                               className="display-1 mb-3"
                               style={{ opacity: "0.8" }}
                             >
-                              😿
+                              📭
                             </div>
                             <h5 className="fw-bold text-orange">
-                              แง้ววว ไม่พบข้อมูลสลาก
+                              ไม่พบข้อมูลสลาก
                             </h5>
                             <p className="text-muted">
-                              ลองค้นหาด้วยเลขอื่น
-                              หรือกดสลับตัวกรองด้านบนดูนะเจ้านาย
+                              ลองค้นหาด้วยเลขอื่น หรือสลับตัวกรองด้านบน
                             </p>
                           </div>
                         </td>

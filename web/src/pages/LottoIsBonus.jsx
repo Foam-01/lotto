@@ -29,7 +29,7 @@ function LottoIsBonus() {
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     }
   };
@@ -42,7 +42,7 @@ function LottoIsBonus() {
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถบันทึกข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
         icon: "error",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     }
   };
@@ -59,9 +59,9 @@ function LottoIsBonus() {
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
           {/* 🌟 Header แบบคลีนๆ มินิมอล */}
           <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-            <div className="h3 mb-0 fw-bold" style={{ color: "#ea580c" }}>
-              🐈 รายงานผลสลากที่ร้านถูกรางวัล
-            </div>
+            <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
+              รายงานรางวัลของร้าน
+            </h1>
           </div>
 
           {/* 🌟 KPI Dashboard สรุปยอดที่ร้านถูกรางวัล 🌟 */}
@@ -70,8 +70,8 @@ function LottoIsBonus() {
               <div
                 className="card border-0 shadow-sm rounded-4 h-100"
                 style={{
-                  backgroundColor: "#fff7f2",
-                  borderBottom: "4px solid #ea580c",
+                  backgroundColor: "var(--brand-tint)",
+                  borderBottom: "4px solid var(--brand-600)",
                 }}
               >
                 <div className="card-body">
@@ -80,7 +80,7 @@ function LottoIsBonus() {
                       <p className="text-muted mb-1 fw-bold fs-6">
                         จำนวนสลากที่ถูกรางวัล
                       </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "#ea580c" }}>
+                      <h3 className="fw-bold mb-0" style={{ color: "var(--brand-600)" }}>
                         {totalTickets}{" "}
                         <span className="fs-6 fw-normal text-muted">ใบ</span>
                       </h3>
@@ -90,8 +90,8 @@ function LottoIsBonus() {
                       style={{
                         width: "50px",
                         height: "50px",
-                        backgroundColor: "#ea580c",
-                        color: "#fff",
+                        backgroundColor: "var(--brand-600)",
+                        color: "var(--color-white)",
                       }}
                     >
                       <i className="bi bi-ticket-detailed-fill fs-4"></i>
@@ -105,8 +105,8 @@ function LottoIsBonus() {
               <div
                 className="card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden"
                 style={{
-                  backgroundColor: "#ecfdf5",
-                  borderBottom: "4px solid #10b981",
+                  backgroundColor: "var(--emerald-50)",
+                  borderBottom: "4px solid var(--emerald-500)",
                 }}
               >
                 <i
@@ -115,7 +115,7 @@ function LottoIsBonus() {
                     fontSize: "6rem",
                     right: "-10px",
                     bottom: "-20px",
-                    color: "#34d399",
+                    color: "var(--emerald-400)",
                   }}
                 ></i>
                 <div className="card-body position-relative z-1">
@@ -123,11 +123,11 @@ function LottoIsBonus() {
                     <div>
                       <p
                         className="text-muted mb-1 fw-bold fs-6"
-                        style={{ color: "#059669" }}
+                        style={{ color: "var(--emerald-600)" }}
                       >
                         ยอดเงินรางวัลรวม
                       </p>
-                      <h3 className="fw-bold mb-0" style={{ color: "#047857" }}>
+                      <h3 className="fw-bold mb-0" style={{ color: "var(--emerald-700)" }}>
                         {totalPrizeAmount.toLocaleString("th-TH")}{" "}
                         <span className="fs-5 fw-normal">฿</span>
                       </h3>
@@ -137,8 +137,8 @@ function LottoIsBonus() {
                       style={{
                         width: "50px",
                         height: "50px",
-                        backgroundColor: "#10b981",
-                        color: "#fff",
+                        backgroundColor: "var(--emerald-500)",
+                        color: "var(--color-white)",
                       }}
                     >
                       <i className="bi bi-piggy-bank-fill fs-4"></i>
@@ -156,26 +156,26 @@ function LottoIsBonus() {
                 <table className="table table-hover align-middle mb-0">
                   <thead
                     style={{
-                      backgroundColor: "#ffedd5",
-                      borderBottom: "2px solid #fdba74",
+                      backgroundColor: "var(--brand-100)",
+                      borderBottom: "2px solid var(--brand-300)",
                     }}
                   >
                     <tr>
                       <th
                         className="px-4 py-3 border-0 text-center"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         งวดประจำวันที่
                       </th>
                       <th
                         className="px-4 py-3 border-0 text-center"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         เลขที่ถูกรางวัล
                       </th>
                       <th
                         className="px-4 py-3 border-0 text-center"
-                        style={{ color: "#c2410c", fontWeight: "700" }}
+                        style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
                         ยอดเงินรางวัล
                       </th>
@@ -194,7 +194,7 @@ function LottoIsBonus() {
                             <span className="visually-hidden">Loading...</span>
                           </div>
                           <h5 className="text-muted fw-bold">
-                            กำลังตรวจรางวัลให้ร้านอยู่... ลุ้นๆ 🐾
+                            กำลังตรวจรางวัลให้ร้าน...
                           </h5>
                         </td>
                       </tr>
@@ -202,7 +202,7 @@ function LottoIsBonus() {
                       lottoisbonus.map((item, index) => (
                         <tr
                           key={index}
-                          style={{ borderBottom: "1px solid #f3f4f6" }}
+                          style={{ borderBottom: "1px solid var(--gray-100)" }}
                         >
                           {/* วันที่ */}
                           <td className="px-4 py-4 text-center text-muted fw-medium">
@@ -214,8 +214,8 @@ function LottoIsBonus() {
                             <span
                               className="badge rounded-pill fs-5 shadow-sm bg-white"
                               style={{
-                                color: "#ea580c",
-                                border: "1px dashed #fdba74",
+                                color: "var(--brand-600)",
+                                border: "1px dashed var(--brand-300)",
                                 letterSpacing: "2px",
                               }}
                             >
@@ -228,8 +228,8 @@ function LottoIsBonus() {
                             <span
                               className="fw-bold fs-5"
                               style={{
-                                color: "#10b981",
-                                textShadow: "1px 1px 0px #d1fae5",
+                                color: "var(--emerald-500)",
+                                textShadow: "1px 1px 0px var(--emerald-100)",
                               }}
                             >
                               +{" "}
@@ -246,15 +246,15 @@ function LottoIsBonus() {
                       <tr>
                         <td colSpan="3" className="text-center py-5">
                           <div className="text-muted d-flex flex-column align-items-center py-4">
-                            <div style={{ fontSize: "4rem" }}>😿</div>
+                            <div style={{ fontSize: "4rem" }}>📭</div>
                             <span
                               className="fs-5 mt-3 fw-bold"
-                              style={{ color: "#c2410c" }}
+                              style={{ color: "var(--brand-700)" }}
                             >
-                              งวดนี้ร้านเรายังไม่ถูกรางวัลเลยเจ้านาย!
+                              งวดนี้ร้านเรายังไม่ถูกรางวัล
                             </span>
                             <span className="mt-1 text-secondary small">
-                              ไม่เป็นไรนะงวดหน้าเอาใหม่ แง้ววว... 🐾
+                              ลองตรวจสอบผลรางวัลงวดถัดไป
                             </span>
                           </div>
                         </td>

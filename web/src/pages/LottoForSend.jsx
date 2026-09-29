@@ -47,7 +47,7 @@ function LottoForSend() {
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#ea580c",
+        confirmButtonColor: "var(--brand-600)",
       });
     }
   };
@@ -76,7 +76,7 @@ function LottoForSend() {
       icon: "info",
       showDenyButton: true,
       confirmButtonText: "ยืนยันการจัดส่ง",
-      confirmButtonColor: "#10b981",
+      confirmButtonColor: "var(--emerald-500)",
       denyButtonText: `ยกเลิก`,
     });
 
@@ -101,7 +101,7 @@ function LottoForSend() {
           // 🌟 2. เรียกใช้ Notification ตอนบันทึกสำเร็จ
           Toast.fire({
             icon: "success",
-            title: "บันทึกจัดส่งสลากเรียบร้อย 📦",
+            title: "บันทึกจัดส่งสลากเรียบร้อย",
           });
 
           // 🌟 สั่งปิด Modal อัตโนมัติ
@@ -119,7 +119,7 @@ function LottoForSend() {
         // 🌟 3. เรียกใช้ Notification ตอนเกิด Error
         Toast.fire({
           icon: "error",
-          title: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง 🔥",
+          title: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         });
       }
     }
@@ -132,11 +132,22 @@ function LottoForSend() {
           <div className="sunburst-bg"></div>
           <div className="bg-pattern"></div>
 
+          <style>{`
+            @media (max-width: 480px) {
+              .lottoforsend-header-emoji {
+                font-size: 38px !important;
+              }
+            }
+          `}</style>
+
           <div className="container" style={styles.container}>
             <div style={styles.header}>
               <div>
-                <h2 style={styles.titleMain}>
-                  <span className="me-3" style={styles.headerEmoji}>
+                <h2 style={{ ...styles.titleMain, flexWrap: "wrap" }}>
+                  <span
+                    className="me-3 lottoforsend-header-emoji"
+                    style={styles.headerEmoji}
+                  >
                     🚚
                   </span>
                   รายการที่ต้องจัดส่ง
@@ -199,6 +210,7 @@ function LottoForSend() {
                             <div
                               className="text-truncate"
                               title={item.customerAddress}
+                              aria-label={item.customerAddress}
                             >
                               {item.customerAddress}
                             </div>
@@ -215,7 +227,7 @@ function LottoForSend() {
                             ) : (
                               <span
                                 className="badge bg-light text-secondary border px-3 py-2"
-                                style={{ borderRadius: "10px" }}
+                                style={{ borderRadius: "var(--radius-md)" }}
                               >
                                 <i className="bi bi-hourglass-split me-1"></i>{" "}
                                 รอดำเนินการ
@@ -248,7 +260,12 @@ function LottoForSend() {
                               </button>
 
                               {item.billSaleForSends.length > 0 ? (
-                                <button style={styles.btnSuccess}>
+                                <button
+                                  disabled
+                                  title="รายการนี้จัดส่งเรียบร้อยแล้ว"
+                                  style={styles.btnDisabled}
+                                >
+                                  <i className="bi bi-check-circle-fill me-1"></i>{" "}
                                   จัดส่งแล้ว
                                 </button>
                               ) : (
@@ -274,7 +291,7 @@ function LottoForSend() {
                           >
                             📭
                           </div>
-                          ไม่มีสลากค้างจัดส่งแล้ว เยี่ยมมาก!
+                          ไม่มีสลากค้างจัดส่ง
                         </td>
                       </tr>
                     )}
@@ -295,7 +312,7 @@ function LottoForSend() {
         <div className="p-3" style={{ fontFamily: "'Kanit', sans-serif" }}>
           <div
             className="alert alert-warning border-0"
-            style={{ backgroundColor: "#fff7ed", color: "#c2410c" }}
+            style={{ backgroundColor: "var(--brand-50)", color: "var(--brand-700)" }}
           >
             <i className="bi bi-info-circle-fill me-2"></i>
             กำลังบันทึกข้อมูลจัดส่งของบิล{" "}
@@ -304,21 +321,29 @@ function LottoForSend() {
 
           <div className="row g-3">
             <div className="col-md-6">
-              <label className="form-label fw-bold text-muted small">
+              <label
+                htmlFor="lottoforsend-send-name"
+                className="form-label fw-bold text-muted small"
+              >
                 ชื่อผู้จัดส่ง (แอดมิน)
               </label>
               <input
+                id="lottoforsend-send-name"
                 onChange={(e) => setSendName(e.target.value)} // 🌟 แก้เป็น setSendName
                 type="text"
                 className="form-control bg-light"
-                placeholder="เช่น แอดมินโฟม"
+                placeholder="เช่น สมชาย ใจดี"
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label fw-bold text-muted small">
+              <label
+                htmlFor="lottoforsend-send-platform"
+                className="form-label fw-bold text-muted small"
+              >
                 ช่องทางการจัดส่ง
               </label>
               <input
+                id="lottoforsend-send-platform"
                 onChange={(e) => setSendPlatform(e.target.value)}
                 type="text"
                 className="form-control bg-light"
@@ -326,10 +351,14 @@ function LottoForSend() {
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label fw-bold text-muted small">
+              <label
+                htmlFor="lottoforsend-send-date"
+                className="form-label fw-bold text-muted small"
+              >
                 วันที่ส่ง
               </label>
               <input
+                id="lottoforsend-send-date"
                 onChange={(e) => setSendDate(e.target.value)}
                 type="date"
                 value={sendDate}
@@ -337,10 +366,14 @@ function LottoForSend() {
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label fw-bold text-muted small">
+              <label
+                htmlFor="lottoforsend-send-time"
+                className="form-label fw-bold text-muted small"
+              >
                 เวลาที่ส่ง
               </label>
               <input
+                id="lottoforsend-send-time"
                 onChange={(e) => setSendTime(e.target.value)}
                 type="time"
                 value={sendTime}
@@ -348,10 +381,14 @@ function LottoForSend() {
               />
             </div>
             <div className="col-md-12">
-              <label className="form-label fw-bold text-muted small">
+              <label
+                htmlFor="lottoforsend-trace-code"
+                className="form-label fw-bold text-muted small"
+              >
                 เลขพัสดุ (Tracking Code)
               </label>
               <input
+                id="lottoforsend-trace-code"
                 onChange={(e) => setTraceCode(e.target.value)}
                 type="text"
                 className="form-control bg-light border-primary"
@@ -360,10 +397,14 @@ function LottoForSend() {
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label fw-bold text-muted small">
+              <label
+                htmlFor="lottoforsend-price"
+                className="form-label fw-bold text-muted small"
+              >
                 ค่าจัดส่ง (บาท)
               </label>
               <input
+                id="lottoforsend-price"
                 onChange={(e) => setPrice(e.target.value)}
                 type="number"
                 className="form-control bg-light"
@@ -371,10 +412,14 @@ function LottoForSend() {
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label fw-bold text-muted small">
+              <label
+                htmlFor="lottoforsend-remark"
+                className="form-label fw-bold text-muted small"
+              >
                 หมายเหตุ
               </label>
               <input
+                id="lottoforsend-remark"
                 onChange={(e) => setRemark(e.target.value)}
                 type="text"
                 className="form-control bg-light"
@@ -388,9 +433,9 @@ function LottoForSend() {
               onClick={handleSave}
               className="btn px-4 py-2 fw-bold"
               style={{
-                backgroundColor: "#10b981",
+                backgroundColor: "var(--emerald-500)",
                 color: "white",
-                borderRadius: "10px",
+                borderRadius: "var(--radius-md)",
               }}
             >
               <i className="bi bi-save me-2"></i>
@@ -410,9 +455,9 @@ function LottoForSend() {
           <div
             className="p-4 mb-4"
             style={{
-              background: "linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)",
-              borderRadius: "16px",
-              border: "1px solid #fed7aa",
+              background: "linear-gradient(135deg, var(--brand-50) 0%, var(--brand-100) 100%)",
+              borderRadius: "var(--radius-lg)",
+              border: "1px solid var(--brand-200)",
             }}
           >
             <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-warning border-opacity-25">
@@ -424,7 +469,7 @@ function LottoForSend() {
               </span>
               <span
                 className="text-dark badge bg-white text-orange fs-6 px-3 py-2 border border-warning border-opacity-50 shadow-sm"
-                style={{ borderRadius: "10px" }}
+                style={{ borderRadius: "var(--radius-md)" }}
               >
                 #{billSale?.id || "-"}
               </span>
@@ -485,9 +530,9 @@ function LottoForSend() {
                     key={index}
                     className="d-flex justify-content-between align-items-center p-3"
                     style={{
-                      backgroundColor: "#f8fafc",
-                      borderRadius: "12px",
-                      border: "1px solid #e2e8f0",
+                      backgroundColor: "var(--slate-50)",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--slate-200)",
                     }}
                   >
                     <div className="d-flex align-items-center">
@@ -515,7 +560,7 @@ function LottoForSend() {
               ) : (
                 <div
                   className="text-center text-muted py-5 bg-light rounded-3"
-                  style={{ border: "1px dashed #cbd5e1" }}
+                  style={{ border: "1px dashed var(--slate-300)" }}
                 >
                   <i className="bi bi-inbox fs-2 d-block mb-2 text-secondary opacity-50"></i>
                   ไม่พบรายการสลาก
@@ -532,7 +577,7 @@ function LottoForSend() {
 // 🟠 CSS ความสวยงามธีม แผงแมวส้ม
 const styles = {
   page: {
-    backgroundColor: "#fffbeb",
+    backgroundColor: "var(--amber-50)",
     minHeight: "100vh",
     paddingTop: "40px",
     paddingBottom: "80px",
@@ -550,7 +595,7 @@ const styles = {
   titleMain: {
     fontSize: "32px",
     fontWeight: "900",
-    color: "#ea580c",
+    color: "var(--brand-600)",
     margin: 0,
     display: "flex",
     alignItems: "center",
@@ -560,17 +605,17 @@ const styles = {
     filter: "drop-shadow(2px 4px 6px rgba(0,0,0,0.15))",
   },
   subtitleMain: {
-    color: "#94a3b8",
+    color: "var(--slate-400)",
     marginTop: "10px",
     fontSize: "16px",
     fontWeight: "500",
   },
   tableCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: "24px",
+    backgroundColor: "var(--color-white)",
+    borderRadius: "var(--radius-xl)",
     padding: "35px 40px",
-    boxShadow: "0 20px 50px rgba(234, 88, 12, 0.08)",
-    borderTop: "8px solid #ea580c",
+    boxShadow: "var(--shadow-card)",
+    borderTop: "8px solid var(--brand-600)",
     animation: "slideUp 0.3s ease-out forwards",
   },
   tableHeaderContainer: {
@@ -578,62 +623,63 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "25px",
-    borderBottom: "2px solid #fed7aa",
+    borderBottom: "2px solid var(--brand-200)",
     paddingBottom: "20px",
   },
   cardTitle: {
     fontSize: "22px",
     fontWeight: "800",
-    color: "#1e293b",
+    color: "var(--slate-900)",
     margin: 0,
     display: "flex",
     alignItems: "center",
   },
   badgeCount: {
-    backgroundColor: "#fff7ed",
-    color: "#ea580c",
+    backgroundColor: "var(--brand-50)",
+    color: "var(--brand-600)",
     fontSize: "14px",
     fontWeight: "700",
     padding: "6px 16px",
     borderRadius: "50rem",
     marginLeft: "15px",
-    border: "1px solid #fed7aa",
+    border: "1px solid var(--brand-200)",
   },
   table: { width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" },
   th: {
-    backgroundColor: "#fff7ed",
+    backgroundColor: "var(--brand-50)",
     padding: "16px",
     textAlign: "left",
     fontWeight: "700",
-    color: "#c2410c",
+    color: "var(--brand-700)",
     fontSize: "15px",
     whiteSpace: "nowrap",
     borderTop: "none",
     borderBottom: "none",
   },
-  tableRow: { transition: "all 0.2s ease", backgroundColor: "#fff" },
+  tableRow: { transition: "all 0.2s ease", backgroundColor: "var(--color-white)" },
   td: {
     padding: "18px 16px",
-    color: "#475569",
+    color: "var(--slate-600)",
     fontSize: "14px",
     fontWeight: "500",
     verticalAlign: "middle",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--slate-100)",
   },
   tdName: {
     padding: "18px 16px",
-    color: "#1e293b",
+    color: "var(--slate-900)",
     fontSize: "15px",
     fontWeight: "700",
     verticalAlign: "middle",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--slate-100)",
   },
   btnInfo: {
-    background: "#f8fafc",
-    color: "#ea580c",
-    border: "1px solid #fed7aa",
-    padding: "8px 16px",
-    borderRadius: "10px",
+    background: "var(--slate-50)",
+    color: "var(--brand-600)",
+    border: "1px solid var(--brand-200)",
+    padding: "10px 16px",
+    minHeight: "40px",
+    borderRadius: "var(--radius-md)",
     fontWeight: "700",
     cursor: "pointer",
     fontSize: "13px",
@@ -641,11 +687,12 @@ const styles = {
     whiteSpace: "nowrap",
   },
   btnSuccess: {
-    background: "#10b981",
+    background: "var(--emerald-500)",
     color: "white",
     border: "none",
-    padding: "8px 16px",
-    borderRadius: "10px",
+    padding: "10px 16px",
+    minHeight: "40px",
+    borderRadius: "var(--radius-md)",
     fontWeight: "700",
     cursor: "pointer",
     fontSize: "13px",
@@ -653,9 +700,22 @@ const styles = {
     whiteSpace: "nowrap",
     boxShadow: "0 4px 6px rgba(16, 185, 129, 0.2)",
   },
+  btnDisabled: {
+    background: "var(--slate-200)",
+    color: "var(--slate-400)",
+    border: "none",
+    padding: "10px 16px",
+    minHeight: "40px",
+    borderRadius: "var(--radius-md)",
+    fontWeight: "700",
+    cursor: "not-allowed",
+    fontSize: "13px",
+    whiteSpace: "nowrap",
+    boxShadow: "none",
+  },
   emptyState: {
     textAlign: "center",
-    color: "#94a3b8",
+    color: "var(--slate-400)",
     padding: "80px 20px",
     fontWeight: "600",
     fontSize: "18px",

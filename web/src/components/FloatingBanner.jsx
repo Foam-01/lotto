@@ -14,7 +14,7 @@ function FloatingBanner({ imageUrl, link, side = "right" }) {
         [side]: "20px",
         zIndex: 9999,
         width: "120px",
-        borderRadius: "16px",
+        borderRadius: "var(--radius-lg)",
         overflow: "hidden",
         boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
       }}
