@@ -1,6 +1,9 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { BonusService } from './bonus.service';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
+// 🔒 ทั้งหมดในนี้เป็นฟีเจอร์แอดมิน (ดึง/ตรวจผลรางวัล) ไม่มีหน้าไหนของลูกค้าเรียกใช้
+@UseGuards(JwtAuthGuard)
 @Controller('/api/bonus')
 export class BonusController {
   constructor(private readonly bonusService: BonusService) {}

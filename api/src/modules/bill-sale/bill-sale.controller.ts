@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { BillSaleService } from './bill-sale.service';
 import {
   TransferMoneyDto,
@@ -6,7 +6,11 @@ import {
   IncomeDto,
   ProfitDto,
 } from './dto/bill-sale.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
+// 🔒 ทั้งหมดในนี้เป็นฟีเจอร์แอดมิน (โอนเงินรางวัล/รายงานรายได้-กำไร) ต้องล็อกอิน
+// (Frontend ทุกจุดแนบ Authorization header อยู่แล้ว)
+@UseGuards(JwtAuthGuard)
 @Controller('/api/billSale')
 export class BillSaleController {
   constructor(private readonly billSaleService: BillSaleService) {}

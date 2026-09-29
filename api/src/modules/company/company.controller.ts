@@ -6,10 +6,14 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CompanyDto } from './dto/company.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
+// 🔒 ข้อมูลร้าน (สำหรับตั้งค่าหลังบ้าน) เป็นฟีเจอร์แอดมินล้วนๆ ไม่มีหน้าไหนของลูกค้าเรียกใช้
+@UseGuards(JwtAuthGuard)
 @Controller('/api/company')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}

@@ -7,10 +7,15 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
+// 🔒 การจัดการบัญชีผู้ใช้/พนักงานทั้งหมด ต้องล็อกอินเท่านั้น
+// (เดิมไม่มี Guard เลยสักตัว ใครก็เรียกสร้าง/ลบ/เปลี่ยนรหัสผ่านผู้ใช้ได้)
+@UseGuards(JwtAuthGuard)
 @Controller('/api/user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
