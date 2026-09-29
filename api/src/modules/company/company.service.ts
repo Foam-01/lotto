@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CompanyDto } from './dto/company.dto';
 
@@ -45,6 +49,9 @@ export class CompanyService {
         data: dto,
       });
     } catch (e) {
+      if ((e as { code?: string })?.code === 'P2025') {
+        throw new NotFoundException('ไม่พบข้อมูลร้านนี้ในระบบ');
+      }
       console.error('🔥 Prisma Error (Update Company):', e);
       throw new InternalServerErrorException('ไม่สามารถแก้ไขข้อมูลร้านได้');
     }

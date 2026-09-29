@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   TransferMoneyDto,
@@ -16,14 +20,17 @@ export class BillSaleService {
       await this.prisma.billSale.update({
         where: { id: dto.billSaleId },
         data: {
-          tranferMoneyTime: dto.tranferMoneyTime,
+          transferMoneyTime: dto.transferMoneyTime,
           // 🌟 1. แปลงข้อความให้เป็น Date Object เพื่อให้ Prisma เข้าใจ
-          tranferMoneyDate: new Date(dto.tranferMoneyDate),
+          transferMoneyDate: new Date(dto.transferMoneyDate),
           price: dto.price,
         },
       });
       return { message: 'success' };
     } catch (e) {
+      if ((e as { code?: string })?.code === 'P2025') {
+        throw new NotFoundException('ไม่พบบิลนี้ในระบบ');
+      }
       // 🌟 2. ให้พิมพ์ Error ตัวจริงออกมาใน Terminal จะได้รู้สาเหตุชัดๆ
       console.error('🔥 Prisma Error (Transfer):', e);
       throw new InternalServerErrorException('ไม่สามารถบันทึกการโอนเงินได้');
@@ -42,6 +49,9 @@ export class BillSaleService {
       });
       return { message: 'success' };
     } catch (e) {
+      if ((e as { code?: string })?.code === 'P2025') {
+        throw new NotFoundException('ไม่พบบิลนี้ในระบบ');
+      }
       console.error('🔥 Prisma Error (Deliver):', e);
       throw new InternalServerErrorException('ไม่สามารถบันทึกการส่งมอบเงินได้');
     }

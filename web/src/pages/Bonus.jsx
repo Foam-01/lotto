@@ -8,12 +8,15 @@ function Bonus() {
   const [bonusDetails, setBonusDetails] = useState([]);
   const [details, setDetails] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFetchingBonus, setIsFetchingBonus] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       const res = await BonusService.getList(); // 🌟 ใช้ Service
       if (res.data.results !== undefined) {
@@ -26,10 +29,13 @@ function Bonus() {
         text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
         confirmButtonColor: "var(--brand-600)",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleGetBonus = async () => {
+    setIsFetchingBonus(true);
     try {
       Swal.fire({
         title: "กำลังดึงข้อมูลสลาก... 🐾",
@@ -65,6 +71,8 @@ function Bonus() {
         text: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง",
         confirmButtonColor: "var(--brand-600)",
       });
+    } finally {
+      setIsFetchingBonus(false);
     }
   };
 
@@ -165,11 +173,14 @@ function Bonus() {
             </h1>
             <button
               onClick={handleGetBonus}
+              disabled={isFetchingBonus}
               className="btn text-white rounded-pill px-4 py-2 shadow-sm"
               style={{
                 backgroundColor: "var(--brand-600)",
                 border: "none",
                 fontWeight: "500",
+                opacity: isFetchingBonus ? 0.7 : 1,
+                cursor: isFetchingBonus ? "not-allowed" : "pointer",
               }}
             >
               <i className="bi bi-cloud-arrow-down-fill me-2"></i>
@@ -214,7 +225,23 @@ function Bonus() {
                   </tr>
                 </thead>
                 <tbody>
-                  {bonusDetails.length > 0 ? (
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan="2" className="text-center py-5">
+                        <div
+                          className="spinner-border text-warning mb-2"
+                          role="status"
+                        >
+                          <span className="visually-hidden">
+                            กำลังโหลด...
+                          </span>
+                        </div>
+                        <div className="text-muted fw-bold">
+                          กำลังโหลดข้อมูล...
+                        </div>
+                      </td>
+                    </tr>
+                  ) : bonusDetails.length > 0 ? (
                     // 🌟 1. เพิ่มคำว่า index เข้ามาในวงเล็บตรงนี้ครับ
                     bonusDetails.map((item, index) => (
                       // 🌟 2. เปลี่ยนจาก item.id เป็น index ตรงนี้เลยครับ!

@@ -116,7 +116,7 @@ export class BonusService {
         include: { lotto: true },
         where: {
           billSale: { payDate: { not: null } },
-          lotto: { isCheckBonus: 0 },
+          lotto: { isCheckBonus: false },
         },
       });
 
@@ -176,7 +176,7 @@ export class BonusService {
       ];
       if (checkedLottoIds.length > 0) {
         await this.prisma.lotto.updateMany({
-          data: { isCheckBonus: 1 },
+          data: { isCheckBonus: true },
           where: { id: { in: checkedLottoIds } },
         });
       }

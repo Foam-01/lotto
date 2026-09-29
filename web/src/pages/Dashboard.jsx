@@ -8,6 +8,7 @@ import LottoService from "../services/lotto.service";
 
 function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   // 🌟 State สำหรับเก็บข้อมูล KPI ทั้งหมด
   const [stats, setStats] = useState({
@@ -26,6 +27,7 @@ function Dashboard() {
 
   const fetchDashboardData = async () => {
     setIsLoading(true);
+    setLoadError(false);
     try {
       // 🌟 ดึงข้อมูลรายเดือน (ตั้งแต่วันที่ 1 ถึงวันสุดท้ายของเดือนปัจจุบัน)
       const fromDate = dayjs().startOf("month").format("YYYY-MM-DD");
@@ -81,8 +83,8 @@ function Dashboard() {
       let sold = 0;
       if (lottoAllRes.status === "fulfilled" && lottoAllRes.value.data.result) {
         const allLottos = lottoAllRes.value.data.result;
-        available = allLottos.filter((l) => l.inSale !== 1).length;
-        sold = allLottos.filter((l) => l.inSale === 1).length;
+        available = allLottos.filter((l) => !l.inSale).length;
+        sold = allLottos.filter((l) => l.inSale).length;
       }
 
       // 4️⃣ นับบิลรอชำระเงิน (บิลที่ยังไม่มีวันที่ชำระเงิน payDate)
@@ -129,6 +131,7 @@ function Dashboard() {
       });
     } catch (error) {
       console.error("Dashboard Fetch Error:", error);
+      setLoadError(true);
     } finally {
       setIsLoading(false);
     }
@@ -183,6 +186,24 @@ function Dashboard() {
             <h5 className="mt-3 text-muted fw-bold">
               กำลังรวบรวมข้อมูลแผง...
             </h5>
+          </div>
+        ) : loadError ? (
+          <div className="text-center py-5 position-relative z-2">
+            <div style={{ fontSize: "3.5rem" }}>😿</div>
+            <h5 className="mt-3 text-muted fw-bold">
+              ไม่สามารถโหลดข้อมูลภาพรวมได้
+            </h5>
+            <p className="text-muted mb-3">
+              อาจเป็นเพราะอินเทอร์เน็ตหลุดหรือระบบขัดข้องชั่วคราว
+            </p>
+            <button
+              type="button"
+              className="btn rounded-pill px-4 fw-bold shadow-sm"
+              style={{ backgroundColor: "var(--brand-600)", color: "white" }}
+              onClick={fetchDashboardData}
+            >
+              <i className="bi bi-arrow-clockwise me-2"></i> ลองใหม่
+            </button>
           </div>
         ) : (
           <div className="position-relative z-2">

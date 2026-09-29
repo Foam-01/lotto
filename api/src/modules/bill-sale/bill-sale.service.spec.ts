@@ -24,16 +24,16 @@ describe('BillSaleService', () => {
 
       const result = await service.transferMoney({
         billSaleId: 1,
-        tranferMoneyDate: '2026-01-05',
-        tranferMoneyTime: '09:30',
+        transferMoneyDate: '2026-01-05',
+        transferMoneyTime: '09:30',
         price: 500,
       } as any);
 
       expect(prisma.billSale.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: {
-          tranferMoneyTime: '09:30',
-          tranferMoneyDate: new Date('2026-01-05'),
+          transferMoneyTime: '09:30',
+          transferMoneyDate: new Date('2026-01-05'),
           price: 500,
         },
       });
@@ -46,8 +46,8 @@ describe('BillSaleService', () => {
       await expect(
         service.transferMoney({
           billSaleId: 999,
-          tranferMoneyDate: '2026-01-05',
-          tranferMoneyTime: '09:30',
+          transferMoneyDate: '2026-01-05',
+          transferMoneyTime: '09:30',
           price: 500,
         } as any),
       ).rejects.toThrow(InternalServerErrorException);
@@ -120,11 +120,11 @@ describe('BillSaleService', () => {
   });
 
   describe('getProfit', () => {
-    it('sums ticket sales and won-prize income into a grand total (happy path)', async () => {
+    it('sums ticket sales and won-prize income into a grand total, net of ticket cost (happy path)', async () => {
       prisma.billSaleDetail.findMany.mockResolvedValue([
-        { price: 80 },
-        { price: 100 },
-        { price: null }, // ราคาไม่ระบุ ต้องนับเป็น 0 ไม่ใช่ throw
+        { price: 80, lotto: { cost: 70 } },
+        { price: 100, lotto: { cost: 70 } },
+        { price: null, lotto: { cost: 70 } }, // ราคาไม่ระบุ ต้องนับเป็น 0 ไม่ใช่ throw
       ]);
       prisma.lottoIsBonus.findMany.mockResolvedValue([
         { BonusResultDetail: { price: 2000 } },
@@ -136,10 +136,13 @@ describe('BillSaleService', () => {
         toDate: '2026-01-31',
       } as any);
 
+      // totalSale 180 - totalCost 210 (3 ใบ x 70) = ขาดทุนจากการขาย -30 แต่รวมเงินรางวัลแล้วยังกำไรอยู่
       expect(result.summary).toEqual({
         totalSale: 180,
+        totalCost: 210,
+        profitFromSale: -30,
         totalBonus: 2000,
-        grandTotal: 2180,
+        grandTotal: 1970,
       });
     });
 
@@ -154,6 +157,8 @@ describe('BillSaleService', () => {
 
       expect(result.summary).toEqual({
         totalSale: 0,
+        totalCost: 0,
+        profitFromSale: 0,
         totalBonus: 0,
         grandTotal: 0,
       });

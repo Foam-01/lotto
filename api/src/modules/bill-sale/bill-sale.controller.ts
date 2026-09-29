@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 export class BillSaleController {
   constructor(private readonly billSaleService: BillSaleService) {}
 
-  @Post('/TranferMoney')
+  @Post('/TransferMoney')
   async transferMoney(@Body() dto: TransferMoneyDto) {
     return this.billSaleService.transferMoney(dto);
   }

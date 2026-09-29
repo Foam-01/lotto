@@ -16,6 +16,7 @@ function Banner() {
   const [banners, setBanners] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [togglingIds, setTogglingIds] = useState(() => new Set());
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [bannerForm, setBannerForm] = useState({
@@ -123,6 +124,8 @@ function Banner() {
   };
 
   const toggleActiveStatus = async (item) => {
+    if (togglingIds.has(item.id)) return; // 🛡️ กันคลิกรัวๆ ยิง request ซ้อนสำหรับแบนเนอร์เดียวกัน
+    setTogglingIds((prev) => new Set(prev).add(item.id));
     try {
       const payload = { ...item, isActive: !item.isActive };
       await BannerService.edit(item.id, payload);
@@ -133,6 +136,12 @@ function Banner() {
       fetchBanners();
     } catch (e) {
       Toast.fire({ icon: "error", title: "เปลี่ยนสถานะไม่สำเร็จ" });
+    } finally {
+      setTogglingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(item.id);
+        return next;
+      });
     }
   };
 
@@ -748,6 +757,7 @@ function Banner() {
                               item.isActive ? "bn-status-on" : "bn-status-off"
                             }
                             onClick={() => toggleActiveStatus(item)}
+                            disabled={togglingIds.has(item.id)}
                           >
                             <span
                               className="bn-dot"

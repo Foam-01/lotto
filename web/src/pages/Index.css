@@ -506,8 +506,8 @@
 
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
 }
 
 .pagination-nav {
@@ -515,20 +515,20 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 8px;
-    margin-top: 32px;
+    gap: 6px;
+    margin-top: 20px;
 }
 
 .page-btn {
-    min-width: 40px;
-    height: 40px;
-    padding: 0 10px;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
     border: 2px solid var(--brand-200);
     background-color: var(--color-white);
     color: var(--brand-700);
     border-radius: var(--radius-md);
     font-weight: 700;
-    font-size: 15px;
+    font-size: 13px;
     cursor: pointer;
     transition: background-color .15s, color .15s, border-color .15s;
 }
@@ -549,10 +549,16 @@
     cursor: not-allowed;
 }
 
+.page-btn-jump {
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+}
+
 .ticket-card {
     background-color: #292524;
-    border-radius: var(--radius-xl);
-    padding: 10px;
+    border-radius: var(--radius-lg);
+    padding: 7px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
     display: flex;
     flex-direction: column;
@@ -562,27 +568,27 @@
 
 .ticket-visual {
     background-color: var(--color-white);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     display: flex;
-    height: 150px;
+    height: 108px;
     overflow: hidden;
     position: relative;
 }
 
 .ticket-stub {
-    width: 80px;
+    width: 58px;
     background-color: var(--amber-100);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    padding: 6px;
     border-right: 2px dashed var(--amber-500);
 }
 
 .stub-inner {
     text-align: center;
     background-color: var(--amber-50);
-    padding: 10px 5px;
+    padding: 6px 3px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--amber-300);
     width: 100%;
@@ -590,24 +596,24 @@
 }
 
 .stub-text {
-    font-size: 12px;
+    font-size: 9px;
     font-weight: 700;
     color: #b45309;
 }
 
 .stub-highlight {
-    font-size: 22px;
+    font-size: 15px;
     font-weight: 900;
     color: var(--brand-600);
-    margin: 5px 0;
+    margin: 3px 0;
 }
 
 .stub-badge {
     background-color: var(--brand-600);
     color: var(--color-white);
-    font-size: 12px;
+    font-size: 9px;
     font-weight: 800;
-    padding: 3px 6px;
+    padding: 2px 4px;
     border-radius: 4px;
     display: inline-block;
     margin-top: 2px;
@@ -620,7 +626,7 @@
 
 .ticket-main {
     flex: 1;
-    padding: 15px 18px;
+    padding: 10px 12px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -629,7 +635,7 @@
 
 .watermark {
     position: absolute;
-    font-size: 90px;
+    font-size: 60px;
     opacity: 0.06;
     top: 50%;
     left: 50%;
@@ -645,24 +651,24 @@
 }
 
 .gov-text {
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 800;
     color: var(--brand-600);
 }
 
 .barcode-placeholder {
-    width: 60px;
-    height: 15px;
+    width: 44px;
+    height: 11px;
     background: repeating-linear-gradient(to right, var(--color-black), var(--color-black) 2px, var(--color-white) 2px, var(--color-white) 4px);
 }
 
 .ticket-red-number {
-    font-size: 42px;
+    font-size: 26px;
     font-weight: 900;
     color: var(--red-600);
-    letter-spacing: 6px;
+    letter-spacing: 2px;
     text-align: center;
-    margin: 5px 0;
+    margin: 3px 0;
     z-index: 1;
     display: block;
 }
@@ -677,7 +683,7 @@
 .ticket-bottom {
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: 10px;
     color: var(--slate-500);
     font-weight: 700;
     z-index: 1;
@@ -687,19 +693,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 14px;
-    padding: 0 8px 5px;
+    margin-top: 8px;
+    padding: 0 4px 3px;
 }
 
 .price-tag {
     color: var(--color-white);
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 500;
 }
 
 .price-highlight {
     color: var(--amber-300);
-    font-size: 26px;
+    font-size: 18px;
     font-weight: 900;
 }
 
@@ -707,10 +713,10 @@
     background-color: var(--brand-600);
     color: var(--color-white);
     border: none;
-    padding: 10px 20px;
+    padding: 7px 12px;
     border-radius: var(--radius-md);
     font-weight: 800;
-    font-size: 15px;
+    font-size: 12px;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
     font-family: inherit;
@@ -778,6 +784,10 @@
     width: 90%;
     max-width: 400px;
     /* 👈 ลดความกว้างสูงสุดลง (จากเดิม 480px) */
+    max-height: 88vh;
+    /* 👈 กันไม่ให้ Modal สูงเกินจอ โดยเฉพาะมือถือจอเตี้ย เนื้อหาข้างในจะเลื่อนเอง */
+    display: flex;
+    flex-direction: column;
     border-radius: var(--radius-xl);
     /* 👈 ลดความมนของขอบลงนิดนึงให้สมส่วน */
     box-shadow: var(--shadow-card-lifted);
@@ -788,12 +798,13 @@
 
 .cat-modal-header {
     background: linear-gradient(135deg, var(--brand-50) 0%, var(--brand-100) 100%);
-    padding: 16px 20px;
+    padding: 12px 18px;
     /* 👈 ลด padding ลงให้หัวบาร์แคบขึ้น */
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px dashed var(--brand-200);
+    flex-shrink: 0;
 }
 
 .cat-modal-title {
@@ -826,14 +837,15 @@
 }
 
 .cat-modal-body {
-    padding: 20px;
+    padding: 16px 18px;
     /* 👈 ลดช่องว่างรอบๆ เนื้อหาด้านใน */
+    overflow-y: auto;
 }
 
 .bank-details-box {
     background-color: var(--slate-50);
     border-radius: var(--radius-lg);
-    padding: 16px;
+    padding: 12px;
     /* 👈 ลดช่องว่างในกล่องธนาคาร */
     text-align: center;
     border: 1px solid var(--slate-200);
@@ -841,52 +853,52 @@
 
 /* 👈 เพิ่มคลาสสำหรับจัดระยะห่างข้อความในกล่องธนาคาร */
 .bank-details-box p {
-    margin-bottom: 12px !important;
-    line-height: 1.5;
+    margin-bottom: 6px !important;
+    line-height: 1.4;
 }
 
 .account-number {
-    font-size: 24px;
+    font-size: 21px;
     /* 👈 ย่อขนาดเลขบัญชีลงนิดนึง */
     font-weight: 900;
     color: var(--brand-600);
-    letter-spacing: 2px;
-    margin-top: 12px;
-    margin-bottom: 16px;
+    letter-spacing: 1.5px;
+    margin-top: 8px;
+    margin-bottom: 10px;
 }
 
 .total-amount-box {
     background-color: var(--amber-50);
-    padding: 10px 16px;
+    padding: 7px 14px;
     /* 👈 ย่อกล่องยอดเงินให้บางลง */
     border-radius: var(--radius-md);
     font-weight: 700;
     color: var(--slate-600);
     display: inline-block;
     border: 1px solid var(--amber-200);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .amount-highlight {
-    font-size: 24px;
+    font-size: 22px;
     /* 👈 ขยายตัวเลขยอดเงิน */
     color: var(--red-600);
     font-weight: 900;
 }
 
 .custom-form {
-    margin-top: 20px !important;
+    margin-top: 12px !important;
     /* 👈 ลดระยะห่างระหว่างกล่องธนาคารกับฟอร์ม */
 }
 
 .form-group {
-    margin-bottom: 16px !important;
+    margin-bottom: 10px !important;
     /* 👈 ลดระยะห่างระหว่างช่องกรอกข้อมูล */
 }
 
 .cat-input {
     width: 100%;
-    padding: 12px 16px;
+    padding: 9px 14px;
     /* 👈 ลดความอ้วนของช่องกรอก */
     border-radius: var(--radius-md);
     border: 2px solid var(--slate-200);
@@ -909,9 +921,9 @@
     display: block;
     font-weight: 700;
     color: #334155;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     /* 👈 ดัน Label ให้ห่างจากช่องกรอกหน่อยนึง */
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .sub-label {
@@ -926,15 +938,15 @@
     background: linear-gradient(135deg, var(--brand-600), var(--brand-700));
     color: var(--color-white);
     border: none;
-    padding: 14px;
+    padding: 12px;
     /* 👈 ลดความสูงปุ่มลง */
     border-radius: var(--radius-lg);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
     cursor: pointer;
     box-shadow: var(--shadow-primary-strong);
     transition: all 0.2s;
-    margin-top: 8px;
+    margin-top: 2px;
 }
 
 .btn-confirm-order:hover {

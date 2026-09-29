@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service'; // อ้างอิงพาธให้ตรงกับโปรเจกต์เจ้านายนะครับ
 // 🌟 เพิ่มบรรทัดนี้เข้ามาแทนตัว type BannerDto = any; เหมือนกันครับ
 import { BannerDto } from './dto/banner.dto';
@@ -17,6 +21,7 @@ export class BannerService {
         ],
       });
     } catch (e) {
+      console.error('🔥 Error (banner list):', e);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลแบนเนอร์ได้');
     }
   }
@@ -28,6 +33,7 @@ export class BannerService {
         data: dto,
       });
     } catch (e) {
+      console.error('🔥 Error (banner create):', e);
       throw new InternalServerErrorException('ไม่สามารถสร้างแบนเนอร์ได้');
     }
   }
@@ -40,6 +46,10 @@ export class BannerService {
         data: dto,
       });
     } catch (e) {
+      if ((e as { code?: string })?.code === 'P2025') {
+        throw new NotFoundException('ไม่พบแบนเนอร์นี้ในระบบ');
+      }
+      console.error('🔥 Error (banner edit):', e);
       throw new InternalServerErrorException('ไม่สามารถแก้ไขแบนเนอร์ได้');
     }
   }
@@ -51,6 +61,10 @@ export class BannerService {
         where: { id },
       });
     } catch (e) {
+      if ((e as { code?: string })?.code === 'P2025') {
+        throw new NotFoundException('ไม่พบแบนเนอร์นี้ในระบบ');
+      }
+      console.error('🔥 Error (banner remove):', e);
       throw new InternalServerErrorException('ไม่สามารถลบแบนเนอร์ได้');
     }
   }

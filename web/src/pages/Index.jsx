@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import LottoService from "../services/lotto.service";
 import Swal from "sweetalert2";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "./Index.css";
 
 import FloatingBanner from "../components/FloatingBanner";
@@ -53,6 +54,8 @@ function Index() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loadError, setLoadError] = useState(false);
+  const [isConfirmingBuy, setIsConfirmingBuy] = useState(false);
 
   const inputRefs = useRef([]);
 
@@ -62,6 +65,7 @@ function Index() {
 
   const fetchLottos = async () => {
     setLoading(true);
+    setLoadError(false);
     setSearchQuery("");
     setSearchedDigits(Array(NUM_DIGITS).fill(""));
     try {
@@ -69,6 +73,8 @@ function Index() {
       setLottos(res.data.results ?? []);
     } catch (e) {
       console.error("Error fetching lottos:", e);
+      setLottos([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -162,7 +168,7 @@ function Index() {
 
   const filledCount = digits.filter(Boolean).length;
 
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 16;
   const totalPages = Math.max(1, Math.ceil(lottos.length / PAGE_SIZE));
   const pagedLottos = lottos.slice(
     (currentPage - 1) * PAGE_SIZE,
@@ -185,6 +191,9 @@ function Index() {
   }, [showPaymentModal]);
 
   const handleConfirmBuy = async () => {
+    if (isConfirmingBuy) return; // 🛡️ กันกดซ้ำระหว่างรอผล/กำลังถามยืนยัน (กันสั่งซื้อซ้ำ 2 บิล)
+    setIsConfirmingBuy(true);
+
     const Toast = Swal.mixin({
       toast: true,
       position: "top-end",
@@ -197,47 +206,51 @@ function Index() {
       },
     });
 
-    const button = await Swal.fire({
-      title: "ยืนยันการซื้อ",
-      text: "คุณต้องการซื้อสลากใช่หรือไม่?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "var(--brand-600)",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "ยืนยัน",
-      cancelButtonText: "ยกเลิก",
-    });
+    try {
+      const button = await Swal.fire({
+        title: "ยืนยันการซื้อ",
+        text: "คุณต้องการซื้อสลากใช่หรือไม่?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "var(--brand-600)",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ยืนยัน",
+        cancelButtonText: "ยกเลิก",
+      });
 
-    if (button.isConfirmed) {
-      try {
-        const payload = {
-          customerName: customerName,
-          customerPhone: customerPhone,
-          customerAddress: customerAddress,
-          carts: carts,
-        };
+      if (!button.isConfirmed) return;
 
-        const res = await LottoService.confirmBuy(payload);
+      const payload = {
+        customerName: customerName,
+        customerPhone: customerPhone,
+        customerAddress: customerAddress,
+        carts: carts,
+      };
 
-        if (res.data.message === "success") {
-          Toast.fire({
-            icon: "success",
-            title: "สั่งซื้อสำเร็จ! บันทึกข้อมูลเรียบร้อย",
-          });
+      const res = await LottoService.confirmBuy(payload);
 
-          setCarts([]);
-          setCustomerName("");
-          setCustomerPhone("");
-          setCustomerAddress("");
-          setShowPaymentModal(false);
-        }
-      } catch (error) {
-        console.error(error);
+      if (res.data.message === "success") {
         Toast.fire({
-          icon: "error",
-          title: "เกิดข้อผิดพลาด ไม่สามารถบันทึกข้อมูลได้",
+          icon: "success",
+          title: "สั่งซื้อสำเร็จ! บันทึกข้อมูลเรียบร้อย",
         });
+
+        setCarts([]);
+        setCustomerName("");
+        setCustomerPhone("");
+        setCustomerAddress("");
+        setShowPaymentModal(false);
       }
+    } catch (error) {
+      console.error(error);
+      Toast.fire({
+        icon: "error",
+        title:
+          error.response?.data?.message ||
+          "เกิดข้อผิดพลาด ไม่สามารถบันทึกข้อมูลได้",
+      });
+    } finally {
+      setIsConfirmingBuy(false);
     }
   };
 
@@ -247,12 +260,12 @@ function Index() {
       <div className="d-none d-lg-block">
         <FloatingBanner
           side="left"
-          imageUrl="https://scontent.fphs3-1.fna.fbcdn.net/v/t39.30808-6/300420149_434544808699257_1159983105418325809_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFgrVprguAIjb0OsSGt4DpohDSlrf9boU2ENKWt_1uhTUUiniPkWD8VuBUnbUNKTEOQaM1VY0jcN2Euauexgumu&_nc_ohc=2PvPacjsc1cQ7kNvwFz77Uo&_nc_oc=Ado4kUWme0YflxT5QDo3t-F2_0PubLIsNkU9HFW3CKmD1tKIz4DhThkMyVuEBVwKARpc7cIkK27dr11ZI0DFH01q&_nc_zt=23&_nc_ht=scontent.fphs3-1.fna&_nc_gid=0K5hqdrKCwxKB5OCeiGdWw&_nc_ss=7b2a8&oh=00_Af6KLwOb0igx3WUVc3m9rviE_X4CyDyfBdst1EUZn8z6Ug&oe=6A1225F1"
+          imageUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVbix72U9OT0IvpIzwabZHUKuMOhJgkaQsXUt0DZ6LyjvHRB8Y7cRiFcUB&s=10"
           link="https://www.facebook.com/photo/?fbid=434544818699256&set=a.434544785365926"
         />
         <FloatingBanner
           side="right"
-          imageUrl="https://scontent.fphs3-1.fna.fbcdn.net/v/t39.30808-6/300420149_434544808699257_1159983105418325809_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFgrVprguAIjb0OsSGt4DpohDSlrf9boU2ENKWt_1uhTUUiniPkWD8VuBUnbUNKTEOQaM1VY0jcN2Euauexgumu&_nc_ohc=2PvPacjsc1cQ7kNvwFz77Uo&_nc_oc=Ado4kUWme0YflxT5QDo3t-F2_0PubLIsNkU9HFW3CKmD1tKIz4DhThkMyVuEBVwKARpc7cIkK27dr11ZI0DFH01q&_nc_zt=23&_nc_ht=scontent.fphs3-1.fna&_nc_gid=0K5hqdrKCwxKB5OCeiGdWw&_nc_ss=7b2a8&oh=00_Af6KLwOb0igx3WUVc3m9rviE_X4CyDyfBdst1EUZn8z6Ug&oe=6A1225F1"
+          imageUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVbix72U9OT0IvpIzwabZHUKuMOhJgkaQsXUt0DZ6LyjvHRB8Y7cRiFcUB&s=10"
           link="https://www.facebook.com/photo/?fbid=434544818699256&set=a.434544785365926"
         />
       </div>
@@ -482,6 +495,8 @@ function Index() {
 
           {loading ? (
             <LoadingDots />
+          ) : loadError ? (
+            <ErrorState onRetry={fetchLottos} />
           ) : lottos.length > 0 ? (
             <>
             <div className="grid-container">
@@ -542,12 +557,23 @@ function Index() {
               <nav className="pagination-nav" aria-label="เปลี่ยนหน้าสลาก">
                 <button
                   type="button"
-                  className="page-btn"
+                  className="page-btn page-btn-jump"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  aria-label="หน้าแรก"
+                  title="หน้าแรก"
+                >
+                  «
+                </button>
+                <button
+                  type="button"
+                  className="page-btn page-btn-jump"
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   aria-label="หน้าก่อนหน้า"
+                  title="หน้าก่อนหน้า"
                 >
-                  <i className="bi bi-chevron-left"></i>
+                  ‹
                 </button>
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -566,14 +592,25 @@ function Index() {
 
                 <button
                   type="button"
-                  className="page-btn"
+                  className="page-btn page-btn-jump"
                   onClick={() =>
                     setCurrentPage((p) => Math.min(totalPages, p + 1))
                   }
                   disabled={currentPage === totalPages}
                   aria-label="หน้าถัดไป"
+                  title="หน้าถัดไป"
                 >
-                  <i className="bi bi-chevron-right"></i>
+                  ›
+                </button>
+                <button
+                  type="button"
+                  className="page-btn page-btn-jump"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  aria-label="หน้าสุดท้าย"
+                  title="หน้าสุดท้าย"
+                >
+                  »
                 </button>
               </nav>
             )}
@@ -642,27 +679,29 @@ function Index() {
 
               {/* ฟอร์มกรอกข้อมูล */}
               <div className="custom-form mt-4">
-                <div className="form-group mb-3">
-                  <label htmlFor="customerName">ชื่อผู้ซื้อ</label>
-                  <input
-                    id="customerName"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    type="text"
-                    className="cat-input"
-                    placeholder="กรอกชื่อ-นามสกุล"
-                  />
-                </div>
-                <div className="form-group mb-3">
-                  <label htmlFor="customerPhone">เบอร์โทรศัพท์</label>
-                  <input
-                    id="customerPhone"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    type="tel"
-                    className="cat-input"
-                    placeholder="08X-XXX-XXXX"
-                  />
+                <div className="form-row-split">
+                  <div className="form-group mb-3">
+                    <label htmlFor="customerName">ชื่อผู้ซื้อ</label>
+                    <input
+                      id="customerName"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      type="text"
+                      className="cat-input"
+                      placeholder="กรอกชื่อ-นามสกุล"
+                    />
+                  </div>
+                  <div className="form-group mb-3">
+                    <label htmlFor="customerPhone">เบอร์โทรศัพท์</label>
+                    <input
+                      id="customerPhone"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      type="tel"
+                      className="cat-input"
+                      placeholder="08X-XXX-XXXX"
+                    />
+                  </div>
                 </div>
                 <div className="form-group mb-4">
                   <label htmlFor="customerAddress">
@@ -683,9 +722,15 @@ function Index() {
               </div>
 
               {/* ปุ่มยืนยัน */}
-              <button onClick={handleConfirmBuy} className="btn-confirm-order">
-                <i className="bi bi-check-circle-fill me-2"></i>
-                ยืนยันการสั่งซื้อ
+              <button
+                onClick={handleConfirmBuy}
+                className="btn-confirm-order"
+                disabled={isConfirmingBuy}
+              >
+                <i
+                  className={`bi ${isConfirmingBuy ? "bi-hourglass-split" : "bi-check-circle-fill"} me-2`}
+                ></i>
+                {isConfirmingBuy ? "กำลังบันทึก..." : "ยืนยันการสั่งซื้อ"}
               </button>
             </div>
           </div>
@@ -707,6 +752,23 @@ function LoadingDots() {
           style={{ animationDelay: `${i * 0.15}s` }}
         />
       ))}
+    </div>
+  );
+}
+
+function ErrorState({ onRetry }) {
+  return (
+    <div className="empty-state">
+      <div style={{ fontSize: "70px" }}>😿</div>
+      <h4 style={{ color: "var(--red-600)", marginTop: "15px" }}>
+        โหลดรายการสลากไม่สำเร็จ
+      </h4>
+      <p style={{ color: "#999", marginBottom: "16px" }}>
+        อาจเป็นเพราะอินเทอร์เน็ตหลุดหรือระบบขัดข้องชั่วคราว
+      </p>
+      <button className="btn-clear-large" onClick={onRetry}>
+        <i className="bi bi-arrow-clockwise me-1"></i> ลองใหม่อีกครั้ง
+      </button>
     </div>
   );
 }

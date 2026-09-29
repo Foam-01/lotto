@@ -9,6 +9,7 @@ function LottoInShop() {
   const [billSales, setBillSales] = useState([]);
   const [billSale, setBillSale] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -16,12 +17,14 @@ function LottoInShop() {
 
   const fetchData = async () => {
     setIsLoading(true);
+    setLoadError(false);
     try {
       const res = await BillSaleService.getLottoInShop(); // 🌟 ใช้ Service
       if (res.data.results !== undefined) {
         setBillSales(res.data.results);
       }
     } catch (e) {
+      setLoadError(true);
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
@@ -115,6 +118,38 @@ function LottoInShop() {
                 </h4>
               </div>
 
+              {loadError && !isLoading && (
+                <div
+                  className="d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3 mb-3"
+                  style={{
+                    backgroundColor: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    borderRadius: "var(--radius-md)",
+                    color: "var(--red-600)",
+                  }}
+                >
+                  <span className="fw-bold">
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                    โหลดรายการฝากร้านไม่สำเร็จ
+                  </span>
+                  <button
+                    type="button"
+                    onClick={fetchData}
+                    style={{
+                      background: "var(--color-white)",
+                      color: "var(--red-600)",
+                      border: "1px solid var(--red-200, #fecaca)",
+                      padding: "8px 16px",
+                      borderRadius: "50rem",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                      fontSize: "13px",
+                    }}
+                  >
+                    <i className="bi bi-arrow-clockwise me-1"></i> ลองใหม่
+                  </button>
+                </div>
+              )}
               <div style={{ overflowX: "auto" }}>
                 <table style={styles.table}>
                   <thead>

@@ -24,7 +24,7 @@ const BonusService = {
     return await apiClient.get("/api/bonus/checkBonus");
   },
   transferMoney: async (payload) => {
-    return await apiClient.post("/api/billSale/TranferMoney", payload);
+    return await apiClient.post("/api/billSale/TransferMoney", payload);
   },
   deliverMoney: async (payload) => {
     return await apiClient.post("/api/billSale/deliverMoney", payload);

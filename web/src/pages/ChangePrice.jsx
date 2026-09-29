@@ -14,6 +14,7 @@ const Toast = Swal.mixin({
 function ChangePrice() {
   const [lottos, setLottos] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // State สำหรับฟีเจอร์ค้นหาและกรอง
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,6 +27,7 @@ function ChangePrice() {
   }, []);
 
   const fetchLottos = async () => {
+    setIsLoading(true);
     try {
       const res = await lotto.getListForSale();
       if (res.data.results !== undefined) {
@@ -38,6 +40,8 @@ function ChangePrice() {
         icon: "error",
         confirmButtonColor: "var(--brand-600)",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,6 +86,20 @@ function ChangePrice() {
 
       if (changedItems.length === 0) {
         Toast.fire({ icon: "info", title: "ไม่มีการเปลี่ยนแปลงราคา" });
+        return;
+      }
+
+      // 🛡️ ตรวจสอบว่าราคาใหม่ทุกรายการเป็นตัวเลขที่ถูกต้องและไม่ติดลบ
+      const invalidItems = changedItems.filter(
+        (item) => isNaN(Number(item.newPrice)) || Number(item.newPrice) < 0,
+      );
+      if (invalidItems.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "ราคาไม่ถูกต้อง",
+          text: "กรุณากรอกราคาใหม่เป็นตัวเลขที่มากกว่าหรือเท่ากับ 0",
+          confirmButtonColor: "var(--brand-600)",
+        });
         return;
       }
 
@@ -507,7 +525,26 @@ function ChangePrice() {
                     </tr>
                   </thead>
                   <tbody>
-                    {displayLottos.length > 0 ? (
+                    {isLoading ? (
+                      <tr>
+                        <td
+                          colSpan="3"
+                          className="py-5 text-center bg-transparent border-0"
+                        >
+                          <div
+                            className="spinner-border text-warning mb-3"
+                            role="status"
+                          >
+                            <span className="visually-hidden">
+                              กำลังโหลด...
+                            </span>
+                          </div>
+                          <h6 className="fw-bold text-muted">
+                            กำลังโหลดข้อมูลลอตเตอรี่...
+                          </h6>
+                        </td>
+                      </tr>
+                    ) : displayLottos.length > 0 ? (
                       displayLottos.map((item) => {
                         const isModified =
                           item.newPrice !== undefined &&

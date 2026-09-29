@@ -7,7 +7,8 @@ const apiPath = process.env.REACT_APP_API_URL || "http://localhost:3000";
 // 🌟 axios instance กลางตัวเดียวที่ทุก service เรียกใช้ร่วมกัน
 // แนบ Authorization header ให้อัตโนมัติถ้ามี token อยู่ (เดิมแต่ละ service.js
 // ต้องเขียนฟังก์ชัน getHeaders() เองซ้ำๆ กันหลายไฟล์)
-const apiClient = axios.create({ baseURL: apiPath });
+// 🌟 กัน request ค้างรอตลอดไปถ้า backend เงียบ/ไม่ตอบ (ไม่ใช่ backend ล่มแบบ error ทันที)
+const apiClient = axios.create({ baseURL: apiPath, timeout: 15000 });
 
 apiClient.interceptors.request.use((requestConfig) => {
   const token = localStorage.getItem("token");
@@ -30,6 +31,9 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && hadToken && !isLoginRequest) {
       localStorage.removeItem("token");
       if (!window.location.pathname.startsWith("/login")) {
+        // 🌟 ฝากข้อความไว้ให้หน้า Login โชว์หลัง redirect ว่าทำไมถึงถูกเด้งออกมา
+        // (ใช้ sessionStorage เพราะ redirect เป็น hard reload ทำให้ state ใน memory หายหมด)
+        sessionStorage.setItem("sessionExpiredMessage", "1");
         window.location.href = "/login";
       }
     }

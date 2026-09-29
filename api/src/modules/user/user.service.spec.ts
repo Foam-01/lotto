@@ -117,7 +117,18 @@ describe('UserService', () => {
 
       const result = await service.remove(1);
 
-      expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(prisma.user.delete).toHaveBeenCalledWith({
+        where: { id: 1 },
+        select: {
+          id: true,
+          user: true,
+          name: true,
+          level: true,
+          email: true,
+          phone: true,
+          address: true,
+        },
+      });
       expect(result).toEqual({ id: 1 });
     });
 

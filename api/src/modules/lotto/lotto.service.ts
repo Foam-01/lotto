@@ -212,11 +212,11 @@ export class LottoService {
           where: { billSaleId: dto.billSaleId },
         });
 
-        // 3. อัปเดตลอตเตอรี่ "ทุกใบ" ในบิลให้สถานะเป็นขายแล้ว (isSale: 1) ด้วย query เดียว แทนการ update ทีละแถวในลูป
+        // 3. อัปเดตลอตเตอรี่ "ทุกใบ" ในบิลให้สถานะเป็นขายแล้ว (inSale: true) ด้วย query เดียว แทนการ update ทีละแถวในลูป
         await tx.lotto.updateMany({
           where: { id: { in: billDetails.map((detail) => detail.lottoId) } },
           data: {
-            inSale: 1,
+            inSale: true,
           },
         });
 
@@ -240,6 +240,7 @@ export class LottoService {
       });
       return { results };
     } catch (e) {
+      console.error('🔥 Error (lottoInShop):', e);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลได้');
     }
   }
@@ -256,6 +257,7 @@ export class LottoService {
       });
       return { results };
     } catch (e) {
+      console.error('🔥 Error (lottoForSend):', e);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลได้');
     }
   }
@@ -271,6 +273,7 @@ export class LottoService {
       }
       return { message: 'data exist' };
     } catch (e) {
+      console.error('🔥 Error (sendSave):', e);
       throw new InternalServerErrorException('ไม่สามารถบันทึกได้');
     }
   }
@@ -291,10 +294,10 @@ export class LottoService {
           bonusDate: bonusRow.bonusDate,
         },
       });
-      // 3. ล็อตเตอรี่ที่ยังอยู่ในแผง (inSale: 0)
+      // 3. ล็อตเตอรี่ที่ยังอยู่ในแผง (inSale: false)
       const lottos = await this.prisma.lotto.findMany({
         where: {
-          inSale: 0,
+          inSale: false,
         },
       });
 
@@ -316,6 +319,7 @@ export class LottoService {
       }
       return { message: 'success' };
     } catch (e) {
+      console.error('🔥 Error (lottoIsBonus):', e);
       throw new InternalServerErrorException('ไม่สามารถดึงข้อมูลได้');
     }
   }
@@ -351,6 +355,12 @@ export class LottoService {
 
       return { message: 'success' };
     } catch (e) {
+      if ((e as { code?: string })?.code === 'P2025') {
+        throw new NotFoundException(
+          'ไม่พบสลากบางรายการที่ต้องการปรับราคา (อาจถูกลบไปแล้ว)',
+        );
+      }
+      console.error('🔥 Error (changePrice):', e);
       throw new InternalServerErrorException('ไม่สามารถปรับราคาได้');
     }
   }

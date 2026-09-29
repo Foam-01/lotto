@@ -7,8 +7,8 @@ import * as dayjs from "dayjs";
 
 function SaleBonus() {
   const [billSaleDetailsBonus, setBillSaleDetailsBonus] = useState([]);
-  const [tranferMoneyDate, setTranferMoneyDate] = useState("");
-  const [tranferMoneyTime, setTranferMoneyTime] = useState("");
+  const [transferMoneyDate, setTransferMoneyDate] = useState("");
+  const [transferMoneyTime, setTransferMoneyTime] = useState("");
   const [price, setPrice] = useState(0);
   const [billSaleId, setBillSaleId] = useState(0);
   const [deliverDate, setDeliverDate] = useState("");
@@ -31,7 +31,7 @@ function SaleBonus() {
     } catch (e) {
       Swal.fire({
         icon: "error",
-        title: "เกิดข้อผิดพลาด 😿",
+        title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถโหลดข้อมูลผู้ถูกรางวัลได้ กรุณาลองใหม่อีกครั้ง",
         confirmButtonColor: "var(--brand-600)",
       });
@@ -40,17 +40,31 @@ function SaleBonus() {
     }
   };
 
-  const handleTranferMoney = async () => {
+  const handleTransferMoney = async () => {
+    const transferPriceNum = Number(price);
+    if (
+      !transferMoneyDate ||
+      isNaN(transferPriceNum) ||
+      transferPriceNum <= 0
+    ) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+        text: "กรุณาระบุวันที่และจำนวนเงินให้ถูกต้อง",
+      });
+      return;
+    }
+
     if (isSubmitting) return; // ป้องกันกดซ้ำ
 
     const button = await Swal.fire({
-      title: "ยืนยันการโอนเงิน? 💸",
-      text: "เตรียมโอนเงินรางวัลให้เศรษฐีใหม่ป้ายแดง!",
+      title: "ยืนยันการโอนเงิน?",
+      text: "ยืนยันการโอนเงินรางวัลให้ลูกค้าใช่หรือไม่?",
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "var(--emerald-500)", // สีเขียวรับทรัพย์
       cancelButtonColor: "var(--gray-400)",
-      confirmButtonText: "ยืนยันการโอน 🎉",
+      confirmButtonText: "ยืนยันการโอน",
       cancelButtonText: "ยกเลิก",
       background: "var(--emerald-50)",
       reverseButtons: true, // ให้ปุ่มยืนยันอยู่ขวา
@@ -61,8 +75,8 @@ function SaleBonus() {
       try {
         const payload = {
           billSaleId: parseInt(billSaleId),
-          tranferMoneyDate: new Date(tranferMoneyDate),
-          tranferMoneyTime: tranferMoneyTime,
+          transferMoneyDate: new Date(transferMoneyDate),
+          transferMoneyTime: transferMoneyTime,
           price: parseInt(price),
         };
         const res = await BonusService.transferMoney(payload); // 🌟 ใช้ Service
@@ -82,7 +96,7 @@ function SaleBonus() {
 
           Toast.fire({
             icon: "success",
-            title: "โอนเงินรางวัลสำเร็จ! 🎊 เจ้านายเก่งมาก",
+            title: "โอนเงินรางวัลสำเร็จ",
           });
 
           document.getElementById("btnCloseModalTransfer").click();
@@ -103,16 +117,26 @@ function SaleBonus() {
   };
 
   const handleDeliverMoney = async () => {
+    const deliverPriceNum = Number(price);
+    if (!deliverDate || isNaN(deliverPriceNum) || deliverPriceNum <= 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+        text: "กรุณาระบุวันที่และจำนวนเงินให้ถูกต้อง",
+      });
+      return;
+    }
+
     if (isSubmitting) return; // ป้องกันกดซ้ำ
 
     const button = await Swal.fire({
-      title: "ยืนยันการมอบเงินสด? 🎁",
+      title: "ยืนยันการมอบเงินสด?",
       text: "เตรียมมอบเงินรางวัลให้ลูกค้าด้วยตัวเอง!",
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "var(--rose-600)", // สีแดงชมพู
       cancelButtonColor: "var(--gray-400)",
-      confirmButtonText: "ยืนยันการมอบ 🎊",
+      confirmButtonText: "ยืนยันการมอบ",
       cancelButtonText: "ยกเลิก",
       background: "var(--rose-50)",
       reverseButtons: true,
@@ -143,7 +167,7 @@ function SaleBonus() {
 
           Toast.fire({
             icon: "success",
-            title: "บันทึกการมอบเงินสดสำเร็จ! 🥳",
+            title: "บันทึกการมอบเงินสดสำเร็จ",
           });
 
           document.getElementById("btnCloseModalDeliver").click();
@@ -165,8 +189,8 @@ function SaleBonus() {
 
   // 🛡️ จัดการรีเซ็ตฟอร์มให้เป็นระเบียบ
   const resetForms = () => {
-    setTranferMoneyDate("");
-    setTranferMoneyTime("");
+    setTransferMoneyDate("");
+    setTransferMoneyTime("");
     setDeliverDate("");
     setPrice(0);
   };
@@ -180,7 +204,7 @@ function SaleBonus() {
 
   const paidAmount = billSaleDetailsBonus.reduce((sum, item) => {
     const isPaid =
-      item.BillSaleDetail?.billSale?.tranferMoneyDate ||
+      item.BillSaleDetail?.billSale?.transferMoneyDate ||
       item.BillSaleDetail?.billSale?.deliverDate;
     if (isPaid) return sum + (item.BonusResultDetail?.price || 0);
     return sum;
@@ -191,7 +215,7 @@ function SaleBonus() {
   const pendingCount = billSaleDetailsBonus.filter(
     (item) =>
       !(
-        item.BillSaleDetail?.billSale?.tranferMoneyDate ||
+        item.BillSaleDetail?.billSale?.transferMoneyDate ||
         item.BillSaleDetail?.billSale?.deliverDate
       ),
   ).length;
@@ -202,7 +226,7 @@ function SaleBonus() {
         <div className="container-fluid px-3 px-md-4 pb-4 pt-3">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h1 className="h3 mb-0 fw-bold" style={{ color: "var(--brand-600)" }}>
-              🎉 รายงานเศรษฐีใหม่
+              รายงานผู้ถูกรางวัล
             </h1>
           </div>
 
@@ -221,7 +245,7 @@ function SaleBonus() {
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 fw-bold fs-6">
-                        เศรษฐีใหม่ (บิล)
+                        ผู้ถูกรางวัล (บิล)
                       </p>
                       <h3 className="fw-bold mb-0" style={{ color: "var(--brand-600)" }}>
                         {totalWinners}{" "}
@@ -393,7 +417,7 @@ function SaleBonus() {
                         className="px-3 py-3 border-0"
                         style={{ color: "var(--brand-700)", fontWeight: "700" }}
                       >
-                        ข้อมูลเศรษฐีใหม่
+                        ข้อมูลลูกค้า
                       </th>
                       <th
                         className="px-3 py-3 border-0 text-center"
@@ -426,7 +450,7 @@ function SaleBonus() {
                             <span className="visually-hidden">Loading...</span>
                           </div>
                           <h5 className="text-muted fw-bold">
-                            กำลังค้นหาเศรษฐีใหม่... 🐾
+                            กำลังโหลดข้อมูล...
                           </h5>
                         </td>
                       </tr>
@@ -434,7 +458,7 @@ function SaleBonus() {
                       billSaleDetailsBonus.map((item) => {
                         // 🌟 เช็คสถานะว่าจ่ายเงินไปแล้วหรือยัง
                         const isTransfered =
-                          item.BillSaleDetail?.billSale?.tranferMoneyDate;
+                          item.BillSaleDetail?.billSale?.transferMoneyDate;
                         const isDelivered =
                           item.BillSaleDetail?.billSale?.deliverDate;
                         const isPaid = isTransfered || isDelivered;
@@ -510,13 +534,13 @@ function SaleBonus() {
                                   <span className="text-dark">
                                     {dayjs(
                                       item.BillSaleDetail.billSale
-                                        .tranferMoneyDate,
+                                        .transferMoneyDate,
                                     ).format("DD/MM/YYYY")}
                                   </span>
                                   {/* 👇 เหลือแค่นี้พอครับ 👇 */}
                                   <span className="text-muted ms-1">
                                     (
-                                    {item.BillSaleDetail.billSale.tranferMoneyTime?.substring(
+                                    {item.BillSaleDetail.billSale.transferMoneyTime?.substring(
                                       0,
                                       5,
                                     )}{" "}
@@ -553,7 +577,7 @@ function SaleBonus() {
                                   }}
                                 >
                                   <i className="bi bi-check-circle-fill me-1"></i>{" "}
-                                  รับทรัพย์แล้ว 🎉
+                                  ชำระเงินแล้ว
                                 </span>
                               ) : (
                                 <div className="d-flex justify-content-end gap-2">
@@ -586,10 +610,10 @@ function SaleBonus() {
                                       );
 
                                       const now = new Date();
-                                      setTranferMoneyDate(
+                                      setTransferMoneyDate(
                                         dayjs(now).format("YYYY-MM-DD"),
                                       );
-                                      setTranferMoneyTime(
+                                      setTransferMoneyTime(
                                         dayjs(now).format("HH:mm"),
                                       );
                                     }}
@@ -652,16 +676,16 @@ function SaleBonus() {
                                 animation: "bounce 2s infinite",
                               }}
                             >
-                              🐱💦
+                              📭
                             </div>
                             <span
                               className="fs-4 mt-3 fw-bold"
                               style={{ color: "var(--brand-700)" }}
                             >
-                              งวดนี้แผงเรายังไม่มีเศรษฐีใหม่เลยเจ้านาย!
+                              งวดนี้แผงเรายังไม่มีผู้ถูกรางวัล
                             </span>
                             <span className="mt-2 text-secondary fs-6">
-                              รอลุ้นกันใหม่งวดหน้านะ แง้ววว... 🐾
+                              รอผลรางวัลงวดถัดไป
                             </span>
                           </div>
                         </td>
@@ -678,7 +702,7 @@ function SaleBonus() {
       {/* 🌟 Modal โอนเงิน */}
       <MyModal
         id="modalTransfer"
-        title="💸 โอนเงินรางวัลให้เศรษฐีใหม่!"
+        title="โอนเงินรางวัลให้ผู้ถูกรางวัล"
         btnCloseId="btnCloseModalTransfer"
       >
         <div
@@ -689,9 +713,9 @@ function SaleBonus() {
             color: "#d97706",
           }}
         >
-          <h5 className="fw-bold mb-1">🎉 เตรียมส่งมอบความรวย!</h5>
+          <h5 className="fw-bold mb-1">ตรวจสอบข้อมูลก่อนโอนเงิน</h5>
           <small>
-            กรุณาตรวจสอบสลิปและเลขบัญชีให้เป๊ะ ก่อนโอนความสุขให้ลูกค้านะครับ
+            กรุณาตรวจสอบสลิปและเลขบัญชีให้ถูกต้องก่อนดำเนินการโอนเงิน
           </small>
         </div>
 
@@ -711,8 +735,8 @@ function SaleBonus() {
                 id="transferMoneyDate"
                 type="date"
                 className="form-control border-0 px-2 bg-light fw-medium"
-                value={tranferMoneyDate}
-                onChange={(e) => setTranferMoneyDate(e.target.value)}
+                value={transferMoneyDate}
+                onChange={(e) => setTransferMoneyDate(e.target.value)}
               />
             </div>
           </div>
@@ -731,8 +755,8 @@ function SaleBonus() {
                 id="transferMoneyTime"
                 type="time"
                 className="form-control border-0 px-2 bg-light fw-medium"
-                value={tranferMoneyTime}
-                onChange={(e) => setTranferMoneyTime(e.target.value)}
+                value={transferMoneyTime}
+                onChange={(e) => setTransferMoneyTime(e.target.value)}
               />
             </div>
           </div>
@@ -760,7 +784,7 @@ function SaleBonus() {
             className="form-label fw-bold mb-2 position-relative"
             style={{ color: "var(--emerald-600)", fontSize: "1.2rem" }}
           >
-            💰 ยอดเงินรางวัลที่ต้องโอน
+            ยอดเงินรางวัลที่ต้องโอน
           </label>
           <input
             id="transferPriceAmount"
@@ -804,7 +828,7 @@ function SaleBonus() {
             onMouseOut={(e) => {
               if (!isSubmitting) e.target.style.transform = "scale(1)";
             }}
-            onClick={handleTranferMoney}
+            onClick={handleTransferMoney}
           >
             {isSubmitting ? (
               <>
@@ -818,7 +842,6 @@ function SaleBonus() {
             ) : (
               <>
                 <i className="bi bi-send-check-fill me-2"></i> ยืนยันการโอนเงิน
-                🎉
               </>
             )}
           </button>
@@ -828,7 +851,7 @@ function SaleBonus() {
       {/* 🌟 Modal มอบเงินสด */}
       <MyModal
         id="modalDeliver"
-        title="🎁 นำเงินสดไปมอบให้ลูกค้า"
+        title="นำเงินสดไปมอบให้ลูกค้า"
         btnCloseId="btnCloseModalDeliver"
       >
         <div
@@ -839,9 +862,9 @@ function SaleBonus() {
             color: "var(--brand-700)",
           }}
         >
-          <h5 className="fw-bold mb-1">📸 แชะภาพเป็นที่ระลึกด้วยนะ!</h5>
+          <h5 className="fw-bold mb-1">บันทึกการมอบเงินสด</h5>
           <small>
-            เตรียมเงินสดก้อนโตให้พร้อม แล้วส่งมอบความรวยถึงมือลูกค้าเลย
+            กรุณาเตรียมเงินสดให้ครบถ้วนก่อนส่งมอบให้ลูกค้า
           </small>
         </div>
 
@@ -888,7 +911,7 @@ function SaleBonus() {
             className="form-label fw-bold mb-2 position-relative"
             style={{ color: "#be123c", fontSize: "1.2rem" }}
           >
-            🧧 จำนวนเงินสดที่มอบ
+            จำนวนเงินสดที่มอบ
           </label>
           <input
             id="deliverPriceAmount"
@@ -946,7 +969,7 @@ function SaleBonus() {
             ) : (
               <>
                 <i className="bi bi-box2-heart-fill me-2"></i>{" "}
-                ยืนยันการมอบเงินสด 🎊
+                ยืนยันการมอบเงินสด
               </>
             )}
           </button>

@@ -26,6 +26,7 @@ function User() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [isSavingUser, setIsSavingUser] = useState(false);
 
   // 🌟 ตรวจสอบว่ารหัสผ่านใหม่กับยืนยันรหัสผ่านตรงกันหรือไม่ (สำหรับ aria-invalid)
   const passwordMismatch =
@@ -35,6 +36,7 @@ function User() {
 
   const [usersList, setUsersList] = useState([]);
   const [isUsersLoading, setIsUsersLoading] = useState(false);
+  const [usersLoadError, setUsersLoadError] = useState(false);
 
   // 🌟 อัปเกรด State: เพิ่ม name, email, phone, address เข้ามาด้วย
   const [userForm, setUserForm] = useState({
@@ -74,11 +76,13 @@ function User() {
 
   const fetchUsersList = async () => {
     setIsUsersLoading(true);
+    setUsersLoadError(false);
     try {
       const res = await UserService.list();
       setUsersList(res.data || []);
     } catch (e) {
       console.error("🔥 Fetch Users Error:", e);
+      setUsersLoadError(true);
     } finally {
       setIsUsersLoading(false);
     }
@@ -155,6 +159,7 @@ function User() {
 
   const handleSaveUser = async (e) => {
     e.preventDefault();
+    if (isSavingUser) return; // 🛡️ กันกดซ้ำระหว่างรอผลบันทึก (กันสร้าง/แก้พนักงานซ้ำ)
     if (!userForm.user || !userForm.level || (!isEditing && !userForm.pwd)) {
       Toast.fire({
         icon: "warning",
@@ -163,6 +168,7 @@ function User() {
       return;
     }
 
+    setIsSavingUser(true);
     try {
       const payload = { ...userForm };
       if (isEditing && !payload.pwd) {
@@ -189,6 +195,8 @@ function User() {
         title: "เกิดข้อผิดพลาด",
         text: displayMsg || "ไม่สามารถบันทึกข้อมูลได้",
       });
+    } finally {
+      setIsSavingUser(false);
     }
   };
 
@@ -479,6 +487,28 @@ function User() {
                   </div>
 
                   <div className="card-body p-0">
+                    {usersLoadError && !isUsersLoading && (
+                      <div
+                        className="d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3 m-3 rounded-3"
+                        style={{
+                          backgroundColor: "var(--red-50, #fef2f2)",
+                          border: "1px solid var(--red-200, #fecaca)",
+                          color: "var(--red-600)",
+                        }}
+                      >
+                        <span className="fw-bold">
+                          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                          โหลดรายชื่อพนักงานไม่สำเร็จ
+                        </span>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold"
+                          onClick={fetchUsersList}
+                        >
+                          <i className="bi bi-arrow-clockwise me-1"></i> ลองใหม่
+                        </button>
+                      </div>
+                    )}
                     <div className="table-responsive">
                       <table className="table table-hover align-middle mb-0 text-center">
                         <thead style={{ backgroundColor: "var(--brand-100)" }}>
@@ -822,9 +852,13 @@ function User() {
             <button
               type="submit"
               className="btn rounded-pill px-4 fw-bold shadow-sm"
+              disabled={isSavingUser}
               style={{ backgroundColor: "var(--brand-600)", color: "white" }}
             >
-              <i className="bi bi-save-fill me-2"></i> บันทึกข้อมูล
+              <i
+                className={`bi ${isSavingUser ? "bi-hourglass-split" : "bi-save-fill"} me-2`}
+              ></i>{" "}
+              {isSavingUser ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
             </button>
           </div>
         </form>

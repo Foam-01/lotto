@@ -33,8 +33,8 @@ model Lotto {
   cost            Int
   sale            Int
   billSaleDetails BillSaleDetail[]
-  isCheckBonus    Int              @default(0)
-  inSale          Int              @default(0)
+  isCheckBonus    Boolean          @default(false)
+  inSale          Boolean          @default(false)
 
   @@index([inSale])
   @@index([isCheckBonus])
@@ -53,8 +53,10 @@ model BillSale {
   payRemark        String?
   payAlertDate     DateTime?
   billSaleForSends BillSaleForSend[]
-  tranferMoneyDate DateTime?
-  tranferMoneyTime String?
+  // 🌟 ชื่อ field แก้คำสะกดผิด "Tranfer" -> "Transfer" แล้ว แต่ยังคง @map ไปที่คอลัมน์เดิม
+  // ในฐานข้อมูลไว้ก่อน เพื่อไม่ต้องรัน migration เปลี่ยนชื่อคอลัมน์จริง (ความเสี่ยงต่ำกว่า)
+  transferMoneyDate DateTime? @map("tranferMoneyDate")
+  transferMoneyTime String?   @map("tranferMoneyTime")
   deliverDate      DateTime?
   price            Int?
 

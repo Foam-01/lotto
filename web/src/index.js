@@ -6,6 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./pages/Login";
 import Index from "./pages/Index";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // 🌟 หน้าอื่นๆ ที่ไม่ได้เปิดเป็นหน้าแรก โหลดแบบ Code Splitting (React.lazy)
 // เพื่อไม่ให้ผู้ใช้ต้องโหลด JS ของทุกหน้าตั้งแต่แรกเข้า (ลดขนาด bundle เริ่มต้น)
@@ -118,6 +119,10 @@ const router = createBrowserRouter([
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<RouterProvider router={router} />);
+root.render(
+  <ErrorBoundary>
+    <RouterProvider router={router} />
+  </ErrorBoundary>,
+);
 
 reportWebVitals();

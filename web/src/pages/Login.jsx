@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Swal from "sweetalert2";
 import AuthService from "../services/auth.service";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,20 @@ function Login() {
   const [isPwdFocused, setIsPwdFocused] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
+
+  // 🌟 ถ้าถูกเด้งมาหน้านี้เพราะ session หมดอายุ (401) ให้บอกผู้ใช้ตรงๆ
+  // แทนที่จะเงียบๆ เด้งมาเฉยๆ จนดูเหมือนระบบมีบั๊ก
+  useEffect(() => {
+    if (sessionStorage.getItem("sessionExpiredMessage")) {
+      sessionStorage.removeItem("sessionExpiredMessage");
+      Swal.fire({
+        icon: "info",
+        title: "เซสชันหมดอายุ",
+        text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+        confirmButtonColor: "var(--brand-600)",
+      });
+    }
+  }, []);
 
   const handleSingIn = async () => {
     if (isLoggingIn) return; // 🛡️ กันกดซ้ำระหว่างรอผลล็อกอิน
@@ -202,59 +216,61 @@ const styles = {
   },
   card: {
     backgroundColor: "var(--color-white)",
-    padding: "60px 50px", // 👈 ขยาย Padding ด้านใน (เดิม 50px 40px)
+    padding: "40px 36px",
     borderRadius: "var(--radius-xl)",
-    borderTop: "10px solid var(--brand-600)",
     boxShadow: "var(--shadow-card)",
     width: "90%",
-    maxWidth: "480px", // 👈 ขยายกรอบให้กว้างขึ้น (เดิม 400px)
+    maxWidth: "400px",
     textAlign: "center",
     zIndex: 1,
     position: "relative",
     animation: "slideUp 0.4s ease-out forwards",
+    boxSizing: "border-box",
+    maxHeight: "calc(100vh - 40px)",
+    overflowY: "auto",
   },
-  header: { marginBottom: "35px" }, // 👈 ขยับให้ห่างขึ้นนิดนึง
+  header: { marginBottom: "22px" },
   logoCircle: {
-    width: "80px", // 👈 ขยายโลโก้ (เดิม 70px)
-    height: "80px", // 👈 ขยายโลโก้
+    width: "60px",
+    height: "60px",
     backgroundColor: "var(--brand-50)",
     borderRadius: "50%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    margin: "0 auto 15px",
-    fontSize: "45px", // 👈 ขยายอิโมจิแมว (เดิม 40px)
+    margin: "0 auto 12px",
+    fontSize: "32px",
     border: "2px solid var(--brand-200)",
     boxShadow: "0 4px 10px rgba(234, 88, 12, 0.1)",
   },
   title: {
     margin: 0,
     color: "var(--brand-600)",
-    fontSize: "32px", // 👈 ขยายฟอนต์หัวข้อ (เดิม 28px)
+    fontSize: "24px",
     fontWeight: "900",
   },
   subtitle: {
     color: "var(--slate-500)",
-    fontSize: "16px", // 👈 ขยายฟอนต์ย่อย (เดิม 15px)
-    marginTop: "5px",
+    fontSize: "14px",
+    marginTop: "4px",
     fontWeight: "500",
   },
-  formGroup: { textAlign: "left", marginBottom: "20px" },
+  formGroup: { textAlign: "left", marginBottom: "14px" },
   label: {
     display: "block",
-    marginBottom: "8px",
+    marginBottom: "6px",
     fontWeight: "700",
     color: "var(--slate-600)",
-    fontSize: "15px", // 👈 ขยายฟอนต์ Label (เดิม 14px)
+    fontSize: "14px",
   },
   input: {
     width: "100%",
-    padding: "16px 20px", // 👈 ทำให้ช่องกรอกอ้วนขึ้นนิดนึง (เดิม 14px 16px)
+    padding: "11px 14px",
     borderRadius: "var(--radius-md)",
     border: "2px solid var(--slate-200)",
     backgroundColor: "var(--slate-50)",
     color: "var(--slate-900)",
-    fontSize: "16px", // 👈 ขยายฟอนต์ในช่องกรอก
+    fontSize: "15px",
     boxSizing: "border-box",
     outline: "none",
     transition: "all 0.2s ease",
@@ -267,15 +283,15 @@ const styles = {
   },
   button: {
     width: "100%",
-    padding: "16px", // 👈 ขยายปุ่มให้หนาขึ้น (เดิม 14px)
+    padding: "13px",
     borderRadius: "var(--radius-md)",
     border: "none",
     background: "linear-gradient(135deg, var(--brand-600), var(--brand-700))",
     color: "var(--color-white)",
-    fontSize: "18px", // 👈 ขยายตัวหนังสือในปุ่ม (เดิม 16px)
+    fontSize: "16px",
     fontWeight: "700",
     cursor: "pointer",
-    marginTop: "15px",
+    marginTop: "8px",
     boxShadow: "0 4px 15px rgba(234, 88, 12, 0.3)",
     transition: "all 0.2s ease",
     fontFamily: "'Kanit', sans-serif",
@@ -286,14 +302,14 @@ const styles = {
     cursor: "not-allowed",
   },
   forgotPassword: {
-    marginTop: "18px",
+    marginTop: "14px",
     fontSize: "13px",
     color: "var(--slate-600)",
     fontWeight: "500",
   },
   footer: {
-    marginTop: "30px",
-    fontSize: "15px",
+    marginTop: "18px",
+    fontSize: "13px",
     color: "var(--slate-500)",
     fontWeight: "500",
   },

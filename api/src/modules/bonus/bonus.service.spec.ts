@@ -236,7 +236,7 @@ describe('BonusService', () => {
       expect(prisma.billSaleDetailIsBonus.createMany).not.toHaveBeenCalled();
       // แต่ยัง flag ว่าตรวจแล้ว เพื่อไม่ต้องตรวจซ้ำในรอบถัดไป
       expect(prisma.lotto.updateMany).toHaveBeenCalledWith({
-        data: { isCheckBonus: 1 },
+        data: { isCheckBonus: true },
         where: { id: { in: [1] } },
       });
     });

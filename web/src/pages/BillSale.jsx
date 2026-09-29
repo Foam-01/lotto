@@ -3,10 +3,20 @@ import Home from "./Home";
 import MyModal from "../components/MyModal";
 import { useEffect, useState } from "react";
 import BillSaleService from "../services/bill-sale.service";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import * as dayjs from "dayjs";
 import { formatDate, formatDateTime } from "../utils/format";
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 2500,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
 
 function BillSale() {
   const currentDate = dayjs(new Date()).format("YYYY-MM-DD");
@@ -74,16 +84,12 @@ function BillSale() {
       });
 
       if (button.isConfirmed) {
-        const toastId = toast.loading("กำลังลบข้อมูล...");
-
         const res = await BillSaleService.removeBill(billSale.id); // 🌟 ใช้ Service
 
         if (res.data.message === "success") {
-          toast.update(toastId, {
-            render: "ยกเลิกออเดอร์ของ " + billSale.customerName + " แล้ว",
-            type: "success",
-            isLoading: false,
-            autoClose: 2000,
+          Toast.fire({
+            icon: "success",
+            title: "ยกเลิกออเดอร์ของ " + billSale.customerName + " แล้ว",
           });
 
           await fetchData();
@@ -92,8 +98,9 @@ function BillSale() {
         }
       }
     } catch (e) {
-      toast.error("ยกเลิกออเดอร์ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", {
-        autoClose: 3000,
+      Toast.fire({
+        icon: "error",
+        title: "ยกเลิกออเดอร์ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
       });
       console.error("Remove Bill Error:", e);
     }
@@ -123,7 +130,6 @@ function BillSale() {
 
     if (button.isConfirmed) {
       setIsPaying(true);
-      const toastId = toast.loading("กำลังบันทึกการชำระเงิน...");
 
       try {
         const payload = {
@@ -137,11 +143,9 @@ function BillSale() {
         const res = await BillSaleService.confirmPay(payload);
 
         if (res.data.message === "success") {
-          toast.update(toastId, {
-            render: "บันทึกการชำระเงินสำเร็จ",
-            type: "success",
-            isLoading: false,
-            autoClose: 2000,
+          Toast.fire({
+            icon: "success",
+            title: "บันทึกการชำระเงินสำเร็จ",
           });
 
           await fetchData();
@@ -154,11 +158,9 @@ function BillSale() {
           throw new Error("ไม่สามารถบันทึกได้");
         }
       } catch (e) {
-        toast.update(toastId, {
-          render: "เกิดข้อผิดพลาด ไม่สามารถชำระเงินได้",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
+        Toast.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด ไม่สามารถชำระเงินได้",
         });
         console.error("Pay Error:", e);
       } finally {
@@ -596,7 +598,6 @@ function BillSale() {
               </div>
         </>
       </MyModal>
-      <ToastContainer />
     </>
   );
 }

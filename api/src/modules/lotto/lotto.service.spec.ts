@@ -317,7 +317,7 @@ describe('LottoService', () => {
       });
       expect(prisma.lotto.updateMany).toHaveBeenCalledWith({
         where: { id: { in: [1, 2] } },
-        data: { inSale: 1 },
+        data: { inSale: true },
       });
       expect(result).toEqual({ message: 'success' });
     });

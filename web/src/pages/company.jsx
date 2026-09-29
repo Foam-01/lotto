@@ -11,12 +11,16 @@ function Company() {
   const [address, setAddress] = useState("");
   const [id, setId] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    setIsLoading(true);
+    setLoadError(false);
     try {
       // 🌟 ใช้ Service ดึงข้อมูล
       const res = await CompanyService.getInfo();
@@ -27,17 +31,28 @@ function Company() {
         setId(res.data.id);
       }
     } catch (e) {
+      setLoadError(true);
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถโหลดข้อมูลแผงได้ กรุณาลองใหม่อีกครั้ง",
         confirmButtonColor: "var(--brand-600)",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSave = async () => {
     if (isSaving) return; // 🛡️ กันกดซ้ำระหว่างรอบันทึก
+
+    if (!name?.trim() || !phone?.trim() || !address?.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+      });
+      return;
+    }
 
     const Toast = Swal.mixin({
       toast: true,
@@ -172,6 +187,43 @@ function Company() {
               <span style={styles.badge}>SYSTEM CONFIG</span>
             </div>
 
+            {isLoading ? (
+              <div style={{ textAlign: "center", padding: "60px 0" }}>
+                <div
+                  className="spinner-border text-warning"
+                  role="status"
+                >
+                  <span className="visually-hidden">กำลังโหลด...</span>
+                </div>
+              </div>
+            ) : loadError ? (
+              <div style={{ textAlign: "center", padding: "60px 20px" }}>
+                <p
+                  style={{
+                    color: "var(--red-600)",
+                    fontWeight: 700,
+                    fontSize: "17px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  โหลดข้อมูลร้านไม่สำเร็จ
+                </p>
+                <button
+                  onClick={fetchData}
+                  style={{
+                    backgroundColor: "var(--brand-600)",
+                    color: "var(--color-white)",
+                    border: "none",
+                    borderRadius: "var(--radius-md)",
+                    padding: "12px 28px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  <i className="bi bi-arrow-clockwise me-2"></i>ลองใหม่
+                </button>
+              </div>
+            ) : (
             <div style={{ marginTop: "30px" }}>
               <div style={styles.formGroup}>
                 <label htmlFor="company-name" style={styles.label}>ชื่อแผงล็อตเตอรี่</label>
@@ -260,6 +312,7 @@ function Company() {
                 </button>
               </div>
             </div>
+            )}
           </div>
         </div>
       </div>

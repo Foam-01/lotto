@@ -31,12 +31,15 @@ function LottoForSend() {
   const [sendPlatform, setSendPlatform] = useState("");
   const [remark, setRemark] = useState("");
   const [price, setPrice] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       const res = await BillSaleService.getLottoForSend(); // 🌟 ใช้ Service
       if (res.data.results !== undefined) {
@@ -49,6 +52,8 @@ function LottoForSend() {
         text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
         confirmButtonColor: "var(--brand-600)",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,6 +62,22 @@ function LottoForSend() {
   };
 
   const handleSave = async () => {
+    if (
+      !sendName.trim() ||
+      !traceCode.trim() ||
+      !sendPlatform.trim() ||
+      !(Number(price) > 0)
+    ) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+        text: "ชื่อผู้จัดส่ง, เลขพัสดุ, ช่องทางการจัดส่ง และค่าจัดส่งต้องไม่ว่าง",
+      });
+      return;
+    }
+
+    if (isSaving) return; // 🛡️ กันกดซ้ำระหว่างรอผลบันทึก (กันบันทึกจัดส่งซ้ำ)
+
     // 🌟 1. สร้างตัวตั้งค่า Notification (Toast) แจ้งเตือนมุมขวาบน
     const Toast = Swal.mixin({
       toast: true,
@@ -81,6 +102,7 @@ function LottoForSend() {
     });
 
     if (button.isConfirmed) {
+      setIsSaving(true);
       try {
         const payload = {
           data: {
@@ -119,8 +141,11 @@ function LottoForSend() {
         // 🌟 3. เรียกใช้ Notification ตอนเกิด Error
         Toast.fire({
           icon: "error",
-          title: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+          title:
+            e.response?.data?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         });
+      } finally {
+        setIsSaving(false);
       }
     }
   };
@@ -191,7 +216,17 @@ function LottoForSend() {
                     </tr>
                   </thead>
                   <tbody>
-                    {billSales?.length > 0 ? (
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan="7" style={styles.emptyState}>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            style={{ color: "var(--brand-600)" }}
+                          ></span>
+                          กำลังโหลดข้อมูล...
+                        </td>
+                      </tr>
+                    ) : billSales?.length > 0 ? (
                       billSales.map((item) => (
                         <tr key={item.id} style={styles.tableRow}>
                           <td style={styles.td}>
@@ -432,14 +467,17 @@ function LottoForSend() {
             <button
               onClick={handleSave}
               className="btn px-4 py-2 fw-bold"
+              disabled={isSaving}
               style={{
                 backgroundColor: "var(--emerald-500)",
                 color: "white",
                 borderRadius: "var(--radius-md)",
               }}
             >
-              <i className="bi bi-save me-2"></i>
-              บันทึกข้อมูลจัดส่ง
+              <i
+                className={`bi ${isSaving ? "bi-hourglass-split" : "bi-save"} me-2`}
+              ></i>
+              {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูลจัดส่ง"}
             </button>
           </div>
         </div>

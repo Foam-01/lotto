@@ -9,6 +9,13 @@ import MyModal from "../components/MyModal";
 function ReportProfit() {
   const [billSaleDetails, setBillSaleDetails] = useState([]);
   const [lottoIsBonus, setLottoIsBonus] = useState([]);
+  const [summary, setSummary] = useState({
+    totalSale: 0,
+    totalCost: 0,
+    profitFromSale: 0,
+    totalBonus: 0,
+    grandTotal: 0,
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   // 🌟 State สำหรับจัดการ Modal
@@ -35,6 +42,17 @@ function ReportProfit() {
       if (res.data) {
         setBillSaleDetails(res.data.billSaleDetails || []);
         setLottoIsBonus(res.data.lottoIsBonus || []);
+        // 🌟 ใช้ตัวเลขสรุปที่ backend คำนวณมาให้แล้ว (summary) แทนการคำนวณซ้ำฝั่งนี้
+        // เพื่อให้สูตรกำไรมีอยู่ที่เดียว ไม่เสี่ยงเพี้ยนถ้าวันหลังมีใครแก้สูตรแค่ฝั่งเดียว
+        setSummary(
+          res.data.summary || {
+            totalSale: 0,
+            totalCost: 0,
+            profitFromSale: 0,
+            totalBonus: 0,
+            grandTotal: 0,
+          },
+        );
       }
     } catch (e) {
       Swal.fire({
@@ -47,24 +65,6 @@ function ReportProfit() {
       setIsLoading(false);
     }
   };
-
-  // ==========================================
-  // 🌟 ระบบคำนวณกำไร
-  // ==========================================
-  let totalSale = 0;
-  let totalCost = 0;
-  billSaleDetails.forEach((item) => {
-    totalSale += item.price || 0;
-    totalCost += item.lotto?.cost || 0;
-  });
-  const profitFromSale = totalSale - totalCost;
-
-  const totalBonusPrize = lottoIsBonus.reduce(
-    (sum, item) => sum + (item.BonusResultDetail?.price || 0),
-    0,
-  );
-
-  const grandTotalProfit = profitFromSale + totalBonusPrize;
 
   // ==========================================
   // 🌟 ฟังก์ชันจัดการปุ่ม Modal
@@ -182,7 +182,7 @@ function ReportProfit() {
                     กำไรจากการขาย (หักทุนแล้ว)
                   </p>
                   <h3 className="fw-bold mb-0" style={{ color: "#1e3a8a" }}>
-                    + {profitFromSale.toLocaleString("th-TH")}{" "}
+                    + {summary.profitFromSale.toLocaleString("th-TH")}{" "}
                     <span className="fs-6 fw-normal">฿</span>
                   </h3>
                   <div className="small fw-medium mt-2 text-primary">
@@ -217,7 +217,7 @@ function ReportProfit() {
                     เงินรางวัลแผงถูกเอง
                   </p>
                   <h3 className="fw-bold mb-0" style={{ color: "#701a75" }}>
-                    + {totalBonusPrize.toLocaleString("th-TH")}{" "}
+                    + {summary.totalBonus.toLocaleString("th-TH")}{" "}
                     <span className="fs-6 fw-normal">฿</span>
                   </h3>
                   <div
@@ -255,7 +255,7 @@ function ReportProfit() {
                     กำไรสุทธิรวมทั้งหมด
                   </p>
                   <h3 className="fw-bold fs-2 mb-0" style={{ color: "var(--emerald-700)" }}>
-                    {grandTotalProfit.toLocaleString("th-TH")}{" "}
+                    {summary.grandTotal.toLocaleString("th-TH")}{" "}
                     <span className="fs-5 fw-normal">฿</span>
                   </h3>
                   <div

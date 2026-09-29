@@ -1,9 +1,19 @@
 import Home from "./Home";
 import { useEffect, useState, useRef } from "react";
 import Swal from "sweetalert2";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import LottoService from "../services/lotto.service";
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 2500,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
 
 function Lotto() {
   const [number, setNumber] = useState("");
@@ -125,26 +135,21 @@ function Lotto() {
       cancelButtonText: "ยกเลิก",
     }).then(async (res) => {
       if (res.isConfirmed) {
-        const toastId = toast.loading("กำลังลบข้อมูล...");
         try {
           const resFromApi = await LottoService.remove(item.id);
 
           if (resFromApi.data.result.id !== undefined) {
-            toast.update(toastId, {
-              render: `ดึงเลขสลาก ${item.numbers} ออกจากแผงแล้ว`,
-              type: "success",
-              isLoading: false,
-              autoClose: 2000,
+            Toast.fire({
+              icon: "success",
+              title: `ดึงเลขสลาก ${item.numbers} ออกจากแผงแล้ว`,
             });
             fetchData();
             setId(0);
           }
         } catch (e) {
-          toast.update(toastId, {
-            render: "ไม่สามารถลบข้อมูลสลากได้ (อาจไม่มีสิทธิ์)",
-            type: "error",
-            isLoading: false,
-            autoClose: 3000,
+          Toast.fire({
+            icon: "error",
+            title: "ไม่สามารถลบข้อมูลสลากได้ (อาจไม่มีสิทธิ์)",
           });
         }
       }
@@ -173,8 +178,8 @@ function Lotto() {
   const filteredLottos = lottos.filter((item) =>
     item.numbers?.toString().includes(searchTerm.trim()),
   );
-  const availableLottos = filteredLottos.filter((item) => item.inSale !== 1);
-  const soldLottos = filteredLottos.filter((item) => item.inSale === 1);
+  const availableLottos = filteredLottos.filter((item) => !item.inSale);
+  const soldLottos = filteredLottos.filter((item) => item.inSale);
 
   return (
     <Home>
@@ -505,7 +510,7 @@ function Lotto() {
                                 textAlign: "right",
                               }}
                             >
-                              ฿{item.sale.toLocaleString()}
+                              ฿{item.sale?.toLocaleString() ?? "-"}
                             </td>
                             <td style={{ ...styles.td, textAlign: "center" }}>
                               <div
@@ -631,7 +636,7 @@ function Lotto() {
                                 color: "var(--slate-500)",
                               }}
                             >
-                              ฿{item.sale.toLocaleString()}
+                              ฿{item.sale?.toLocaleString() ?? "-"}
                             </td>
                           </tr>
                         ))
@@ -652,7 +657,6 @@ function Lotto() {
           </div>
         </div>
       </div>
-      <ToastContainer position="top-right" theme="colored" />
     </Home>
   );
 }

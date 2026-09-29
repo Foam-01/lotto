@@ -2,8 +2,8 @@ import { IsInt, IsNotEmpty, IsString, IsDateString } from 'class-validator';
 
 export class TransferMoneyDto {
   @IsInt() @IsNotEmpty() billSaleId!: number;
-  @IsString() @IsNotEmpty() tranferMoneyDate!: string;
-  @IsString() @IsNotEmpty() tranferMoneyTime!: string;
+  @IsString() @IsNotEmpty() transferMoneyDate!: string;
+  @IsString() @IsNotEmpty() transferMoneyTime!: string;
   @IsInt() @IsNotEmpty() price!: number;
 }
 

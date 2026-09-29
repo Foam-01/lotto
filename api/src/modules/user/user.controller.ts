@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 // 🔒 การจัดการบัญชีผู้ใช้/พนักงานทั้งหมด ต้องล็อกอินเท่านั้น
@@ -43,7 +44,7 @@ export class UserController {
   @Put('change-password/:id')
   async changePassword(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: any,
+    @Body() dto: ChangePasswordDto,
   ) {
     return this.userService.changePassword(
       id,
