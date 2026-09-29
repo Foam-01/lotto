@@ -1,17 +1,18 @@
-import axios from "axios";
-import config from "../config"; // 🌟 อย่าลืมเช็ค path config ของเจ้านายด้วยนะครับ
+import config from "../config";
+
+const { apiClient } = config;
 
 const BannerService = {
-  list: async () => await axios.get(`${config.apiPath}/api/banner/list`),
+  // 🔓 หน้าร้านลูกค้าก็เรียกอันนี้ ไม่ต้องมี Token
+  list: async () => await apiClient.get("/api/banner/list"),
 
-  create: async (payload) =>
-    await axios.post(`${config.apiPath}/api/banner/create`, payload),
+  // 🔒 เฉพาะแอดมิน
+  create: async (payload) => await apiClient.post("/api/banner/create", payload),
 
   edit: async (id, payload) =>
-    await axios.put(`${config.apiPath}/api/banner/edit/${id}`, payload),
+    await apiClient.put(`/api/banner/edit/${id}`, payload),
 
-  remove: async (id) =>
-    await axios.delete(`${config.apiPath}/api/banner/remove/${id}`),
+  remove: async (id) => await apiClient.delete(`/api/banner/remove/${id}`),
 };
 
 export default BannerService;

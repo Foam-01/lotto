@@ -1,53 +1,29 @@
 // src/services/lotto.service.js
-import axios from "axios";
 import config from "../config";
 
-const getHeaders = () => {
-  const token = localStorage.getItem("token");
-  // ใส่ Token เฉพาะถ้ามี (ลูกค้าทั่วไปจะไม่มี Token)
-  return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-};
+const { apiClient } = config;
 
 const LottoService = {
   // 🔒 โซนแอดมิน (ต้องมี Token)
-  getList: async () =>
-    await axios.get(`${config.apiPath}/api/lotto/list`, getHeaders()),
-  create: async (payload) =>
-    await axios.post(
-      `${config.apiPath}/api/lotto/create`,
-      payload,
-      getHeaders(),
-    ),
+  getList: async () => await apiClient.get("/api/lotto/list"),
+  create: async (payload) => await apiClient.post("/api/lotto/create", payload),
   edit: async (id, payload) =>
-    await axios.put(
-      `${config.apiPath}/api/lotto/edit/${id}`,
-      payload,
-      getHeaders(),
-    ),
-  remove: async (id) =>
-    await axios.delete(
-      `${config.apiPath}/api/lotto/remove/${id}`,
-      getHeaders(),
-    ),
+    await apiClient.put(`/api/lotto/edit/${id}`, payload),
+  remove: async (id) => await apiClient.delete(`/api/lotto/remove/${id}`),
 
   // 🔓 โซนหน้าร้าน ลูกค้าทั่วไป (ไม่ต้องใช้ Token)
-  getListForSale: async () =>
-    await axios.get(`${config.apiPath}/api/lotto/listForSale`),
+  getListForSale: async () => await apiClient.get("/api/lotto/listForSale"),
   confirmBuy: async (payload) =>
-    await axios.post(`${config.apiPath}/api/lotto/ConfirmBuy`, payload),
+    await apiClient.post("/api/lotto/ConfirmBuy", payload),
 
   changePrice: async (lottos) =>
-    await axios.put(
-      `${config.apiPath}/api/lotto/changePrice`,
-      { lottos },
-      getHeaders(),
-    ),
+    await apiClient.put("/api/lotto/changePrice", { lottos }),
 
-  lottoIsBonus: async () =>
-    await axios.get(`${config.apiPath}/api/lotto/lottoIsBonus`),
+  // 🔒 ใช้เฉพาะหน้าแอดมิน "รางวัลของร้าน" ต้องมี Token
+  lottoIsBonus: async () => await apiClient.get("/api/lotto/lottoIsBonus"),
 
   lottoIsBonuslist: async () =>
-    await axios.get(`${config.apiPath}/api/lotto/lottoIsBonuslist`),
-}; 
+    await apiClient.get("/api/lotto/lottoIsBonuslist"),
+};
 
 export default LottoService;

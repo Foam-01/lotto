@@ -1,34 +1,22 @@
 // src/services/company.service.js
-import axios from "axios";
 import config from "../config";
 
-const getHeaders = () => {
-  const token = localStorage.getItem("token");
-  return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-};
+const { apiClient } = config;
 
 const CompanyService = {
   // ดึงข้อมูลร้าน
   getInfo: async () => {
-    return await axios.get(`${config.apiPath}/api/company/info`, getHeaders());
+    return await apiClient.get("/api/company/info");
   },
 
   // สร้างข้อมูลร้านใหม่
   create: async (payload) => {
-    return await axios.post(
-      `${config.apiPath}/api/company/create`,
-      payload,
-      getHeaders(),
-    );
+    return await apiClient.post("/api/company/create", payload);
   },
 
   // แก้ไขข้อมูลร้านเดิม
   edit: async (id, payload) => {
-    return await axios.put(
-      `${config.apiPath}/api/company/edit/${id}`,
-      payload,
-      getHeaders(),
-    );
+    return await apiClient.put(`/api/company/edit/${id}`, payload);
   },
 };
 

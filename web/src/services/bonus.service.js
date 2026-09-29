@@ -1,57 +1,34 @@
 // src/services/bonus.service.js
-import axios from "axios";
 import config from "../config";
 
-const getHeaders = () => {
-  const token = localStorage.getItem("token");
-  return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-};
+const { apiClient } = config;
 
 const BonusService = {
   // ------------------------------------------
   // 🎁 1. สำหรับหน้า Bonus (ดึงผลรางวัลสลาก)
   // ------------------------------------------
   getList: async () => {
-    return await axios.get(`${config.apiPath}/api/bonus/list`, getHeaders());
+    return await apiClient.get("/api/bonus/list");
   },
   getLatestBonus: async () => {
-    return await axios.get(
-      `${config.apiPath}/api/bonus/getBonus`,
-      getHeaders(),
-    );
+    return await apiClient.get("/api/bonus/getBonus");
   },
   getDetail: async (bonusDate) => {
-    return await axios.get(
-      `${config.apiPath}/api/bonus/listDetail/${bonusDate}`,
-      getHeaders(),
-    );
+    return await apiClient.get(`/api/bonus/listDetail/${bonusDate}`);
   },
 
   // ------------------------------------------
   // 💸 2. สำหรับหน้า SaleBonus (จ่ายเงินคนถูกรางวัล)
   // ------------------------------------------
   getCheckBonus: async () => {
-    return await axios.get(
-      `${config.apiPath}/api/bonus/checkBonus`,
-      getHeaders(),
-    );
+    return await apiClient.get("/api/bonus/checkBonus");
   },
   transferMoney: async (payload) => {
-    return await axios.post(
-      `${config.apiPath}/api/billSale/TranferMoney`,
-      payload,
-      getHeaders(),
-    );
+    return await apiClient.post("/api/billSale/TranferMoney", payload);
   },
   deliverMoney: async (payload) => {
-    return await axios.post(
-      `${config.apiPath}/api/billSale/deliverMoney`,
-      payload,
-      getHeaders(),
-    );
+    return await apiClient.post("/api/billSale/deliverMoney", payload);
   },
-
-  
 };
 
 export default BonusService;
