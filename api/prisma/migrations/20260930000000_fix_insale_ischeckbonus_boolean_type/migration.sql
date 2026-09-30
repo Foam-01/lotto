@@ -7,13 +7,25 @@
 --
 -- Safe conversion: 0 -> false, any non-zero -> true (matches existing app logic,
 -- which only ever wrote 0 or 1 into these columns). No rows are dropped.
+--
+-- Guarded: this migration was first applied via `prisma db push` (which
+-- doesn't record migration history) before the project switched to
+-- `prisma migrate deploy`, so on a re-run these columns may already be
+-- BOOLEAN — casting a BOOLEAN column with `<> 0` would then fail with
+-- "operator does not exist: boolean <> integer". Only convert if still INTEGER.
+DO $$
+BEGIN
+  IF (SELECT data_type FROM information_schema.columns WHERE table_name = 'Lotto' AND column_name = 'isCheckBonus') = 'integer' THEN
+    ALTER TABLE "Lotto"
+      ALTER COLUMN "isCheckBonus" DROP DEFAULT,
+      ALTER COLUMN "isCheckBonus" TYPE BOOLEAN USING ("isCheckBonus" <> 0),
+      ALTER COLUMN "isCheckBonus" SET DEFAULT false;
+  END IF;
 
-ALTER TABLE "Lotto"
-  ALTER COLUMN "isCheckBonus" DROP DEFAULT,
-  ALTER COLUMN "isCheckBonus" TYPE BOOLEAN USING ("isCheckBonus" <> 0),
-  ALTER COLUMN "isCheckBonus" SET DEFAULT false;
-
-ALTER TABLE "Lotto"
-  ALTER COLUMN "inSale" DROP DEFAULT,
-  ALTER COLUMN "inSale" TYPE BOOLEAN USING ("inSale" <> 0),
-  ALTER COLUMN "inSale" SET DEFAULT false;
+  IF (SELECT data_type FROM information_schema.columns WHERE table_name = 'Lotto' AND column_name = 'inSale') = 'integer' THEN
+    ALTER TABLE "Lotto"
+      ALTER COLUMN "inSale" DROP DEFAULT,
+      ALTER COLUMN "inSale" TYPE BOOLEAN USING ("inSale" <> 0),
+      ALTER COLUMN "inSale" SET DEFAULT false;
+  END IF;
+END $$;

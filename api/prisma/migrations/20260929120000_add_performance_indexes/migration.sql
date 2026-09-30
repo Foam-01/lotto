@@ -4,23 +4,28 @@
 -- were doing full table scans without them.
 
 -- CreateIndex
-CREATE INDEX "Lotto_inSale_idx" ON "Lotto"("inSale");
+-- IF NOT EXISTS on every index below: this migration was first applied piecemeal
+-- via `prisma db push` (which doesn't record migration history) before the
+-- project switched to `prisma migrate deploy`, so some of these already exist
+-- on production while others don't — plain CREATE INDEX would fail with
+-- "already exists" on a re-run otherwise.
+CREATE INDEX IF NOT EXISTS "Lotto_inSale_idx" ON "Lotto"("inSale");
 
 -- CreateIndex
-CREATE INDEX "Lotto_isCheckBonus_idx" ON "Lotto"("isCheckBonus");
+CREATE INDEX IF NOT EXISTS "Lotto_isCheckBonus_idx" ON "Lotto"("isCheckBonus");
 
 -- CreateIndex
 -- Helps SearchLottoDto position="start" (numbers LIKE 'xxx%'). A plain
 -- B-tree index cannot accelerate position="end" (numbers LIKE '%xxx') --
 -- that would need a trigram (pg_trgm) index, which we are not adding
 -- without confirming how often that search path is actually used.
-CREATE INDEX "Lotto_numbers_idx" ON "Lotto"("numbers");
+CREATE INDEX IF NOT EXISTS "Lotto_numbers_idx" ON "Lotto"("numbers");
 
 -- CreateIndex
-CREATE INDEX "BillSale_payDate_idx" ON "BillSale"("payDate");
+CREATE INDEX IF NOT EXISTS "BillSale_payDate_idx" ON "BillSale"("payDate");
 
 -- CreateIndex
-CREATE INDEX "BillSaleDetail_billSaleId_idx" ON "BillSaleDetail"("billSaleId");
+CREATE INDEX IF NOT EXISTS "BillSaleDetail_billSaleId_idx" ON "BillSaleDetail"("billSaleId");
 
 -- CreateIndex
 -- A physical lotto ticket can only be linked to one BillSaleDetail at a time
@@ -45,13 +50,13 @@ BEGIN
   END IF;
 END $$;
 
-CREATE UNIQUE INDEX "BillSaleDetail_lottoId_key" ON "BillSaleDetail"("lottoId");
+CREATE UNIQUE INDEX IF NOT EXISTS "BillSaleDetail_lottoId_key" ON "BillSaleDetail"("lottoId");
 
 -- CreateIndex
-CREATE INDEX "BillSaleForSend_billSaleId_idx" ON "BillSaleForSend"("billSaleId");
+CREATE INDEX IF NOT EXISTS "BillSaleForSend_billSaleId_idx" ON "BillSaleForSend"("billSaleId");
 
 -- CreateIndex
-CREATE INDEX "BonusResultDetail_bonusDate_idx" ON "BonusResultDetail"("bonusDate");
+CREATE INDEX IF NOT EXISTS "BonusResultDetail_bonusDate_idx" ON "BonusResultDetail"("bonusDate");
 
 -- CreateIndex
 -- Data integrity: prevents the same billSaleDetail from being recorded as a
@@ -73,13 +78,13 @@ WHERE a."bonusResultDetailId" IS NOT NULL
   AND a."bonusResultDetailId" = b."bonusResultDetailId"
   AND a.id > b.id;
 
-CREATE UNIQUE INDEX "BillSaleDetailIsBonus_billSaleDetailId_bonusResultDetailId_key" ON "BillSaleDetailIsBonus"("billSaleDetailId", "bonusResultDetailId");
+CREATE UNIQUE INDEX IF NOT EXISTS "BillSaleDetailIsBonus_billSaleDetailId_bonusResultDetailId_key" ON "BillSaleDetailIsBonus"("billSaleDetailId", "bonusResultDetailId");
 
 -- CreateIndex
-CREATE INDEX "BillSaleDetailIsBonus_bonusResultDetailId_idx" ON "BillSaleDetailIsBonus"("bonusResultDetailId");
+CREATE INDEX IF NOT EXISTS "BillSaleDetailIsBonus_bonusResultDetailId_idx" ON "BillSaleDetailIsBonus"("bonusResultDetailId");
 
 -- CreateIndex
 -- Data integrity: enforces "one row per winning bonus result" at the DB
 -- level instead of only via an application-level findFirst-then-create
 -- check (same race-condition class as above).
-CREATE UNIQUE INDEX "LottoIsBonus_bonusResultDetailId_key" ON "LottoIsBonus"("bonusResultDetailId");
+CREATE UNIQUE INDEX IF NOT EXISTS "LottoIsBonus_bonusResultDetailId_key" ON "LottoIsBonus"("bonusResultDetailId");
