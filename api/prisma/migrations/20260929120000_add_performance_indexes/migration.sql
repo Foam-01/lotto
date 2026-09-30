@@ -60,6 +60,19 @@ CREATE INDEX "BonusResultDetail_bonusDate_idx" ON "BonusResultDetail"("bonusDate
 -- is called twice concurrently). This also makes the leftover
 -- BillSaleDetailIsBonus_billSaleDetailId_idx redundant, since a composite
 -- unique index already serves lookups on its leftmost column.
+--
+-- Existing duplicate (billSaleDetailId, bonusResultDetailId) pairs would make
+-- CREATE UNIQUE INDEX fail with a P2002-style unique-violation, so dedupe
+-- first: keep the earliest row (lowest id, i.e. the original "ตรวจรางวัล"
+-- record) per pair and drop the later duplicate(s). NULL bonusResultDetailId
+-- rows are left untouched — Postgres treats NULLs as distinct in a unique
+-- index, so they were never actually in conflict.
+DELETE FROM "BillSaleDetailIsBonus" a USING "BillSaleDetailIsBonus" b
+WHERE a."bonusResultDetailId" IS NOT NULL
+  AND a."billSaleDetailId" = b."billSaleDetailId"
+  AND a."bonusResultDetailId" = b."bonusResultDetailId"
+  AND a.id > b.id;
+
 CREATE UNIQUE INDEX "BillSaleDetailIsBonus_billSaleDetailId_bonusResultDetailId_key" ON "BillSaleDetailIsBonus"("billSaleDetailId", "bonusResultDetailId");
 
 -- CreateIndex
