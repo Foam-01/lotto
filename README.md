@@ -74,8 +74,8 @@ A comprehensive, full-stack web application designed for lottery management. Thi
 
 ## 🔗 Live Demo & Repository
 
-- 🔴 **Live Demo**: [https://lotto-6hz7rs199-foam-01s-projects.vercel.app/](https://lotto-app-ashen.vercel.app/)
-- 🔴 **Live Demo**: [https://lotto-6hz7rs199-foam-01s-projects.vercel.app/login](https://lotto-app-ashen.vercel.app/login)
+- 🔴 **Live Demo**: https://lotto-app-ashen.vercel.app/
+- 🔴 **Live Demo**: https://lotto-app-ashen.vercel.app/login
 - 📦 **GitHub**: https://github.com/Foam-01/lotto
 
 ## 🔐 Test Accounts
