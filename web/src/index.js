@@ -7,6 +7,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./pages/Login";
 import Index from "./pages/Index";
 import ErrorBoundary from "./components/ErrorBoundary";
+import RouteErrorFallback from "./components/RouteErrorFallback";
 
 // 🌟 หน้าอื่นๆ ที่ไม่ได้เปิดเป็นหน้าแรก โหลดแบบ Code Splitting (React.lazy)
 // เพื่อไม่ให้ผู้ใช้ต้องโหลด JS ของทุกหน้าตั้งแต่แรกเข้า (ลดขนาด bundle เริ่มต้น)
@@ -44,6 +45,11 @@ function withSuspense(element) {
   return <Suspense fallback={<RouteLoading />}>{element}</Suspense>;
 }
 
+// 🌟 ทุก route แนบ errorElement ตัวเดียวกันไว้ กันเวลาหน้าไหน render พัง
+// (เช่น API ตอบข้อมูลผิดรูป/undefined หรือ endpoint หาย) จะได้ไม่เจอจอ error
+// เต็มจอแบบ default ของ react-router — เห็นหน้าจอที่อ่านรู้เรื่องแทน
+const errorElement = <RouteErrorFallback />;
+
 // 🌟 การจัดการ session หมดอายุ (401) ย้ายไปอยู่ที่ src/config/index.js แล้ว
 // เพราะทุก service เรียกผ่าน apiClient ตัวกลาง ไม่ใช่ axios เปล่าๆ อีกต่อไป
 
@@ -51,70 +57,87 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Index />,
+    errorElement,
   },
   {
     path: "/login",
     element: <Login />,
+    errorElement,
   },
   {
     path: "/home",
     element: withSuspense(<Dashboard />),
+    errorElement,
   },
   {
     path: "/company",
     element: withSuspense(<Company />),
+    errorElement,
   },
   {
     path: "/Lotto",
     element: withSuspense(<Lotto />),
+    errorElement,
   },
   {
     path: "/billSale",
     element: withSuspense(<BillSale />),
+    errorElement,
   },
   {
     path: "/lottoInShop",
     element: withSuspense(<LottoInShop />),
+    errorElement,
   },
   {
     path: "/lottoForSend",
     element: withSuspense(<LottoForSend />),
+    errorElement,
   },
   {
     path: "/bonus",
     element: withSuspense(<Bonus />),
+    errorElement,
   },
   {
     path: "/saleBonus",
     element: withSuspense(<SaleBonus />),
+    errorElement,
   },
   {
     path: "/reportIncome",
     element: withSuspense(<ReportIncome />),
+    errorElement,
   },
   {
     path: "/lottoIsBonus",
     element: withSuspense(<LottoIsBonus />),
+    errorElement,
   },
   {
     path: "/reportProfit",
     element: withSuspense(<ReportProfit />),
+    errorElement,
   },
   {
     path: "/user",
     element: withSuspense(<User />),
+    errorElement,
   },
   {
     path: "/changePrice",
     element: withSuspense(<ChangePrice />),
+    errorElement,
   },
   {
     path: '/banner',
     element: withSuspense(<Banner />),
+    errorElement,
   },
   {
     path: "*",
     element: withSuspense(<NotFound />),
+    errorElement,
   },
 ]);
 
