@@ -17,6 +17,7 @@ function ReportIncome() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ตั้งใจรันครั้งเดียวตอน mount เท่านั้น
   }, []);
 
   const fetchData = async () => {

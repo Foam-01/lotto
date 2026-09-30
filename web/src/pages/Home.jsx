@@ -72,6 +72,7 @@ function Home(props) {
       return;
     }
     fetchDate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ตั้งใจรันครั้งเดียวตอน mount เท่านั้น
   }, []);
 
   // 🌟 ปิด Sidebar อัตโนมัติทุกครั้งที่เปลี่ยนหน้า (สำหรับมือถือ)
