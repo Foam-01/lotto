@@ -113,6 +113,11 @@ export class LottoController {
   async lottoIsBonuslist() {
     return this.lottoService.lottoIsBonuslist();
   }
+  @UseGuards(JwtAuthGuard)
+  @Get('lottoIsBonusCheckAndList')
+  async lottoIsBonusCheckAndList() {
+    return this.lottoService.lottoIsBonusCheckAndList();
+  }
 
   @UseGuards(JwtAuthGuard)
   @Put('changePrice')

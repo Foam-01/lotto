@@ -544,17 +544,24 @@ function SaleBonus() {
                                   ชำระเงินแล้ว
                                 </span>
                               ) : (
-                                <div className="d-flex justify-content-end gap-2">
+                                <div className="d-flex justify-content-end align-items-center" style={{ gap: "6px" }}>
                                   <button
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalTransfer"
-                                    className="btn btn-sm px-3 py-2 fw-semibold text-nowrap"
+                                    title="โอนเงิน"
+                                    aria-label="โอนเงิน"
                                     style={{
                                       backgroundColor: "var(--color-white)",
                                       color: "var(--slate-600)",
                                       border: "1px solid var(--slate-200)",
+                                      width: "32px",
+                                      height: "32px",
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
                                       borderRadius: "var(--radius-sm)",
-                                      fontSize: "13px",
+                                      fontSize: "14px",
+                                      flexShrink: 0,
                                     }}
                                     onClick={() => {
                                       setBillSaleId(
@@ -573,19 +580,26 @@ function SaleBonus() {
                                       );
                                     }}
                                   >
-                                    โอนเงิน
+                                    <i className="bi bi-bank"></i>
                                   </button>
 
                                   <button
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalDeliver"
-                                    className="btn btn-sm px-3 py-2 fw-semibold text-nowrap"
+                                    title="มอบเงินสด"
+                                    aria-label="มอบเงินสด"
                                     style={{
                                       backgroundColor: "var(--color-white)",
                                       color: "var(--slate-600)",
                                       border: "1px solid var(--slate-200)",
+                                      width: "32px",
+                                      height: "32px",
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
                                       borderRadius: "var(--radius-sm)",
-                                      fontSize: "13px",
+                                      fontSize: "14px",
+                                      flexShrink: 0,
                                     }}
                                     onClick={() => {
                                       setBillSaleId(
@@ -599,7 +613,7 @@ function SaleBonus() {
                                       );
                                     }}
                                   >
-                                    มอบสด
+                                    <i className="bi bi-cash-coin"></i>
                                   </button>
                                 </div>
                               )}

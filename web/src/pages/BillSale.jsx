@@ -288,32 +288,35 @@ function BillSale() {
                               style={{
                                 display: "flex",
                                 justifyContent: "center",
-                                gap: "8px",
+                                alignItems: "center",
+                                gap: "6px",
                               }}
                             >
                               <button
-                                style={styles.btnInfo}
+                                style={styles.btnIcon}
                                 title="ดูรายละเอียดบิล"
+                                aria-label="ดูรายละเอียดบิล"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalBillSalaDetail"
                                 onClick={(e) => handleSumTotalPrice(item)}
                               >
-                                รายละเอียด
+                                <i className="bi bi-eye"></i>
                               </button>
 
                               <button
                                 onClick={(e) => handlePay(item)}
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalPay"
-                                style={styles.btnSuccess}
+                                style={styles.btnIconSuccess}
                                 title="ยืนยันการชำระเงิน"
+                                aria-label="ยืนยันการชำระเงิน"
                               >
-                                ยืนยันชำระ
+                                <i className="bi bi-check-lg"></i>
                               </button>
 
                               <button
                                 onClick={(e) => handleRemove(item)}
-                                style={styles.btnCancel}
+                                style={styles.btnIconDanger}
                                 title="ยกเลิกออเดอร์"
                                 aria-label="ยกเลิกออเดอร์"
                               >
@@ -660,30 +663,50 @@ const styles = {
     transition: "all 0.2s",
     whiteSpace: "nowrap",
   },
-  btnSuccess: {
+  btnIcon: {
+    background: "var(--color-white)",
+    color: "var(--slate-600)",
+    border: "1px solid var(--slate-200)",
+    width: "32px",
+    height: "32px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "var(--radius-sm)",
+    cursor: "pointer",
+    fontSize: "14px",
+    transition: "all 0.2s",
+    flexShrink: 0,
+  },
+  btnIconSuccess: {
     background: "var(--emerald-50, #ecfdf5)",
     color: "var(--emerald-700)",
     border: "1px solid var(--emerald-200, #a7f3d0)",
-    padding: "6px 12px",
-    minHeight: "34px",
+    width: "32px",
+    height: "32px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: "var(--radius-sm)",
-    fontWeight: "600",
     cursor: "pointer",
-    fontSize: "13px",
+    fontSize: "14px",
     transition: "all 0.2s",
-    whiteSpace: "nowrap",
+    flexShrink: 0,
   },
-  btnCancel: {
+  btnIconDanger: {
     background: "var(--red-50)",
     color: "var(--red-600)",
     border: "1px solid var(--red-100)",
-    padding: "6px 10px",
-    minHeight: "34px",
+    width: "32px",
+    height: "32px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: "var(--radius-sm)",
-    fontWeight: "600",
     cursor: "pointer",
-    fontSize: "13px",
+    fontSize: "14px",
     transition: "all 0.2s",
+    flexShrink: 0,
   },
   emptyState: {
     textAlign: "center",

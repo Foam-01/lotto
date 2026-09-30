@@ -619,41 +619,55 @@ function User() {
                                   </span>
                                 </td>
                                 <td>
-                                  <button
-                                    className="btn btn-sm px-3 py-2 me-2"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#userModal"
-                                    onClick={() => handleOpenEditModal(user)}
-                                    aria-label="แก้ไข"
-                                    title="แก้ไข"
-                                    style={{
-                                      background: "var(--color-white)",
-                                      color: "var(--slate-600)",
-                                      border: "1px solid var(--slate-200)",
-                                      borderRadius: "var(--radius-sm)",
-                                    }}
-                                  >
-                                    <i className="bi bi-pencil-square"></i>
-                                  </button>
-                                  <button
-                                    className="btn btn-sm px-3 py-2"
-                                    onClick={() =>
-                                      handleDeleteUser(
-                                        user.id,
-                                        user.name || user.user || user.username,
-                                      )
-                                    }
-                                    aria-label="ลบ"
-                                    title="ลบ"
-                                    style={{
-                                      background: "var(--red-50)",
-                                      color: "var(--red-600)",
-                                      border: "1px solid var(--red-100)",
-                                      borderRadius: "var(--radius-sm)",
-                                    }}
-                                  >
-                                    <i className="bi bi-trash-fill"></i>
-                                  </button>
+                                  <div className="d-flex justify-content-center align-items-center" style={{ gap: "6px" }}>
+                                    <button
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#userModal"
+                                      onClick={() => handleOpenEditModal(user)}
+                                      aria-label="แก้ไข"
+                                      title="แก้ไข"
+                                      style={{
+                                        background: "var(--color-white)",
+                                        color: "var(--slate-600)",
+                                        border: "1px solid var(--slate-200)",
+                                        width: "32px",
+                                        height: "32px",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        borderRadius: "var(--radius-sm)",
+                                        fontSize: "14px",
+                                        flexShrink: 0,
+                                      }}
+                                    >
+                                      <i className="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteUser(
+                                          user.id,
+                                          user.name || user.user || user.username,
+                                        )
+                                      }
+                                      aria-label="ลบ"
+                                      title="ลบ"
+                                      style={{
+                                        background: "var(--red-50)",
+                                        color: "var(--red-600)",
+                                        border: "1px solid var(--red-100)",
+                                        width: "32px",
+                                        height: "32px",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        borderRadius: "var(--radius-sm)",
+                                        fontSize: "14px",
+                                        flexShrink: 0,
+                                      }}
+                                    >
+                                      <i className="bi bi-trash-fill"></i>
+                                    </button>
+                                  </div>
                                 </td>
                               </tr>
                             ))

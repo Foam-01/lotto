@@ -9,19 +9,14 @@ function LottoIsBonus() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initData = async () => {
-      setIsLoading(true);
-      await handleLottoIsBonus(); // 1. สั่งรันอัปเดตตรวจรางวัลก่อน
-      await fetchData(); // 2. ค่อยดึงข้อมูลล่าสุดมาแสดง
-      setIsLoading(false);
-    };
-
-    initData();
+    fetchData();
   }, []);
 
+  // 🌟 ตรวจรางวัลใหม่ + ดึงรายการล่าสุด รวมเป็นคำขอเดียว (เดิมยิง 2 endpoint ทีละอันแบบ sequential)
   const fetchData = async () => {
+    setIsLoading(true);
     try {
-      const res = await LottoService.lottoIsBonuslist();
+      const res = await LottoService.lottoIsBonusCheckAndList();
       if (res.data.results !== undefined) {
         setLottoisbonus(res.data.results);
       }
@@ -32,19 +27,8 @@ function LottoIsBonus() {
         text: "ไม่สามารถโหลดข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
         confirmButtonColor: "var(--brand-600)",
       });
-    }
-  };
-
-  const handleLottoIsBonus = async () => {
-    try {
-      await LottoService.lottoIsBonus();
-    } catch (e) {
-      Swal.fire({
-        title: "เกิดข้อผิดพลาด",
-        text: "ไม่สามารถบันทึกข้อมูลสลากได้ กรุณาลองใหม่อีกครั้ง",
-        icon: "error",
-        confirmButtonColor: "var(--brand-600)",
-      });
+    } finally {
+      setIsLoading(false);
     }
   };
 

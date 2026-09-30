@@ -37,6 +37,7 @@ function createPrismaMock() {
       findMany: jest.fn(),
       createMany: jest.fn(),
     },
+    $queryRaw: jest.fn(),
     $transaction: jest.fn(),
   };
   // เลียนแบบ Prisma จริง: รับ callback (interactive tx) หรือ array ของ promise (batch) ก็ได้
@@ -490,6 +491,73 @@ describe('LottoService', () => {
         },
       });
       expect(result).toEqual({ results: [{ id: 1 }] });
+    });
+  });
+
+  describe('lottoIsBonusCheckAndList', () => {
+    it('returns the existing list as-is when there is no bonus round yet (edge case)', async () => {
+      prisma.$queryRaw.mockResolvedValue([]);
+      prisma.lotto.findMany.mockResolvedValue([]);
+      prisma.lottoIsBonus.findMany.mockResolvedValue([{ id: 1 }]);
+
+      const result = await service.lottoIsBonusCheckAndList();
+
+      expect(prisma.lottoIsBonus.createMany).not.toHaveBeenCalled();
+      expect(result).toEqual({ results: [{ id: 1 }] });
+    });
+
+    it('returns the existing list unchanged when nothing in stock matches the latest round (no-match case)', async () => {
+      prisma.$queryRaw.mockResolvedValue([{ id: 10, number: '999999' }]);
+      prisma.lotto.findMany.mockResolvedValue([{ numbers: '111111' }]);
+      prisma.lottoIsBonus.findMany.mockResolvedValue([{ id: 1 }]);
+
+      const result = await service.lottoIsBonusCheckAndList();
+
+      expect(prisma.lottoIsBonus.createMany).not.toHaveBeenCalled();
+      // ไม่มีอะไรเปลี่ยน จึงไม่ต้อง query รายการซ้ำ (findMany ของ lottoIsBonus ถูกเรียกแค่ครั้งเดียว)
+      expect(prisma.lottoIsBonus.findMany).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ results: [{ id: 1 }] });
+    });
+
+    it('skips the extra re-fetch when every match already existed (all-duplicates case)', async () => {
+      prisma.$queryRaw.mockResolvedValue([{ id: 10, number: '111111' }]);
+      prisma.lotto.findMany.mockResolvedValue([{ numbers: '111111' }]);
+      prisma.lottoIsBonus.findMany.mockResolvedValue([{ id: 1 }]);
+      prisma.lottoIsBonus.createMany.mockResolvedValue({ count: 0 });
+
+      const result = await service.lottoIsBonusCheckAndList();
+
+      expect(prisma.lottoIsBonus.createMany).toHaveBeenCalledWith({
+        data: [{ bonusResultDetailId: 10 }],
+        skipDuplicates: true,
+      });
+      // ทุกแถวซ้ำกับที่มีอยู่แล้ว (count: 0) -> ใช้ existingList เดิม ไม่ query ซ้ำ
+      expect(prisma.lottoIsBonus.findMany).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ results: [{ id: 1 }] });
+    });
+
+    it('re-fetches the list once a genuinely new row is inserted (happy path)', async () => {
+      prisma.$queryRaw.mockResolvedValue([{ id: 10, number: '111111' }]);
+      prisma.lotto.findMany.mockResolvedValue([{ numbers: '111111' }]);
+      prisma.lottoIsBonus.findMany
+        .mockResolvedValueOnce([{ id: 1 }]) // existingList (ก่อนตรวจ)
+        .mockResolvedValueOnce([{ id: 1 }, { id: 2 }]); // รายการล่าสุดหลัง insert
+      prisma.lottoIsBonus.createMany.mockResolvedValue({ count: 1 });
+
+      const result = await service.lottoIsBonusCheckAndList();
+
+      expect(prisma.lottoIsBonus.findMany).toHaveBeenCalledTimes(2);
+      expect(result).toEqual({ results: [{ id: 1 }, { id: 2 }] });
+    });
+
+    it('wraps a failure as InternalServerErrorException', async () => {
+      prisma.$queryRaw.mockRejectedValue(new Error('down'));
+      prisma.lotto.findMany.mockResolvedValue([]);
+      prisma.lottoIsBonus.findMany.mockResolvedValue([]);
+
+      await expect(service.lottoIsBonusCheckAndList()).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 

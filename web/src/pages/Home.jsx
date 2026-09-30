@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import AuthService from "../services/auth.service";
 import Swal from "sweetalert2";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -55,6 +55,13 @@ function Home(props) {
   const navigate = useNavigate();
   const location = useLocation();
   const userMenuRef = useRef(null);
+
+  // 🌟 เลื่อนเมนูด้านซ้ายให้เห็นรายการที่กำลังเลือกอยู่เสมอ ทันทีที่รายการนั้น mount ขึ้นมาจริงๆ
+  // (ใช้ callback ref แทน useEffect + useRef เพราะตอนโหลดหน้าแรก sidebar ยังไม่ mount
+  // ระหว่างที่รอเช็คสิทธิ์ผู้ใช้อยู่ — ผูกกับ location.pathname เฉยๆ จะยิงเร็วเกินไปจนไม่มีผล)
+  const setActiveMenuItemRef = useCallback((el) => {
+    el?.scrollIntoView({ block: "nearest" });
+  }, []);
 
   useEffect(() => {
     // 🛡️ เช็คว่ามี token อยู่ในเครื่องหรือไม่ก่อนเลย ถ้าไม่มีเด้งกลับหน้า Login ทันที
@@ -207,6 +214,7 @@ function Home(props) {
                 <Link
                   key={item.to}
                   to={item.to}
+                  ref={isActive(item.to) ? setActiveMenuItemRef : undefined}
                   className={`menu-item ${isActive(item.to)}`}
                   title={item.label}
                   aria-current={isActive(item.to) ? "page" : undefined}

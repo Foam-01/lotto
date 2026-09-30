@@ -24,6 +24,10 @@ const LottoService = {
 
   lottoIsBonuslist: async () =>
     await apiClient.get("/api/lotto/lottoIsBonuslist"),
+
+  // ตรวจ + ดึงรายการในคำขอเดียว (แทนการเรียก lottoIsBonus แล้วค่อย lottoIsBonuslist ทีละครั้ง)
+  lottoIsBonusCheckAndList: async () =>
+    await apiClient.get("/api/lotto/lottoIsBonusCheckAndList"),
 };
 
 export default LottoService;

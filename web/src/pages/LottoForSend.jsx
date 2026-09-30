@@ -273,32 +273,37 @@ function LottoForSend() {
                           </td>
 
                           <td style={{ ...styles.td, textAlign: "center" }}>
-                            <div className="d-flex justify-content-center gap-2">
+                            <div className="d-flex justify-content-center align-items-center" style={{ gap: "6px" }}>
                               <button
                                 onClick={() => handleInfo(item)}
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalDetail"
-                                style={styles.btnInfo}
+                                style={styles.btnIcon}
+                                title="ดูเลขสลาก"
+                                aria-label="ดูเลขสลาก"
                               >
-                                ดูเลข
+                                <i className="bi bi-eye"></i>
                               </button>
 
                               {item.billSaleForSends.length > 0 ? (
                                 <button
                                   disabled
-                                  title="รายการนี้จัดส่งเรียบร้อยแล้ว"
-                                  style={styles.btnDisabled}
+                                  title="จัดส่งเรียบร้อยแล้ว"
+                                  aria-label="จัดส่งเรียบร้อยแล้ว"
+                                  style={styles.btnIconDisabled}
                                 >
-                                  จัดส่งแล้ว
+                                  <i className="bi bi-check-lg"></i>
                                 </button>
                               ) : (
                                 <button
                                   onClick={() => handleInfo(item)}
                                   data-bs-toggle="modal"
                                   data-bs-target="#modalSend"
-                                  style={styles.btnSuccess}
+                                  style={styles.btnIconSuccess}
+                                  title="บันทึกจัดส่ง"
+                                  aria-label="บันทึกจัดส่ง"
                                 >
-                                  จัดส่ง
+                                  <i className="bi bi-truck"></i>
                                 </button>
                               )}
                             </div>
@@ -687,43 +692,49 @@ const styles = {
     fontWeight: "700",
     display: "inline-block",
   },
-  btnInfo: {
+  btnIcon: {
     background: "var(--color-white)",
     color: "var(--slate-600)",
     border: "1px solid var(--slate-200)",
-    padding: "6px 12px",
-    minHeight: "34px",
+    width: "32px",
+    height: "32px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: "var(--radius-sm)",
-    fontWeight: "600",
     cursor: "pointer",
-    fontSize: "13px",
+    fontSize: "14px",
     transition: "all 0.2s",
-    whiteSpace: "nowrap",
+    flexShrink: 0,
   },
-  btnSuccess: {
+  btnIconSuccess: {
     background: "var(--emerald-50, #ecfdf5)",
     color: "var(--emerald-700)",
     border: "1px solid var(--emerald-200, #a7f3d0)",
-    padding: "6px 12px",
-    minHeight: "34px",
+    width: "32px",
+    height: "32px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: "var(--radius-sm)",
-    fontWeight: "600",
     cursor: "pointer",
-    fontSize: "13px",
+    fontSize: "14px",
     transition: "all 0.2s",
-    whiteSpace: "nowrap",
+    flexShrink: 0,
   },
-  btnDisabled: {
+  btnIconDisabled: {
     background: "var(--slate-100)",
     color: "var(--slate-400)",
     border: "1px solid var(--slate-200)",
-    padding: "6px 12px",
-    minHeight: "34px",
+    width: "32px",
+    height: "32px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: "var(--radius-sm)",
-    fontWeight: "600",
     cursor: "not-allowed",
-    fontSize: "13px",
-    whiteSpace: "nowrap",
+    fontSize: "14px",
+    flexShrink: 0,
   },
   emptyState: {
     textAlign: "center",

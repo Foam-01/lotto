@@ -309,12 +309,18 @@ export class LottoService {
 
   async lottoIsBonus() {
     try {
-      // 1. หาผลรางวัลล่าสุด
-      const bonusRow = await this.prisma.bonusResultDetail.findFirst({
-        orderBy: {
-          bonusDate: 'desc',
-        },
-      });
+      // 1. หาผลรางวัลล่าสุด + 3. ล็อตเตอรี่ที่ยังอยู่ในแผง (inSale: false)
+      // สองคิวรีนี้ไม่ขึ้นต่อกัน ยิงพร้อมกันได้ ลด round-trip ไป DB หนึ่งรอบ
+      // (bonusResults ด้านล่างต้องรอ bonusDate จาก bonusRow ก่อน จึงยัง sequential อยู่)
+      const [bonusRow, lottos] = await Promise.all([
+        this.prisma.bonusResultDetail.findFirst({
+          orderBy: { bonusDate: 'desc' },
+        }),
+        this.prisma.lotto.findMany({
+          where: { inSale: false },
+          select: { numbers: true }, // เอาไปทำ Set เทียบเลขอย่างเดียว ไม่ต้องดึงทั้งแถว
+        }),
+      ]);
 
       if (!bonusRow) return { message: 'ยังไม่มีผลรางวัลในระบบ' };
       // 2. ผลรางวัลทั้งหมดในงวดล่าสุด
@@ -322,12 +328,7 @@ export class LottoService {
         where: {
           bonusDate: bonusRow.bonusDate,
         },
-      });
-      // 3. ล็อตเตอรี่ที่ยังอยู่ในแผง (inSale: false)
-      const lottos = await this.prisma.lotto.findMany({
-        where: {
-          inSale: false,
-        },
+        select: { id: true, number: true },
       });
 
       // 4. ตรวจรางวัล (จับคู่ใน memory แทนการ query ทีละคู่ในลูป เพื่อลดจำนวน query ลงจาก O(N*M) เป็นค่าคงที่)
@@ -370,6 +371,71 @@ export class LottoService {
     } catch (e: any) {
       console.error('🔥 Error (lottoIsBonuslist):', e);
       throw new InternalServerErrorException('ไม่สามารถตรวจสอบสลากได้');
+    }
+  }
+
+  // 🌟 หน้า LottoIsBonus เดิมเรียก lottoIsBonus() แล้วค่อย lottoIsBonuslist() ทีละคำขอ (ต้องรอให้ตรวจ
+  // เสร็จก่อนถึงจะไปอ่านผลได้จริง) รวมเป็น endpoint เดียวตัดการรอ HTTP round-trip ไปหนึ่งรอบ
+  // และข้ามการ query รายการซ้ำท้ายสุดถ้ารอบนี้ไม่มีสลากถูกรางวัลใหม่เพิ่มเข้ามา (เคสส่วนใหญ่)
+  async lottoIsBonusCheckAndList() {
+    try {
+      const bonusListSelect = {
+        id: true,
+        BonusResultDetail: {
+          select: { number: true, price: true, bonusDate: true },
+        },
+      } as const;
+
+      // 🌟 เดิมต้องรู้ bonusDate ล่าสุดก่อน (findFirst) ถึงจะไป findMany หาผลรางวัลของงวดนั้นได้ต่อ
+      // เสีย round-trip ไป DB สองรอบเรียงกัน — ยุบเป็น raw query เดียว (subquery หา bonusDate ล่าสุด
+      // ในตัว) แล้วยิงพร้อมกับอีก 2 คิวรีที่ไม่เกี่ยวกันในชุดเดียว เหลือแค่ 1 round-trip ในเคสปกติ
+      const [bonusResults, lottos, existingList] = await Promise.all([
+        this.prisma.$queryRaw<{ id: number; number: string }[]>`
+          SELECT id, number FROM "BonusResultDetail"
+          WHERE "bonusDate" = (
+            SELECT "bonusDate" FROM "BonusResultDetail" ORDER BY "bonusDate" DESC LIMIT 1
+          )
+        `,
+        this.prisma.lotto.findMany({
+          where: { inSale: false },
+          select: { numbers: true },
+        }),
+        this.prisma.lottoIsBonus.findMany({
+          orderBy: { id: 'desc' },
+          select: bonusListSelect,
+        }),
+      ]);
+
+      if (bonusResults.length === 0) return { results: existingList };
+
+      const inStockNumbers = new Set(lottos.map((item) => item.numbers));
+      const matchedBonusResults = bonusResults.filter((bonusResult) =>
+        inStockNumbers.has(bonusResult.number),
+      );
+
+      if (matchedBonusResults.length === 0) return { results: existingList };
+
+      const inserted = await this.prisma.lottoIsBonus.createMany({
+        data: matchedBonusResults.map((bonusResult) => ({
+          bonusResultDetailId: bonusResult.id,
+        })),
+        skipDuplicates: true,
+      });
+
+      // ทุกใบที่ match ในรอบนี้มีอยู่ในระบบอยู่แล้ว (แค่ยังไม่ขาย เจอซ้ำทุกครั้งที่โหลดหน้า) -> ใช้ของเดิมได้เลย
+      if (inserted.count === 0) return { results: existingList };
+
+      // มีแถวใหม่จริง ต้อง query รายการล่าสุดอีกครั้งให้ครบและได้ id จริงจาก DB
+      const res = await this.prisma.lottoIsBonus.findMany({
+        orderBy: { id: 'desc' },
+        select: bonusListSelect,
+      });
+      return { results: res };
+    } catch (e) {
+      console.error('🔥 Error (lottoIsBonusCheckAndList):', e);
+      throw new InternalServerErrorException(
+        'ไม่สามารถตรวจสอบและดึงข้อมูลสลากได้',
+      );
     }
   }
 
