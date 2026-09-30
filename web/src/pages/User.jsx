@@ -482,7 +482,7 @@ function User() {
                     <FilterBarButton
                       variant="primary"
                       icon="bi-plus-lg"
-                      data-bs-toggle="modal"
+                      data-bs-toggle="offcanvas"
                       data-bs-target="#userModal"
                       onClick={handleOpenAddModal}
                     >
@@ -621,7 +621,7 @@ function User() {
                                 <td>
                                   <div className="d-flex justify-content-center align-items-center" style={{ gap: "6px" }}>
                                     <button
-                                      data-bs-toggle="modal"
+                                      data-bs-toggle="offcanvas"
                                       data-bs-target="#userModal"
                                       onClick={() => handleOpenEditModal(user)}
                                       aria-label="แก้ไข"
@@ -696,13 +696,11 @@ function User() {
       {/* ========================================== */}
       <MyModal
         id="userModal"
+        variant="drawer"
         title={isEditing ? "แก้ไขข้อมูลพนักงาน" : "เพิ่มพนักงานใหม่"}
       >
-        <form onSubmit={handleSaveUser}>
-          <div
-            className="modal-body p-4"
-            style={{ maxHeight: "60vh", overflowY: "auto" }}
-          >
+        <form onSubmit={handleSaveUser} className="d-flex flex-column h-100">
+          <div className="modal-body p-4 flex-grow-1 overflow-auto">
             {/* --- ข้อมูลจำเป็น (บังคับกรอก) --- */}
             <h6 className="fw-bold mb-3" style={{ color: "var(--brand-600)" }}>
               <i className="bi bi-person-badge me-2"></i>ข้อมูลสำหรับเข้าสู่ระบบ
@@ -874,7 +872,7 @@ function User() {
               type="button"
               className="btn btn-secondary rounded-pill px-4"
               id="closeModalBtn"
-              data-bs-dismiss="modal"
+              data-bs-dismiss="offcanvas"
             >
               ยกเลิก
             </button>
